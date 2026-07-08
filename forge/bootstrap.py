@@ -1,12 +1,11 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-import re
 
 from . import __version__
-
 
 FOLDER_PATHS = (
     "docs",
@@ -71,7 +70,9 @@ def init_project(project_name: str, base_dir: Path, dry_run: bool = False) -> In
 
     templates = load_bootstrap_templates()
     variables = default_variables(project_name)
-    rendered_files = [(template.output_name, render_template(template, variables)) for template in templates]
+    rendered_files = [
+        (template.output_name, render_template(template, variables)) for template in templates
+    ]
 
     output_names = [output_name for output_name, _ in rendered_files]
     if len(output_names) != len(set(output_names)):
@@ -107,7 +108,9 @@ def validate_project_name(project_name: str) -> None:
     if ".." in project_name:
         raise ForgeInitError("Project name must not contain path traversal.")
     if not PROJECT_NAME_PATTERN.match(project_name):
-        raise ForgeInitError("Project name must use letters, numbers, dots, hyphens, or underscores.")
+        raise ForgeInitError(
+            "Project name must use letters, numbers, dots, hyphens, or underscores."
+        )
 
 
 def validate_target(target: Path, base_dir: Path) -> None:
@@ -138,7 +141,9 @@ def load_bootstrap_templates() -> tuple[Template, ...]:
             raise ForgeInitError(f"Required bootstrap template is missing: {source}")
         metadata, body = parse_template(source)
         validate_template(source=source, metadata=metadata, body=body)
-        templates.append(Template(source=source, output_name=output_name, metadata=metadata, body=body))
+        templates.append(
+            Template(source=source, output_name=output_name, metadata=metadata, body=body)
+        )
     return tuple(templates)
 
 
@@ -202,7 +207,9 @@ def validate_template(source: Path, metadata: dict[str, object], body: str) -> N
     }
     missing_fields = sorted(required_fields - metadata.keys())
     if missing_fields:
-        raise ForgeInitError(f"Template metadata missing fields in {source}: {', '.join(missing_fields)}")
+        raise ForgeInitError(
+            f"Template metadata missing fields in {source}: {', '.join(missing_fields)}"
+        )
 
     variables = metadata_list(metadata, "variables")
     required_variables = metadata_list(metadata, "required_variables")
@@ -240,12 +247,16 @@ def render_template(template: Template, variables: dict[str, str]) -> str:
     required = metadata_list(template.metadata, "required_variables")
     missing = [name for name in required if not variables.get(name)]
     if missing:
-        raise ForgeInitError(f"Missing required variables for {template.source.name}: {', '.join(missing)}")
+        raise ForgeInitError(
+            f"Missing required variables for {template.source.name}: {', '.join(missing)}"
+        )
 
     used = set(VARIABLE_PATTERN.findall(template.body))
     unknown = used - variables.keys()
     if unknown:
-        raise ForgeInitError(f"Unknown variables in {template.source.name}: {', '.join(sorted(unknown))}")
+        raise ForgeInitError(
+            f"Unknown variables in {template.source.name}: {', '.join(sorted(unknown))}"
+        )
 
     def replace(match: re.Match[str]) -> str:
         return variables.get(match.group(1), "")

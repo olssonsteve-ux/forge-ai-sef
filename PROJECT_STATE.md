@@ -2,15 +2,15 @@
 
 ## Status
 
-Forge 0.2.2 patch readiness in progress.
+Forge 0.3 Developer Platform implemented.
 
 ## Current Version
 
-`0.2.1`
+`0.3.0`
 
 ## Current Objective
 
-Resolve non-blocking Gate 1 bootstrap issues before starting Forge `0.3`.
+Strengthen Forge as a maintainable Python CLI product before adding new capabilities.
 
 ## What Exists
 
@@ -51,6 +51,12 @@ Resolve non-blocking Gate 1 bootstrap issues before starting Forge `0.3`.
 - Gate 1 dogfooding review for `ForgePlayground`
 - patch update aligning generated Forge version with `v0.2.1`
 - strengthened first-session guidance in bootstrap README and AI handoff templates
+- Developer Platform engineering brief
+- testing standard
+- code quality standard
+- GitHub Actions CI standard
+- GitHub Actions workflow for tests, lint, and format checks
+- Ruff lint and format configuration
 
 ## What Does Not Exist
 
@@ -61,11 +67,13 @@ Resolve non-blocking Gate 1 bootstrap issues before starting Forge `0.3`.
 - automated review scoring
 - plugin system
 - project profiles beyond bootstrap
-- CI pipeline
 - formal testing standard
 - review report persistence contract
 - generated-project template provenance
 - generated architecture discovery starter
+- coverage threshold
+- type checking
+- release automation
 
 ## Architectural Posture
 
@@ -91,10 +99,12 @@ Gate 1 dogfooding verified that `python -m forge init ForgePlayground` runs succ
 
 The non-blocking Gate 1 issues are being handled as a narrow patch. Generated projects should now report Forge `0.2.1`, and the generated README and AI handoff templates should better guide the first architecture discovery session. The generated `forge/` folder concern is documented as a Forge `0.3` design item and is intentionally not redesigned in this patch.
 
+Forge 0.3 establishes the Developer Platform baseline. It adds documented testing, code quality, and CI standards plus a GitHub Actions workflow that runs pytest, Ruff lint checks, and Ruff format checks. This milestone intentionally does not add `forge review` or expand `forge init`.
+
 ## Next Recommended Work
 
-1. Run patch readiness checks.
-2. Commit the Forge `0.2.2` patch readiness changes.
-3. Decide whether generated projects should use `src/` instead of `forge/` during Forge `0.3` planning.
-4. Define testing standard and CI expectations.
-5. Specify review report persistence before implementing `forge review`.
+1. Review and commit Forge `0.3` Developer Platform changes.
+2. Tag Forge `v0.3.0` after local checks pass.
+3. Decide whether generated projects should use `src/` instead of `forge/`.
+4. Specify review report persistence before implementing `forge review`.
+5. Consider type checking and coverage thresholds in a future milestone.

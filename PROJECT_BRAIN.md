@@ -26,6 +26,7 @@ Forge is not an application. It is a foundation for creating and governing futur
 - Reviews must produce scores and narrative findings, not scores alone.
 - The first implementation must stay narrow and prove the template-driven bootstrap path.
 - Dogfooding is a release gate: generated projects must be judged for real usefulness, not only successful file creation.
+- Forge must have a reliable developer platform before new capabilities are added.
 
 ## Product Shape
 
@@ -85,6 +86,11 @@ Forge may eventually include:
 - Fix generated Forge version traceability for `v0.2.1` before starting Forge `0.3`.
 - Strengthen first-session architecture discovery guidance in bootstrap templates without expanding `forge init` scope.
 - Do not redesign the generated `forge/` folder in the `0.2.x` patch; carry it into Forge `0.3` as an explicit design item.
+- Establish Forge `0.3` as the Developer Platform milestone.
+- Use `pytest` as the required test runner.
+- Use Ruff for lightweight lint and format checks.
+- Run tests, lint, and format checks in GitHub Actions on push and pull request.
+- Do not implement `forge review` until after the Developer Platform baseline is accepted.
 
 ## Open Questions
 
@@ -101,3 +107,5 @@ Forge may eventually include:
 - Should Forge `0.3` prioritize testing/CI governance or FCS-001 review persistence?
 - Should generated projects use a neutral `src/` directory instead of `forge/`?
 - Should `forge init` generate an architecture discovery starter or only point to one?
+- Should Forge add type checking before `1.0`?
+- What test coverage threshold should Forge require before review automation exists?

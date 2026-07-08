@@ -4,6 +4,25 @@ All notable changes to Forge will be documented in this file.
 
 Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking changes are allowed when they improve the long-term framework contract, but they must be documented.
 
+## [0.3.0] - 2026-07-08
+
+### Added
+
+- Added Developer Platform engineering brief.
+- Added testing standard.
+- Added code quality standard.
+- Added GitHub Actions CI standard.
+- Added GitHub Actions workflow for push and pull request verification.
+- Added Ruff as the lightweight lint and format check tool.
+- Added local quality command documentation.
+
+### Not Added
+
+- No `forge review` implementation.
+- No new user-facing CLI commands.
+- No project profile expansion.
+- No release automation or package publishing.
+
 ## [0.2.2] - 2026-07-08
 
 ### Fixed

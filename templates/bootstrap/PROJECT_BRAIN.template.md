@@ -1,7 +1,7 @@
 ---
 template_name: bootstrap-project-brain
 version: 0.1.0
-compatible_forge_versions: ">=0.2,<0.3"
+compatible_forge_versions: ">=0.3,<0.4"
 description: "Initial PROJECT_BRAIN.md for durable project memory."
 variables:
   - PROJECT_NAME

@@ -7,7 +7,6 @@ from forge import __version__
 from forge.bootstrap import is_version_compatible, load_bootstrap_templates
 from forge.cli import app
 
-
 runner = CliRunner()
 
 

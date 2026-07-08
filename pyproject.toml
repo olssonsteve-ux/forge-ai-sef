@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "forge-ai-sef"
-version = "0.2.1"
+version = "0.3.0"
 description = "Forge AI Software Engineering Framework"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -15,6 +15,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8",
+    "ruff>=0.8",
 ]
 
 [project.scripts]
@@ -23,3 +24,14 @@ forge = "forge.cli:app"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["forge*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

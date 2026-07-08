@@ -28,7 +28,7 @@ Forge should feel like a senior engineering organization in a box: opinionated e
 
 ## Current State
 
-This repository is in Forge `0.2.0` MVP implementation stage.
+This repository is in Forge `0.3.0` Developer Platform stage.
 
 Forge now includes the first local CLI command:
 
@@ -37,6 +37,8 @@ forge init <project-name>
 ```
 
 The command creates a Forge-governed project foundation from versioned templates under `templates/bootstrap/`.
+
+Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing standards, code quality standards, and GitHub Actions CI.
 
 The current implementation deliberately does not include `forge review`, plugins, release automation, remote templates, or project profiles beyond bootstrap.
 
@@ -61,8 +63,12 @@ Forge will not:
 .
 ├── docs/
 │   ├── architecture/
+│   ├── ci/
 │   ├── decisions/
+│   ├── engineering/
+│   ├── standards/
 │   └── vision/
+├── .github/workflows/
 ├── forge/
 ├── standards/
 ├── templates/
@@ -104,6 +110,20 @@ Run tests:
 python -m pytest
 ```
 
+Run lint checks:
+
+```text
+python -m ruff check .
+```
+
+Run format checks:
+
+```text
+python -m ruff format --check .
+```
+
+The GitHub Actions workflow runs the same quality gate on push and pull request.
+
 ## Implementation Language
 
 Forge uses Python because Python is practical for developer tooling, file orchestration, document generation, test automation, AI workflow integration, and cross-platform scripting.
@@ -116,7 +136,7 @@ Forge will evolve from documentation foundation to an installable engineering fr
 
 - `0.1`: foundation and architecture
 - `0.2`: project memory model
-- `0.3`: templates and standards
+- `0.3`: developer platform, CI, testing, and code quality standards
 - `0.4`: bootstrap design
 - `0.5`: CLI prototype
 - `0.6`: workflow automation

@@ -8,7 +8,7 @@ Forge is not an application. Do not assume product UI, API routes, database mode
 
 ## Current Repository State
 
-The repository is at Forge `0.2.2` patch readiness stage.
+The repository is at Forge `0.3.0` Developer Platform stage.
 
 There is now a Python package and Typer CLI implementation for `forge init <project-name>`.
 
@@ -19,6 +19,8 @@ DAR-0001 lives at `docs/reviews/DAR-0001-Forge-0.2.md` and is the baseline for F
 Gate 1 dogfooding lives at `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md`. It verified that `python -m forge init ForgePlayground` runs successfully from outside the repository and produced a decision of `PASS WITH COMMENTS`.
 
 The current patch resolves non-blocking Gate 1 issues by aligning generated Forge version output with `v0.2.1` and strengthening first-session architecture discovery guidance in the generated README and AI handoff templates.
+
+Forge 0.3 adds the Developer Platform baseline: testing standard, code quality standard, GitHub Actions CI standard, Ruff configuration, and a CI workflow under `.github/workflows/ci.yml`.
 
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
@@ -51,6 +53,10 @@ Forge should be built in this order:
 - Follow `docs/contracts/bootstrap-template-system.md` before changing bootstrap templates or generation behavior.
 - Follow `docs/capabilities/FCS-001-Review.md` before designing or implementing review behavior.
 - Follow `docs/release/release-standard.md` before tagging or changing release process.
+- Follow `docs/engineering/EB-003-Developer-Platform.md` before changing developer tooling.
+- Follow `docs/standards/testing-standard.md` before changing test expectations.
+- Follow `docs/standards/code-quality-standard.md` before changing lint or format behavior.
+- Follow `docs/ci/github-actions-standard.md` before changing CI behavior.
 - Read `docs/reviews/DAR-0001-Forge-0.2.md` before planning Forge `0.3`.
 - Read `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md` before changing bootstrap templates, generated structure, or Forge `0.3` scope.
 - Keep documentation clear enough for a new contributor to understand without chat history.
@@ -68,7 +74,7 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next logical work is to run patch readiness checks, commit the Forge `0.2.2` patch readiness changes, then choose Forge `0.3` scope with both DAR-0001 and Gate 1 findings in view.
+The next logical work is to review and commit Forge `0.3` Developer Platform changes, then tag `v0.3.0` if local and CI-equivalent checks pass.
 
 Do not implement `forge review`, plugins, project profiles, or migration tooling yet.
 

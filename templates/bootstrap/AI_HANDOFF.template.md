@@ -1,7 +1,7 @@
 ---
 template_name: bootstrap-ai-handoff
 version: 0.1.1
-compatible_forge_versions: ">=0.2,<0.3"
+compatible_forge_versions: ">=0.3,<0.4"
 description: "Initial AI_HANDOFF.md for AI contributors."
 variables:
   - PROJECT_NAME
