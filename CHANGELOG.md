@@ -6,7 +6,10 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 
 ## [Unreleased]
 
-No unreleased changes.
+### Added
+
+- Added PRR-0001 post-release review for `v0.4.0`.
+- Captured version consistency as a future Governance Runtime requirement.
 
 ## [0.4.0] - 2026-07-08
 

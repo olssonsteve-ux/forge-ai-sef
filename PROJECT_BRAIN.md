@@ -130,6 +130,9 @@ Forge may eventually include:
 - Implement the first Status Service in `forge/status.py` with CLI wiring in `forge/cli.py`.
 - Keep `forge status` human-readable and informational; it must not imply release approval or governance certification.
 - Represent first status results with simple categories and the states `OK`, `WARNING`, `MISSING`, `BLOCKED`, and `NOT_APPLICABLE`.
+- Version consistency is a Governance Runtime concern because release identity spans Git tags, package metadata, documentation, project memory, changelog, and handoff context.
+- CI cannot be assumed to catch governance drift unless explicit checks exist.
+- `forge status` should evolve through slices from artifact presence toward semantic governance consistency checks.
 
 ## Open Questions
 
@@ -153,3 +156,5 @@ Forge may eventually include:
 - Should a future slice add JSON output for `forge status`?
 - Should a future slice persist status reports, and if so where?
 - Should Governance Runtime define a shared result model before adding more services?
+- Should CS-002.2 define Version Consistency Check as a new `forge status` category or as items inside existing Release and Runtime Memory categories?
+- Should package metadata version match release tags before Forge publishes packages, or only after a package distribution strategy is accepted?

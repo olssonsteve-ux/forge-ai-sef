@@ -2,7 +2,7 @@
 
 ## Status
 
-Forge `v0.4.0` released with Governance Runtime Status Service.
+Forge `v0.4.0` post-release review recorded.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ Forge `v0.4.0` released with Governance Runtime Status Service.
 
 ## Current Objective
 
-Maintain version consistency after the `v0.4.0` release.
+Prepare a future Governance Runtime version consistency slice.
 
 ## What Exists
 
@@ -76,6 +76,7 @@ Maintain version consistency after the `v0.4.0` release.
 - implemented read-only Governance Runtime Status Service
 - implemented `forge status` command
 - automated tests for status categories, missing artifacts, no-Git repositories, and read-only behavior
+- PRR-0001 post-release review for `v0.4.0`
 
 ## What Does Not Exist
 
@@ -93,6 +94,7 @@ Maintain version consistency after the `v0.4.0` release.
 - coverage threshold
 - type checking
 - release automation
+- Governance Runtime version consistency check
 
 ## Architectural Posture
 
@@ -138,9 +140,11 @@ AR-0001 concludes that Forge should introduce Capability Slice as a new engineer
 
 Forge now implements EB-002.1 through `forge/status.py` and the `forge status` CLI command. The command inspects the current repository by default, reports human-readable governance/project status, uses simple result states, performs no scoring, and does not write project files or project memory at runtime.
 
+PRR-0001 records a post-release version consistency issue after `v0.4.0`: active documentation still referenced Forge `0.3.3` after the release tag was created. The root cause was a missing release-time version consistency gate. CI did not catch it because CI currently checks tests, lint, and formatting. `forge status` did not catch it because CS-002.1 only checks artifact presence and simple status, not semantic version agreement.
+
 ## Next Recommended Work
 
-1. Perform implementation review for EB-002.1.
-2. Verify `forge status` remains read-only and does not change `forge init`.
-3. Decide whether the next Governance Runtime slice should cover JSON output, persisted reports, or project memory health.
-4. Do not add scoring, strict mode, policy packs, release approval, or project memory mutation without a new slice and accepted brief.
+1. Create a future Capability Slice for Governance Runtime version consistency, likely `CS-002.2-Governance-Runtime-Version-Consistency-Check.md`.
+2. Define a read-only check for release tag, changelog, README, project state, handoff, package metadata, and release documentation agreement.
+3. Decide whether version consistency should appear as a new `forge status` category or status item.
+4. Do not add automatic version updates, changelog rewrites, release approval, or project memory mutation without a new accepted slice and brief.

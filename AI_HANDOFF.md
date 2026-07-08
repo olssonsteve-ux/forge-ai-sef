@@ -12,6 +12,8 @@ Forge's motto is: Build software with intention.
 
 The repository is released as Forge `v0.4.0` with the Governance Runtime Status Service implemented.
 
+PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
+
 The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
 
 AI agent behavior is governed by `AI_ENGINEERING_CONDUCT.md`.
@@ -89,6 +91,7 @@ Forge should be built in this order:
 - Follow `docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` before creating EB-002.1.
 - Follow `docs/engineering/EB-002.1-Implement-Status-Service.md` before implementing `forge status`.
 - Follow `docs/release/release-standard.md` before tagging or changing release process.
+- Read `docs/reviews/PRR-0001-v0.4.0-Post-Release-Review.md` before changing release checks or extending Governance Runtime release/status behavior.
 - Follow `docs/engineering/EB-003-Developer-Platform.md` before changing developer tooling.
 - Follow `docs/standards/testing-standard.md` before changing test expectations.
 - Follow `docs/standards/code-quality-standard.md` before changing lint or format behavior.
@@ -117,12 +120,13 @@ Forge should be built in this order:
 - Do not add `forge plan`, `forge doctor`, `forge score`, `forge memory`, `forge risks`, or `forge release` yet.
 - Do not make the first Status Service mutate files, approve releases, create reviews, update project memory, or score complex code quality.
 - Do not add strict mode, JSON output, persisted reports, Governance Score, policy packs, or release-blocking behavior as part of EB-002.1.
+- Do not add automatic version updates, changelog rewrites, release approval, or project memory mutation without a dedicated accepted Capability Slice and Engineering Brief.
 
 ## Immediate Next Step
 
-The next logical work is to review the EB-002.1 implementation and confirm `forge status` remains read-only, informational, and scoped to CS-002.1.
+The next logical Governance Runtime work is to create a future Capability Slice for version consistency, likely `CS-002.2-Governance-Runtime-Version-Consistency-Check.md`.
 
-The implementation includes a read-only Status Service, separate CLI wiring, human-readable output, no runtime file writes, no project memory mutation, and tests proving read-only behavior.
+That slice should define a read-only check for release tag, changelog, README, project state, handoff, package metadata, and release documentation agreement.
 
 Do not change `forge init`, bootstrap templates, `forge review`, plugins, project profiles, or migration tooling as part of the Status Service review.
 
