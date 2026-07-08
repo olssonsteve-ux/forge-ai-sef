@@ -10,7 +10,7 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
-The repository is at Forge `0.3.3` Governance Runtime Status Service implementation stage.
+The repository is released as Forge `v0.4.0` with the Governance Runtime Status Service implemented.
 
 The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
 

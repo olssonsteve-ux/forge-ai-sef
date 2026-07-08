@@ -6,6 +6,10 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 
 ## [Unreleased]
 
+No unreleased changes.
+
+## [0.4.0] - 2026-07-08
+
 ### Added
 
 - Added FCS-002 Governance Runtime capability specification.

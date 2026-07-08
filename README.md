@@ -67,7 +67,7 @@ Forge addresses the layer around code: purpose, memory, architecture, specificat
 
 ## Current State
 
-This repository is in Forge `0.3.3` Governance Runtime Status Service stage.
+This repository is released as Forge `v0.4.0`.
 
 Forge includes two local CLI commands:
 

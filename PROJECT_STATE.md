@@ -2,15 +2,15 @@
 
 ## Status
 
-Governance Runtime Status Service implemented.
+Forge `v0.4.0` released with Governance Runtime Status Service.
 
 ## Current Version
 
-`0.3.3`
+`v0.4.0`
 
 ## Current Objective
 
-Prepare implementation review for EB-002.1 Governance Runtime Status Service.
+Maintain version consistency after the `v0.4.0` release.
 
 ## What Exists
 
