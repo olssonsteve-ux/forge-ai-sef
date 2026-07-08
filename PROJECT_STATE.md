@@ -2,15 +2,15 @@
 
 ## Status
 
-Engineering hierarchy architecture review complete.
+Governance Runtime Status Service implemented.
 
 ## Current Version
 
-`0.3.2`
+`0.3.3`
 
 ## Current Objective
 
-Introduce Capability Slice as the layer between Capability Specification and Engineering Brief.
+Prepare implementation review for EB-002.1 Governance Runtime Status Service.
 
 ## What Exists
 
@@ -68,15 +68,21 @@ Introduce Capability Slice as the layer between Capability Specification and Eng
 - ADR 0013 for Governance Runtime Capability
 - AR-0001 Engineering Hierarchy architecture review
 - ADR 0014 introducing Capability Slices
+- Capability Slice standard
+- Capability Slice template
+- CS-002.1 Governance Runtime Status Service Capability Slice
+- DAR-CS-0001 review for CS-002.1
+- EB-002.1 implementation brief for the Governance Runtime Status Service
+- implemented read-only Governance Runtime Status Service
+- implemented `forge status` command
+- automated tests for status categories, missing artifacts, no-Git repositories, and read-only behavior
 
 ## What Does Not Exist
 
 - release automation
 - template migration tooling
 - implemented review command
-- implemented Governance Runtime
-- Capability Slice template
-- Capability Slice standard
+- implemented full Governance Runtime
 - review report template
 - automated review scoring
 - plugin system
@@ -122,10 +128,19 @@ FCS-002 defines Governance Runtime as the future operational layer that interpre
 
 AR-0001 concludes that Forge should introduce Capability Slice as a new engineering layer between Capability Specification and Engineering Brief. This change is accepted in ADR 0014. Capability Slices decompose large accepted capabilities into implementation-sized increments without replacing FCS documents or Engineering Briefs.
 
+`docs/standards/capability-slice-standard.md` defines Capability Slice purpose, scope, naming, required sections, lifecycle, ownership, traceability, size guidance, and anti-patterns. `templates/capability-slices/CS-template.md` is the canonical starting point for new slices.
+
+`docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md` defines the first implementation-sized slice of Governance Runtime. It is limited to read-only status evaluation and is intended to support a future `forge status` command. It explicitly excludes automatic file mutation, release approval, review creation, complex code-quality scoring, and replacement of human judgment.
+
+`docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` reviews CS-002.1 and gives it a decision of `PASS WITH COMMENTS`. The slice is ready for Engineering Brief creation. The brief must define output shape, strict mode behavior or deferral, repository validity detection, internal module boundaries, and read-only verification tests.
+
+`docs/engineering/EB-002.1-Implement-Status-Service.md` defines the implementation boundary for the first Governance Runtime service and future `forge status` command. The brief requires a read-only service, separates service logic from CLI wiring, defers strict mode, forbids runtime project memory mutation, and requires tests proving no files are written.
+
+Forge now implements EB-002.1 through `forge/status.py` and the `forge status` CLI command. The command inspects the current repository by default, reports human-readable governance/project status, uses simple result states, performs no scoring, and does not write project files or project memory at runtime.
+
 ## Next Recommended Work
 
-1. Commit Governance Runtime and engineering hierarchy documentation.
-2. Define a Capability Slice standard and template before Governance Runtime implementation.
-3. Define the first Governance Runtime Capability Slice.
-4. Decide whether the first interface is CLI, report-only, or library-level.
-5. Specify runtime inputs, outputs, persistence, scoring policy, and failure behavior.
+1. Perform implementation review for EB-002.1.
+2. Verify `forge status` remains read-only and does not change `forge init`.
+3. Decide whether the next Governance Runtime slice should cover JSON output, persisted reports, or project memory health.
+4. Do not add scoring, strict mode, policy packs, release approval, or project memory mutation without a new slice and accepted brief.

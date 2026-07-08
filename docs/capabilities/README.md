@@ -6,6 +6,17 @@ An FCS is not an engineering brief. It describes what Forge must be able to do, 
 
 Large capabilities should be decomposed through Capability Slices before Engineering Briefs. A Capability Slice defines a coherent implementation-sized increment of an accepted FCS without replacing the FCS or the Engineering Brief.
 
+Capability Slices are governed by `docs/standards/capability-slice-standard.md`.
+
+## Accepted Capability Specifications
+
+- `FCS-001-Review.md` - Review Capability.
+- `FCS-002-Governance-Runtime.md` - Governance Runtime.
+
+## Capability Slices
+
+- `CS-002.1-Governance-Runtime-Status-Service.md` - first Governance Runtime slice; defines read-only status evaluation for the future `forge status` command.
+
 ## Naming
 
 Capability specifications use this format:

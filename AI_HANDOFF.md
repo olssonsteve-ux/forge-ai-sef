@@ -10,17 +10,27 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
-The repository is at Forge `0.3.2` Governance Runtime capability specification stage.
+The repository is at Forge `0.3.3` Governance Runtime Status Service implementation stage.
 
 The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
 
 AI agent behavior is governed by `AI_ENGINEERING_CONDUCT.md`.
 
-Governance Runtime is specified in `docs/capabilities/FCS-002-Governance-Runtime.md`. It is not implemented.
+Governance Runtime is specified in `docs/capabilities/FCS-002-Governance-Runtime.md`. Its first read-only Status Service is implemented.
 
 AR-0001 reviews the Forge engineering hierarchy and accepts Capability Slice as the layer between Capability Specification and Engineering Brief.
 
-There is now a Python package and Typer CLI implementation for `forge init <project-name>`.
+Capability Slices are governed by `docs/standards/capability-slice-standard.md`. New slices should start from `templates/capability-slices/CS-template.md`.
+
+The first Governance Runtime Capability Slice is `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md`. It defines a read-only Status Service that will later support `forge status`.
+
+`docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` reviews CS-002.1 and gives it a decision of `PASS WITH COMMENTS`. It confirms that the slice is ready for Engineering Brief creation.
+
+`docs/engineering/EB-002.1-Implement-Status-Service.md` is the accepted implementation brief for the first Governance Runtime service and future `forge status` command.
+
+`forge/status.py` implements the read-only Status Service. `forge status` is wired in `forge/cli.py`.
+
+There is now a Python package and Typer CLI implementation for `forge init <project-name>` and `forge status`.
 
 Release readiness documentation lives under `docs/release/`.
 
@@ -74,6 +84,10 @@ Forge should be built in this order:
 - Follow `docs/capabilities/FCS-001-Review.md` before designing or implementing review behavior.
 - Follow `docs/capabilities/FCS-002-Governance-Runtime.md` before designing or implementing governance runtime behavior.
 - Follow `docs/architecture/AR-0001-Engineering-Hierarchy.md` before changing the engineering hierarchy.
+- Follow `docs/standards/capability-slice-standard.md` before creating or changing Capability Slices.
+- Follow `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md` before creating the first Governance Runtime Engineering Brief or implementing `forge status`.
+- Follow `docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` before creating EB-002.1.
+- Follow `docs/engineering/EB-002.1-Implement-Status-Service.md` before implementing `forge status`.
 - Follow `docs/release/release-standard.md` before tagging or changing release process.
 - Follow `docs/engineering/EB-003-Developer-Platform.md` before changing developer tooling.
 - Follow `docs/standards/testing-standard.md` before changing test expectations.
@@ -100,12 +114,16 @@ Forge should be built in this order:
 - Do not start Forge `0.4` Governance Runtime until AI Engineering Conduct is accepted.
 - Do not implement Governance Runtime until its first service, interface, inputs, outputs, persistence, scoring policy, and failure behavior are specified.
 - Do not create Engineering Briefs for large multi-service capabilities until a Capability Slice is accepted.
-- Do not add `forge status`, `forge plan`, `forge doctor`, `forge score`, `forge memory`, `forge risks`, or `forge release` yet.
+- Do not add `forge plan`, `forge doctor`, `forge score`, `forge memory`, `forge risks`, or `forge release` yet.
+- Do not make the first Status Service mutate files, approve releases, create reviews, update project memory, or score complex code quality.
+- Do not add strict mode, JSON output, persisted reports, Governance Score, policy packs, or release-blocking behavior as part of EB-002.1.
 
 ## Immediate Next Step
 
-The next logical work is to review and commit FCS-002 Governance Runtime plus AR-0001 Engineering Hierarchy, then define the Capability Slice standard and first Governance Runtime slice.
+The next logical work is to review the EB-002.1 implementation and confirm `forge status` remains read-only, informational, and scoped to CS-002.1.
 
-Do not implement `forge review`, plugins, project profiles, or migration tooling yet.
+The implementation includes a read-only Status Service, separate CLI wiring, human-readable output, no runtime file writes, no project memory mutation, and tests proving read-only behavior.
+
+Do not change `forge init`, bootstrap templates, `forge review`, plugins, project profiles, or migration tooling as part of the Status Service review.
 
 Before expanding functionality, revisit the remaining bootstrap concern from Gate 1: generated `forge/` versus `src/`.

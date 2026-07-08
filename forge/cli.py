@@ -4,6 +4,7 @@ from typing import Annotated
 import typer
 
 from .bootstrap import ForgeInitError, init_project
+from .status import StatusServiceError, evaluate_status, render_status_report
 
 app = typer.Typer(
     name="forge",
@@ -47,3 +48,15 @@ def init(
     typer.echo(f"Created folders: {len(result.folders)}")
     typer.echo(f"Created files: {len(result.files)}")
     typer.echo("Next step: review PROJECT_STATE.md and begin architecture discovery.")
+
+
+@app.command("status")
+def status() -> None:
+    """Report read-only Forge governance status for the current repository."""
+    try:
+        report = evaluate_status(Path.cwd())
+    except StatusServiceError as error:
+        typer.secho(f"Error: {error}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(code=1) from error
+
+    typer.echo(render_status_report(report))

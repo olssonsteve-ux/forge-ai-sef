@@ -14,15 +14,27 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added AR-0001 Engineering Hierarchy architecture review.
 - Added ADR 0014 introducing Capability Slices between Capability Specifications and Engineering Briefs.
 - Updated constitutional and documentation hierarchy references to include Capability Slices.
+- Added Capability Slice standard.
+- Added Capability Slice template.
+- Updated README, documentation map, capability guidance, and project memory for Capability Slices as first-class Forge artifacts.
+- Added CS-002.1 Governance Runtime Status Service as the first Capability Slice for FCS-002.
+- Defined the future `forge status` slice as read-only status evaluation with no automatic file writes, release approval, or review creation.
+- Added DAR-CS-0001 Capability Slice Architecture Review for CS-002.1 with a `PASS WITH COMMENTS` decision.
+- Added a Dependencies section to CS-002.1 to satisfy the Capability Slice Standard.
+- Added EB-002.1 Engineering Brief for implementing the read-only Governance Runtime Status Service and future `forge status` command.
+- Added read-only Governance Runtime Status Service.
+- Added `forge status` CLI command for human-readable governance and project status reporting.
+- Added tests for status categories, missing governance artifacts, no-Git repositories, CLI execution, and read-only behavior.
 - Added `AI_ENGINEERING_CONDUCT.md` as the root AI behavior contract for Forge-governed projects.
 - Added ADR 0012 for AI Engineering Conduct.
 - Updated README and project memory to place AI conduct beneath the Constitution and before Governance Runtime.
 
 ### Not Added
 
-- No Python changes.
-- No CLI behavior changes.
-- No new commands.
+- No `forge review`, `forge score`, `forge doctor`, `forge plan`, or `forge memory`.
+- No persisted status reports.
+- No Governance Score.
+- No runtime project memory mutation.
 
 ## [0.3.0] - 2026-07-08
 

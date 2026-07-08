@@ -34,6 +34,9 @@ Forge is not an application. It is a constitutional foundation for creating and 
 - AI agents must follow `AI_ENGINEERING_CONDUCT.md` when working in Forge-governed projects.
 - Governance Runtime is the future operational layer that interprets Forge governance and evaluates engineering health.
 - Capability Slices keep large capabilities traceable and implementation-sized without weakening capability-first governance.
+- Capability Slices are first-class Forge artifacts governed by `docs/standards/capability-slice-standard.md`.
+- Governance Runtime should begin with a read-only Status Service before any scoring, enforcement, release approval, or memory mutation.
+- Capability Slice Design Authority Reviews should verify slice readiness before Engineering Briefs are created for major runtime capabilities.
 
 ## Product Shape
 
@@ -112,6 +115,21 @@ Forge may eventually include:
 - Use ADR 0014 as the decision record for Capability Slices.
 - Use AR-0001 as the architecture review baseline for the engineering hierarchy.
 - Do not create Engineering Briefs for large multi-service capabilities until the relevant Capability Slice is accepted.
+- Use `templates/capability-slices/CS-template.md` as the starting point for new Capability Slices.
+- Name Capability Slices with `CS-NNN.S-descriptive-name.md`.
+- Accept CS-002.1 as the first Governance Runtime Capability Slice.
+- Scope CS-002.1 to read-only status evaluation for Forge governance and engineering artifacts.
+- Use CS-002.1 as the boundary for the future `forge status` Engineering Brief.
+- Do not add automatic writes, review generation, release approval, or complex code-quality scoring to the first Status Service implementation.
+- Accept DAR-CS-0001 as `PASS WITH COMMENTS` for CS-002.1.
+- Require EB-002.1 to resolve output shape, strict mode behavior or deferral, repository validity detection, module boundaries, and read-only verification tests.
+- Accept EB-002.1 as the implementation brief for the read-only Governance Runtime Status Service.
+- Implement `forge status` through a service boundary, with CLI wiring separate from repository inspection.
+- Defer strict mode, JSON output, persisted reports, Governance Score, and policy packs beyond EB-002.1.
+- Treat runtime project memory writes as explicitly forbidden for the first Status Service.
+- Implement the first Status Service in `forge/status.py` with CLI wiring in `forge/cli.py`.
+- Keep `forge status` human-readable and informational; it must not imply release approval or governance certification.
+- Represent first status results with simple categories and the states `OK`, `WARNING`, `MISSING`, `BLOCKED`, and `NOT_APPLICABLE`.
 
 ## Open Questions
 
@@ -132,7 +150,6 @@ Forge may eventually include:
 - What test coverage threshold should Forge require before review automation exists?
 - What constitutional review cadence should Forge use after major milestones?
 - How should Governance Runtime enforce AI Engineering Conduct without becoming brittle?
-- Which Governance Runtime service should be implemented first?
-- Should Governance Runtime begin as a CLI command, report generator, or internal service?
-- What should the Capability Slice template require?
-- Where should Capability Slices live in the repository?
+- Should a future slice add JSON output for `forge status`?
+- Should a future slice persist status reports, and if so where?
+- Should Governance Runtime define a shared result model before adding more services?

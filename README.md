@@ -67,21 +67,26 @@ Forge addresses the layer around code: purpose, memory, architecture, specificat
 
 ## Current State
 
-This repository is in Forge `0.3.1` AI Engineering Conduct stage.
+This repository is in Forge `0.3.3` Governance Runtime Status Service stage.
 
-Forge includes the first local CLI command:
+Forge includes two local CLI commands:
 
 ```text
 forge init <project-name>
+forge status
 ```
 
-The command creates a Forge-governed project foundation from versioned templates under `templates/bootstrap/`.
+`forge init` creates a Forge-governed project foundation from versioned templates under `templates/bootstrap/`.
+
+`forge status` inspects the current repository and reports read-only governance status. It does not approve releases, calculate a score, persist reports, or update project files.
 
 Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing standards, code quality standards, and GitHub Actions CI.
 
 Forge `v0.3.1` adds the constitutional identity foundation. The current governance milestone adds the AI conduct layer before Forge 0.4 Governance Runtime begins.
 
-Forge now specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md) and is not implemented yet.
+Forge specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md). Its first read-only Status Service is implemented through `forge status`.
+
+Capability Slices are now a first-class Forge artifact governed by [docs/standards/capability-slice-standard.md](docs/standards/capability-slice-standard.md). New slices should start from [templates/capability-slices/CS-template.md](templates/capability-slices/CS-template.md).
 
 The current implementation deliberately does not include `forge review`, plugins, release automation, remote templates, or project profiles beyond bootstrap.
 
@@ -127,6 +132,7 @@ Forge is not:
 +-- forge/
 +-- standards/
 +-- templates/
+|   +-- capability-slices/
 +-- tests/
 +-- AI_HANDOFF.md
 +-- AI_ENGINEERING_CONDUCT.md
@@ -159,6 +165,12 @@ Create a project:
 
 ```text
 python -m forge init my-project
+```
+
+Inspect the current repository:
+
+```text
+python -m forge status
 ```
 
 Run tests:
