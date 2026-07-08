@@ -37,6 +37,8 @@ There is no runtime behavior.
 
 The current goal is to establish architecture, documentation, boundaries, standards, and version direction before implementation begins.
 
+Milestone 0 adds an explicit architecture review gate. See [docs/architecture/review-000.md](docs/architecture/review-000.md).
+
 ## Project Boundaries
 
 Forge will define and eventually automate software engineering workflow.
@@ -69,6 +71,8 @@ Forge will not:
 ├── README.md
 └── ROADMAP.md
 ```
+
+See [docs/README.md](docs/README.md) for documentation ownership and update rules.
 
 ## Implementation Language Direction
 

@@ -74,3 +74,5 @@ For `0.1`, the physical structure should remain documentation-focused:
 ## Evolution Rule
 
 Do not add a code module until there is a documented contract or behavior for it.
+
+Do not add automation until the relevant contract has passed architecture review.

@@ -1,0 +1,39 @@
+# Documentation Map
+
+This directory contains Forge's durable architecture documentation.
+
+Forge documentation is intentionally split by authority. Files may reference the same concepts, but each concept should have one primary home.
+
+## Document Authority
+
+| Topic | Primary Document | Supporting Documents |
+| --- | --- | --- |
+| Project identity and quick orientation | `README.md` | `docs/vision/purpose.md`, `docs/vision/vision.md` |
+| Purpose | `docs/vision/purpose.md` | `README.md` |
+| Vision | `docs/vision/vision.md` | `README.md` |
+| Boundaries | `docs/vision/boundaries.md` | `docs/architecture/discovery.md` |
+| Architecture proposal | `docs/architecture/proposal.md` | `docs/architecture/discovery.md` |
+| Architecture discovery and review findings | `docs/architecture/discovery.md` | `docs/architecture/review-000.md` |
+| Document contracts | `docs/contracts/` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md`, `AI_HANDOFF.md` |
+| First CLI behavior | `docs/contracts/forge-init-spec.md` | `ROADMAP.md`, `docs/decisions/0008-specify-forge-init-before-implementation.md` |
+| Version roadmap | `ROADMAP.md` | `README.md` |
+| Current project state | `PROJECT_STATE.md` | `AI_HANDOFF.md` |
+| Durable project memory | `PROJECT_BRAIN.md` | `AI_HANDOFF.md` |
+| AI contributor instructions | `AI_HANDOFF.md` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md` |
+| Architectural decisions | `docs/decisions/` | architecture documents |
+| Standards | `standards/README.md` | future standards files |
+| Templates | `templates/README.md` | future template files |
+
+## Update Rules
+
+- Update the primary document when a concept changes.
+- Update supporting documents only when their summary would become misleading.
+- Add an ADR for durable architecture decisions, governance changes, or implementation constraints.
+- Update `PROJECT_STATE.md` when project phase, version, risks, or next work changes.
+- Update `PROJECT_BRAIN.md` when a durable belief, boundary, or decision changes.
+
+## Duplication Rule
+
+Short summaries are allowed in orientation files. Detailed ownership belongs in the primary document.
+
+This prevents Forge from becoming a set of well-written documents that slowly disagree with each other.

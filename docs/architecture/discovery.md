@@ -95,6 +95,8 @@ Forge should evolve through capability layers:
 
 Each version should have a clear exit criterion and should update project memory.
 
+Implementation milestones should also pass an explicit architecture review gate. The first review is recorded in `docs/architecture/review-000.md`.
+
 ## 7. Architecture Proposal
 
 Forge should be organized around contracts and adapters.
@@ -112,6 +114,8 @@ Proposed future components:
 - Integration Adapters: Git, AI tools, editors, and CI systems
 
 The first implementation should keep these as conceptual boundaries. Physical modules should only appear when behavior exists.
+
+Documentation authority is defined in `docs/README.md`. Future updates should change the primary document for each concept first, then update summaries only where they would otherwise become misleading.
 
 ## 8. Why Python
 

@@ -14,6 +14,16 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added project state and project memory files.
 - Added AI handoff document.
 - Added repository structure for future implementation, tests, standards, templates, and documentation.
+- Added Milestone 0 architecture review.
+- Added documentation authority map.
+- Added architecture review gate ADR.
+- Strengthened standards and templates governance.
+- Accepted Milestone 0 as Forge 0.1 RC1.
+- Added project memory schemas for `PROJECT_STATE.md`, `PROJECT_BRAIN.md`, and `AI_HANDOFF.md`.
+- Added ADR lifecycle, naming, and status rules.
+- Added standard categories and acceptance criteria.
+- Added template ownership, versioning, and change rules.
+- Added pre-implementation specification for `forge init <project-name>`.
 
 ### Not Added
 

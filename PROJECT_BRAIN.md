@@ -16,6 +16,10 @@ Forge is not an application. It is a foundation for creating and governing futur
 - Automation should follow documented contracts.
 - Human control should remain visible at key decision points.
 - A framework should make good defaults easy without making exceptions impossible.
+- Documentation needs clear authority so repeated summaries do not drift.
+- Architecture review gates protect Forge from premature automation.
+- Project memory files are contracts, not casual notes.
+- CLI behavior must be specified before it is implemented.
 
 ## Product Shape
 
@@ -46,11 +50,21 @@ Forge may eventually include:
 - Defer CLI implementation.
 - Evaluate Typer before implementation, but do not introduce it yet.
 - Keep empty implementation and test directories to establish future structure.
+- Use `docs/README.md` as the documentation authority map.
+- Require explicit architecture review gates before major implementation milestones.
+- Accept Forge 0.1 RC1 as the architecture foundation.
+- Define project memory schemas under `docs/contracts/`.
+- Use ADR lifecycle and status rules from `docs/contracts/adr-lifecycle.md`.
+- Govern standards through categories and acceptance criteria before automation.
+- Govern templates through ownership, versioning, and change rules before generation.
+- Specify `forge init <project-name>` before implementation.
 
 ## Open Questions
 
 - What project profiles should Forge support first?
 - Should Forge generate files directly or produce plans for human approval?
-- What is the minimum useful project memory schema?
 - How strict should Forge be when a project violates standards?
 - Should Forge support plugin-style extensions before `1.0`?
+- What scoring model should future architecture reviews use?
+- Which accepted templates are required for the first `forge init` implementation?
+- What testing standard should apply to the first CLI implementation?
