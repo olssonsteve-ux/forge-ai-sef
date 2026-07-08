@@ -8,9 +8,9 @@ Forge is not an application. Do not assume product UI, API routes, database mode
 
 ## Current Repository State
 
-The repository is at Forge 0.1 RC1 pre-implementation hardening stage and contains documentation only.
+The repository is at Forge `0.2.0` MVP implementation stage.
 
-There is no production code and no CLI implementation.
+There is now a Python package and Typer CLI implementation for `forge init <project-name>`.
 
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
@@ -33,7 +33,7 @@ Forge should be built in this order:
 
 ## Instructions For Future AI Agents
 
-- Do not write production code unless the user explicitly asks to begin implementation.
+- Keep production code scoped to explicitly approved Forge capabilities.
 - Preserve project memory files when making changes.
 - Update `PROJECT_STATE.md` when the project status changes.
 - Update `PROJECT_BRAIN.md` when durable decisions or project beliefs change.
@@ -47,8 +47,7 @@ Forge should be built in this order:
 
 ## Forbidden Actions
 
-- Do not implement `forge init` until the user explicitly approves CLI implementation.
-- Do not add production code during architecture or hardening work.
+- Do not expand `forge init` beyond bootstrap without an accepted specification.
 - Do not add destructive overwrite behavior without an ADR.
 - Do not add dependency installation behavior to `forge init`.
 - Do not hardcode generated project file contents in CLI code.
@@ -56,6 +55,6 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next logical work is to either begin `forge init` implementation after explicit approval or continue specifying FCS-001 implementation details such as review report storage, `N/A` scoring, command scope, and output format.
+The next logical work is to review the Forge 0.2 MVP implementation, commit it if accepted, then define release standards or continue specifying FCS-001 implementation details.
 
-Do not implement `forge init` until bootstrap behavior is specified and reviewed.
+Do not implement `forge review`, plugins, project profiles, or migration tooling yet.

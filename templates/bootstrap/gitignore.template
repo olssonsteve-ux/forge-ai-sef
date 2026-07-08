@@ -1,7 +1,7 @@
 ---
 template_name: bootstrap-gitignore
 version: 0.1.0
-compatible_forge_versions: ">=0.1,<0.2"
+compatible_forge_versions: ">=0.2,<0.3"
 description: "Initial .gitignore template for a Forge-governed project."
 variables: []
 required_variables: []

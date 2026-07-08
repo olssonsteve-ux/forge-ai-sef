@@ -39,3 +39,25 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - No CLI.
 - No package metadata.
 - No runtime behavior.
+
+## [0.2.0] - 2026-07-08
+
+### Added
+
+- Added Python package configuration.
+- Added Typer-based CLI entrypoint.
+- Implemented `forge init <project-name>`.
+- Added template-backed bootstrap rendering from `templates/bootstrap/`.
+- Added project name validation.
+- Added dry-run mode.
+- Added conservative overwrite protection for non-empty target directories.
+- Added template metadata, variable, and compatibility validation.
+- Added tests for project creation, invalid names, dry-run, overwrite protection, template rendering, and template discovery.
+
+### Not Added
+
+- No `forge review` implementation.
+- No plugin system.
+- No project profiles beyond bootstrap.
+- No template migration tooling.
+- No release automation.

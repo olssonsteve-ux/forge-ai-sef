@@ -2,15 +2,15 @@
 
 ## Status
 
-Capability specification stage.
+Forge 0.2 MVP implementation stage.
 
 ## Current Version
 
-`0.1 RC1`
+`0.2.0`
 
 ## Current Objective
 
-Define FCS-001 Review Capability as the first permanent Forge capability.
+Implement the first MVP CLI command: `forge init <project-name>`.
 
 ## What Exists
 
@@ -35,23 +35,25 @@ Define FCS-001 Review Capability as the first permanent Forge capability.
 - Forge Capability Specification directory
 - FCS-001 Review Capability specification
 - ADR for Forge Capability Specifications
+- Python package configuration
+- Typer-based CLI entrypoint
+- implemented `forge init <project-name>`
+- template loading and validation
+- bootstrap rendering from `templates/bootstrap/`
+- dry-run mode
+- conservative overwrite protection
+- automated tests for the first CLI command
 
 ## What Does Not Exist
 
-- production code
-- CLI
-- Python package configuration
-- generated project bootstrap behavior
-- automated tests
 - release automation
-- implemented `forge init`
-- accepted first CLI verification expectations
 - accepted release standard
-- automated template validation
 - template migration tooling
 - implemented review command
 - review report template
 - automated review scoring
+- plugin system
+- project profiles beyond bootstrap
 
 ## Architectural Posture
 
@@ -67,10 +69,12 @@ The final architecture milestone defines Forge as template-driven. `forge init <
 
 Forge now evolves permanent capabilities through Forge Capability Specifications under `docs/capabilities/`. FCS-001 defines how Forge performs project reviews before any review command is implemented.
 
+Forge 0.2 introduces the first implementation layer. `forge init <project-name>` is intentionally narrow: it renders bootstrap templates, creates the default folder structure, supports dry-run, validates project names, and refuses to overwrite non-empty directories.
+
 ## Next Recommended Work
 
-1. Decide whether to implement `forge init` first or specify review report persistence before review implementation.
-2. For FCS-001 implementation, define review report file location and naming.
-3. Finalize `N/A` scoring behavior for review categories.
-4. Choose the first review command scope.
-5. Keep review automation advisory until memory update behavior is specified.
+1. Review Forge 0.2 MVP implementation.
+2. Decide whether to commit the CLI implementation.
+3. Define release standard and release checklist.
+4. Specify review report persistence before implementing `forge review`.
+5. Keep plugins, project profiles, and migration tooling out of scope until separately specified.

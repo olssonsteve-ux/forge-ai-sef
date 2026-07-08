@@ -2,7 +2,7 @@
 
 Forge is an AI Software Engineering Framework.
 
-It is not an application, product, service, library, or CLI yet. Forge is the foundation for how future software projects are started, guided, documented, governed, tested, released, and handed between humans and AI agents.
+It is not an application, product, or service. Forge is the foundation for how future software projects are started, guided, documented, governed, tested, released, and handed between humans and AI agents.
 
 ## Purpose
 
@@ -28,14 +28,17 @@ Forge should feel like a senior engineering organization in a box: opinionated e
 
 ## Current State
 
-This repository is in foundation stage.
+This repository is in Forge `0.2.0` MVP implementation stage.
 
-There is no production code.
-There is no CLI.
-There is no package.
-There is no runtime behavior.
+Forge now includes the first local CLI command:
 
-The current goal is to establish architecture, documentation, boundaries, standards, and version direction before implementation begins.
+```text
+forge init <project-name>
+```
+
+The command creates a Forge-governed project foundation from versioned templates under `templates/bootstrap/`.
+
+The current implementation deliberately does not include `forge review`, plugins, release automation, remote templates, or project profiles beyond bootstrap.
 
 Milestone 0 adds an explicit architecture review gate. See [docs/architecture/review-000.md](docs/architecture/review-000.md).
 
@@ -64,6 +67,7 @@ Forge will not:
 ├── standards/
 ├── templates/
 ├── tests/
+├── pyproject.toml
 ├── AI_HANDOFF.md
 ├── CHANGELOG.md
 ├── PROJECT_BRAIN.md
@@ -74,11 +78,37 @@ Forge will not:
 
 See [docs/README.md](docs/README.md) for documentation ownership and update rules.
 
-## Implementation Language Direction
+## Local Usage
 
-Forge is expected to use Python when implementation begins because Python is practical for developer tooling, file orchestration, document generation, test automation, AI workflow integration, and cross-platform scripting.
+Install Forge locally for development:
 
-No Python implementation exists yet.
+```text
+python -m pip install -e ".[dev]"
+```
+
+Run a dry run:
+
+```text
+python -m forge init my-project --dry-run
+```
+
+Create a project:
+
+```text
+python -m forge init my-project
+```
+
+Run tests:
+
+```text
+python -m pytest
+```
+
+## Implementation Language
+
+Forge uses Python because Python is practical for developer tooling, file orchestration, document generation, test automation, AI workflow integration, and cross-platform scripting.
+
+The CLI uses Typer.
 
 ## Version Direction
 

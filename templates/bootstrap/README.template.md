@@ -1,7 +1,7 @@
 ---
 template_name: bootstrap-readme
 version: 0.1.0
-compatible_forge_versions: ">=0.1,<0.2"
+compatible_forge_versions: ">=0.2,<0.3"
 description: "README for a new Forge-governed project."
 variables:
   - PROJECT_NAME

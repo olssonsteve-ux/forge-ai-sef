@@ -24,6 +24,7 @@ Forge is not an application. It is a foundation for creating and governing futur
 - Templates are versioned architecture assets.
 - Permanent Forge capabilities are specified through FCS documents before implementation.
 - Reviews must produce scores and narrative findings, not scores alone.
+- The first implementation must stay narrow and prove the template-driven bootstrap path.
 
 ## Product Shape
 
@@ -68,6 +69,10 @@ Forge may eventually include:
 - Verify first CLI behavior against the `forge init` specification before expanding scope.
 - Use `docs/capabilities/` for Forge Capability Specifications.
 - Accept FCS-001 as the Review Capability specification.
+- Implement Forge `0.2.0` as a Typer-based Python CLI.
+- Implement only `forge init <project-name>` for the first MVP.
+- Keep generated file content in `templates/bootstrap/`, not in Python code.
+- Use tests to protect dry-run, validation, overwrite protection, and template rendering.
 
 ## Open Questions
 
@@ -79,3 +84,4 @@ Forge may eventually include:
 - What migration metadata should generated projects store after Forge `0.2`?
 - Where should Forge Review Reports be stored?
 - Should review project memory updates be automatic, suggested, or manual?
+- Should `forge init` eventually write template provenance metadata into generated projects?
