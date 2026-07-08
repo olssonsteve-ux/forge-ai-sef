@@ -159,9 +159,9 @@ Exit criteria:
 - Forge can govern its own development
 - known risks are documented and managed
 
-## 1.0 - Stable Framework Contract
+## 1.0 - Stable Platform Contract
 
-Goal: publish Forge as a stable AI software engineering framework.
+Goal: publish Forge as a stable AI-native software engineering platform.
 
 Scope:
 

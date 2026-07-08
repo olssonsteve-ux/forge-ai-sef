@@ -1,16 +1,16 @@
 # Architecture Proposal
 
-Forge should be a contract-first framework with optional automation.
+Forge should be a constitution-led, contract-first platform with optional automation.
 
 ## Architectural Style
 
-Forge should separate stable framework concepts from executable tooling.
+Forge should separate stable platform concepts from executable tooling.
 
 The durable core is the set of files, schemas, decisions, standards, templates, and workflows that define how a project is governed. Automation should read and write those contracts rather than inventing behavior hidden inside code.
 
 ## Future Layers
 
-### 1. Framework Contracts
+### 1. Platform Contracts
 
 Defines the repository files, document formats, lifecycle rules, and version expectations.
 
@@ -51,13 +51,13 @@ Governance should start as advisory. Strict enforcement can be added only after 
 
 Provides a human-facing command interface.
 
-The CLI should call documented framework behavior rather than becoming the architecture itself.
+The CLI should call documented platform behavior rather than becoming the architecture itself.
 
 ### 7. Integration Adapters
 
 Connect Forge to external tools such as Git, CI systems, editors, and AI agents.
 
-Adapters should be replaceable and should not leak vendor-specific assumptions into the core framework.
+Adapters should be replaceable and should not leak vendor-specific assumptions into the core platform.
 
 ## Initial Physical Structure
 

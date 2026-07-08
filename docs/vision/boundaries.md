@@ -1,6 +1,6 @@
 # Project Boundaries
 
-Forge is responsible for the engineering framework around software projects.
+Forge is responsible for the AI-native engineering platform around software projects.
 
 ## In Scope
 

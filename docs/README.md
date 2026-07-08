@@ -2,15 +2,18 @@
 
 This directory contains Forge's durable architecture documentation.
 
+Forge's highest governing document is `CONSTITUTION.md` at the repository root. Every document in `docs/` derives from it.
+
 Forge documentation is intentionally split by authority. Files may reference the same concepts, but each concept should have one primary home.
 
 ## Document Authority
 
 | Topic | Primary Document | Supporting Documents |
 | --- | --- | --- |
-| Project identity and quick orientation | `README.md` | `docs/vision/purpose.md`, `docs/vision/vision.md` |
-| Purpose | `docs/vision/purpose.md` | `README.md` |
-| Vision | `docs/vision/vision.md` | `README.md` |
+| Constitutional identity and governance | `CONSTITUTION.md` | `README.md`, `PROJECT_BRAIN.md`, ADRs |
+| Project identity and quick orientation | `README.md` | `CONSTITUTION.md`, `docs/vision/purpose.md`, `docs/vision/vision.md` |
+| Purpose | `CONSTITUTION.md` | `docs/vision/purpose.md`, `README.md` |
+| Vision | `CONSTITUTION.md` | `docs/vision/vision.md`, `README.md` |
 | Boundaries | `docs/vision/boundaries.md` | `docs/architecture/discovery.md` |
 | Architecture proposal | `docs/architecture/proposal.md` | `docs/architecture/discovery.md` |
 | Architecture discovery and review findings | `docs/architecture/discovery.md` | `docs/architecture/review-000.md` |
@@ -23,6 +26,7 @@ Forge documentation is intentionally split by authority. Files may reference the
 | Durable project memory | `PROJECT_BRAIN.md` | `AI_HANDOFF.md` |
 | AI contributor instructions | `AI_HANDOFF.md` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md` |
 | Architectural decisions | `docs/decisions/` | architecture documents |
+| Constitutional decision record | `docs/decisions/0011-forge-constitutional-governance-and-product-identity.md` | `CONSTITUTION.md` |
 | Standards | `standards/README.md` | future standards files |
 | Templates | `templates/README.md` | future template files |
 

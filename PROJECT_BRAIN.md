@@ -4,9 +4,11 @@ This file captures durable project knowledge that future human and AI contributo
 
 ## Core Identity
 
-Forge is an AI Software Engineering Framework.
+Forge is an AI-Native Software Engineering Platform.
 
-Forge is not an application. It is a foundation for creating and governing future applications and software projects.
+Forge provides a disciplined engineering environment where humans and AI collaborate to design, build, review, govern, and evolve software.
+
+Forge is not an application. It is a constitutional foundation for creating and governing future applications and software projects.
 
 ## Guiding Beliefs
 
@@ -15,7 +17,7 @@ Forge is not an application. It is a foundation for creating and governing futur
 - Architecture decisions should be explicit, dated, and reviewable.
 - Automation should follow documented contracts.
 - Human control should remain visible at key decision points.
-- A framework should make good defaults easy without making exceptions impossible.
+- A platform should make good defaults easy without making exceptions impossible.
 - Documentation needs clear authority so repeated summaries do not drift.
 - Architecture review gates protect Forge from premature automation.
 - Project memory files are contracts, not casual notes.
@@ -27,6 +29,8 @@ Forge is not an application. It is a foundation for creating and governing futur
 - The first implementation must stay narrow and prove the template-driven bootstrap path.
 - Dogfooding is a release gate: generated projects must be judged for real usefulness, not only successful file creation.
 - Forge must have a reliable developer platform before new capabilities are added.
+- Forge's permanent motto is: Build software with intention.
+- Every future engineering decision should ultimately derive from `CONSTITUTION.md`.
 
 ## Product Shape
 
@@ -91,6 +95,10 @@ Forge may eventually include:
 - Use Ruff for lightweight lint and format checks.
 - Run tests, lint, and format checks in GitHub Actions on push and pull request.
 - Do not implement `forge review` until after the Developer Platform baseline is accepted.
+- Use `CONSTITUTION.md` as Forge's highest governing document.
+- Officially position Forge as an AI-Native Software Engineering Platform.
+- Use ADR 0011 as the decision record for constitutional governance and product identity.
+- Treat "framework" language as historical or supporting language unless it conflicts with the official platform identity.
 
 ## Open Questions
 
@@ -109,3 +117,4 @@ Forge may eventually include:
 - Should `forge init` generate an architecture discovery starter or only point to one?
 - Should Forge add type checking before `1.0`?
 - What test coverage threshold should Forge require before review automation exists?
+- What constitutional review cadence should Forge use after major milestones?

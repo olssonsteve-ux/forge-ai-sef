@@ -2,13 +2,17 @@
 
 ## Role Context
 
-You are working in Forge, an AI Software Engineering Framework.
+You are working in Forge, an AI-Native Software Engineering Platform.
 
 Forge is not an application. Do not assume product UI, API routes, database models, or runtime services exist.
 
+Forge's motto is: Build software with intention.
+
 ## Current Repository State
 
-The repository is at Forge `0.3.0` Developer Platform stage.
+The repository is at Forge `0.3.0` constitutional identity stage.
+
+The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
 
 There is now a Python package and Typer CLI implementation for `forge init <project-name>`.
 
@@ -21,6 +25,8 @@ Gate 1 dogfooding lives at `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md
 The current patch resolves non-blocking Gate 1 issues by aligning generated Forge version output with `v0.2.1` and strengthening first-session architecture discovery guidance in the generated README and AI handoff templates.
 
 Forge 0.3 adds the Developer Platform baseline: testing standard, code quality standard, GitHub Actions CI standard, Ruff configuration, and a CI workflow under `.github/workflows/ci.yml`.
+
+ADR 0011 records the decision to use `CONSTITUTION.md` as the highest governing document and to identify Forge as an AI-Native Software Engineering Platform.
 
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
@@ -44,6 +50,7 @@ Forge should be built in this order:
 ## Instructions For Future AI Agents
 
 - Keep production code scoped to explicitly approved Forge capabilities.
+- Read `CONSTITUTION.md` before major planning, governance, capability, review, or release work.
 - Preserve project memory files when making changes.
 - Update `PROJECT_STATE.md` when the project status changes.
 - Update `PROJECT_BRAIN.md` when durable decisions or project beliefs change.
@@ -59,8 +66,9 @@ Forge should be built in this order:
 - Follow `docs/ci/github-actions-standard.md` before changing CI behavior.
 - Read `docs/reviews/DAR-0001-Forge-0.2.md` before planning Forge `0.3`.
 - Read `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md` before changing bootstrap templates, generated structure, or Forge `0.3` scope.
+- Read `docs/decisions/0011-forge-constitutional-governance-and-product-identity.md` before changing Forge identity or governance hierarchy.
 - Keep documentation clear enough for a new contributor to understand without chat history.
-- Prefer small, reviewable changes over broad framework expansion.
+- Prefer small, reviewable changes over broad platform expansion.
 
 ## Forbidden Actions
 
@@ -74,7 +82,7 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next logical work is to review and commit Forge `0.3` Developer Platform changes, then tag `v0.3.0` if local and CI-equivalent checks pass.
+The next logical work is to complete constitutional review, commit the constitutional identity milestone, and then plan the next capability from the constitutional hierarchy.
 
 Do not implement `forge review`, plugins, project profiles, or migration tooling yet.
 

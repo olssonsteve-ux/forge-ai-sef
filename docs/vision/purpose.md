@@ -1,8 +1,10 @@
 # Purpose
 
-Forge exists to make AI-assisted software engineering repeatable, auditable, and durable.
+Forge exists to make AI-assisted software engineering repeatable, auditable, durable, and governable.
 
-Modern AI coding tools can produce code quickly, but speed without persistent context creates fragile projects. Forge addresses the layer around code: memory, standards, architecture, workflow, testing expectations, Git discipline, release discipline, and handoff quality.
+Forge is an AI-Native Software Engineering Platform. Its constitutional motto is: Build software with intention.
+
+Modern AI coding tools can produce code quickly, but speed without persistent context creates fragile projects. Forge addresses the layer around code: purpose, memory, standards, architecture, workflow, testing expectations, Git discipline, release discipline, and handoff quality.
 
 Forge should become the foundation a team can place underneath a new project before the first feature is built.
 

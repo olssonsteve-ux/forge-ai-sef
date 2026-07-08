@@ -18,11 +18,11 @@ MAJOR.MINOR.PATCH
 
 Increment `MAJOR` for stable post-1.0 breaking changes.
 
-Before `1.0`, breaking changes are allowed when they improve the framework contract, but they must be documented in `CHANGELOG.md`.
+Before `1.0`, breaking changes are allowed when they improve the platform contract, but they must be documented in `CHANGELOG.md`.
 
 ### Minor
 
-Increment `MINOR` for new capabilities, new commands, accepted contracts, or meaningful framework behavior.
+Increment `MINOR` for new capabilities, new commands, accepted contracts, or meaningful platform behavior.
 
 Examples:
 

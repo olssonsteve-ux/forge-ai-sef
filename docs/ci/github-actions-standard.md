@@ -4,7 +4,7 @@ Status: Accepted for Forge 0.3
 
 ## Purpose
 
-Forge CI provides a shared quality gate for changes before they become part of the framework.
+Forge CI provides a shared quality gate for changes before they become part of the platform.
 
 CI should be simple, fast, and aligned with the local developer workflow.
 

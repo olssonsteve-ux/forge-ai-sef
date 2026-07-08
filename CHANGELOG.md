@@ -2,12 +2,17 @@
 
 All notable changes to Forge will be documented in this file.
 
-Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking changes are allowed when they improve the long-term framework contract, but they must be documented.
+Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking changes are allowed when they improve the long-term platform contract, but they must be documented.
 
 ## [0.3.0] - 2026-07-08
 
 ### Added
 
+- Added `CONSTITUTION.md` as Forge's highest governing document.
+- Established the motto: "Build software with intention."
+- Established Forge's official identity as an AI-Native Software Engineering Platform.
+- Added ADR 0011 for constitutional governance and product identity.
+- Aligned README, project memory, vision, architecture, roadmap, and documentation authority with the constitutional model.
 - Added Developer Platform engineering brief.
 - Added testing standard.
 - Added code quality standard.

@@ -12,7 +12,7 @@ Required before:
 
 - production code
 - major module boundaries
-- framework extension points
+- platform extension points
 
 ### Documentation Standards
 

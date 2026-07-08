@@ -6,11 +6,13 @@ Date: 2026-07-08
 
 Accepted
 
+Identity wording superseded by ADR 0011. The documentation-first decision remains accepted.
+
 ## Context
 
-Forge is beginning as an AI Software Engineering Framework, not an application. The project needs architectural clarity before implementation.
+Forge began as an AI Software Engineering Framework, not an application. ADR 0011 later established the official identity as an AI-Native Software Engineering Platform. The project needed architectural clarity before implementation.
 
-Writing code before defining the framework purpose, boundaries, and evolution path would create premature structure and make later governance harder.
+Writing code before defining the platform purpose, boundaries, and evolution path would create premature structure and make later governance harder.
 
 ## Decision
 

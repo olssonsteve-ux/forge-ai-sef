@@ -1,36 +1,70 @@
 # Forge
 
-Forge is an AI Software Engineering Framework.
+> Build software with intention.
 
-It is not an application, product, or service. Forge is the foundation for how future software projects are started, guided, documented, governed, tested, released, and handed between humans and AI agents.
+Forge is an AI-Native Software Engineering Platform.
+
+Forge provides a disciplined engineering environment where humans and AI collaborate to design, build, review, govern and evolve software.
+
+Forge is built upon five permanent ideas:
+
+Architecture before implementation.
+
+Specifications before code.
+
+Capabilities before features.
+
+Review before release.
+
+Continuous engineering improvement.
+
+Forge develops Forge.
+
+## Constitutional Foundation
+
+The highest governing document in Forge is [CONSTITUTION.md](CONSTITUTION.md).
+
+Every future engineering decision should ultimately derive from the Constitution:
+
+```text
+Constitution
+  |
+  v
+Product Strategy
+  |
+  v
+Roadmap
+  |
+  v
+Capability Specifications
+  |
+  v
+Engineering Briefs
+  |
+  v
+Implementation
+  |
+  v
+Testing
+  |
+  v
+Design Authority Review
+  |
+  v
+Release
+```
 
 ## Purpose
 
-Forge exists to make AI-assisted software engineering repeatable, auditable, and durable.
+Forge exists to make AI-assisted software engineering repeatable, auditable, durable, and governable.
 
-Its purpose is to define the operating system around a project before production code exists:
-
-- how a project begins
-- how decisions are captured
-- how memory is preserved
-- how engineering standards are applied
-- how tests are expected to prove quality
-- how Git and releases are managed
-- how AI agents receive context and hand work back safely
-
-Forge should help future projects move quickly without losing architectural control.
-
-## Vision
-
-Forge will become the reusable foundation for future software projects. A project using Forge should have a clear starting structure, an explicit architecture process, living project memory, consistent standards, and a practical AI development workflow.
-
-Forge should feel like a senior engineering organization in a box: opinionated enough to prevent chaos, light enough to adapt to each project, and transparent enough that humans remain in control.
+Forge addresses the layer around code: purpose, memory, architecture, specifications, standards, templates, testing, review, release, and human-AI handoff quality.
 
 ## Current State
 
 This repository is in Forge `0.3.0` Developer Platform stage.
 
-Forge now includes the first local CLI command:
+Forge includes the first local CLI command:
 
 ```text
 forge init <project-name>
@@ -42,44 +76,56 @@ Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing
 
 The current implementation deliberately does not include `forge review`, plugins, release automation, remote templates, or project profiles beyond bootstrap.
 
-Milestone 0 adds an explicit architecture review gate. See [docs/architecture/review-000.md](docs/architecture/review-000.md).
+## Scope
 
-## Project Boundaries
+Forge is:
 
-Forge will define and eventually automate software engineering workflow.
+- an AI-Native Software Engineering Platform
+- a project memory system
+- a specification-first capability model
+- a standards and review environment
+- a bootstrap and template foundation
+- a quality and release discipline
+- a human-AI collaboration structure
 
-Forge will not:
+Forge is not:
 
-- become a general task manager
-- replace human architectural ownership
-- hide decisions inside AI conversations only
-- generate production systems without reviewable structure
-- couple itself to one future application domain
-- require a hosted service to be useful
+- a general application framework
+- a hosted service by default
+- a replacement for engineering judgment
+- a hidden code generator
+- a task manager
+- a single-vendor AI workflow
+- a shortcut around architecture, testing, review, or release discipline
 
 ## Repository Map
 
 ```text
 .
-├── docs/
-│   ├── architecture/
-│   ├── ci/
-│   ├── decisions/
-│   ├── engineering/
-│   ├── standards/
-│   └── vision/
-├── .github/workflows/
-├── forge/
-├── standards/
-├── templates/
-├── tests/
-├── pyproject.toml
-├── AI_HANDOFF.md
-├── CHANGELOG.md
-├── PROJECT_BRAIN.md
-├── PROJECT_STATE.md
-├── README.md
-└── ROADMAP.md
++-- .github/workflows/
++-- docs/
+|   +-- architecture/
+|   +-- capabilities/
+|   +-- ci/
+|   +-- contracts/
+|   +-- decisions/
+|   +-- engineering/
+|   +-- release/
+|   +-- reviews/
+|   +-- standards/
+|   +-- vision/
++-- forge/
++-- standards/
++-- templates/
++-- tests/
++-- AI_HANDOFF.md
++-- CHANGELOG.md
++-- CONSTITUTION.md
++-- PROJECT_BRAIN.md
++-- PROJECT_STATE.md
++-- README.md
++-- ROADMAP.md
++-- pyproject.toml
 ```
 
 See [docs/README.md](docs/README.md) for documentation ownership and update rules.
@@ -124,6 +170,18 @@ python -m ruff format --check .
 
 The GitHub Actions workflow runs the same quality gate on push and pull request.
 
+## Engineering Model
+
+Forge develops through durable governing artifacts:
+
+- the Constitution defines permanent identity and principles
+- the roadmap orders strategic work
+- Forge Capability Specifications define permanent capabilities
+- Engineering Briefs define bounded implementation work
+- tests and standards verify quality
+- Design Authority Reviews protect long-term coherence
+- releases publish only reviewed work
+
 ## Implementation Language
 
 Forge uses Python because Python is practical for developer tooling, file orchestration, document generation, test automation, AI workflow integration, and cross-platform scripting.
@@ -132,17 +190,12 @@ The CLI uses Typer.
 
 ## Version Direction
 
-Forge will evolve from documentation foundation to an installable engineering framework:
+Forge will evolve from constitutional foundation to a stable AI-native engineering platform:
 
 - `0.1`: foundation and architecture
-- `0.2`: project memory model
-- `0.3`: developer platform, CI, testing, and code quality standards
-- `0.4`: bootstrap design
-- `0.5`: CLI prototype
-- `0.6`: workflow automation
-- `0.7`: testing and quality governance
-- `0.8`: release governance
-- `0.9`: hardening and dogfooding
-- `1.0`: stable framework contract
+- `0.2`: bootstrap MVP and dogfooding
+- `0.3`: developer platform, CI, testing, code quality, and constitutional identity
+- future milestones: review, knowledge, capability runtime, governance, and ecosystem maturity
+- `1.0`: stable platform contract
 
 See [ROADMAP.md](ROADMAP.md) for the full roadmap.

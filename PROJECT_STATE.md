@@ -2,7 +2,7 @@
 
 ## Status
 
-Forge 0.3 Developer Platform implemented.
+Forge constitutional identity milestone in progress.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ Forge 0.3 Developer Platform implemented.
 
 ## Current Objective
 
-Strengthen Forge as a maintainable Python CLI product before adding new capabilities.
+Establish Forge's permanent constitutional identity and governance foundation.
 
 ## What Exists
 
@@ -57,6 +57,11 @@ Strengthen Forge as a maintainable Python CLI product before adding new capabili
 - GitHub Actions CI standard
 - GitHub Actions workflow for tests, lint, and format checks
 - Ruff lint and format configuration
+- root `CONSTITUTION.md`
+- constitutional governance hierarchy
+- official Forge identity as an AI-Native Software Engineering Platform
+- official motto: "Build software with intention."
+- ADR 0011 for constitutional governance and product identity
 
 ## What Does Not Exist
 
@@ -79,7 +84,7 @@ Strengthen Forge as a maintainable Python CLI product before adding new capabili
 
 Forge should be documentation-led first, then contract-led, then implementation-led.
 
-Implementation should only begin after the core framework concepts are explicit enough to test and review.
+Implementation should only begin after the core platform concepts are explicit enough to test and review.
 
 Milestone 0 adds an explicit architecture review gate before implementation work. Architecture review findings should be recorded under `docs/architecture/`, and durable governance decisions should be recorded as ADRs.
 
@@ -101,10 +106,12 @@ The non-blocking Gate 1 issues are being handled as a narrow patch. Generated pr
 
 Forge 0.3 establishes the Developer Platform baseline. It adds documented testing, code quality, and CI standards plus a GitHub Actions workflow that runs pytest, Ruff lint checks, and Ruff format checks. This milestone intentionally does not add `forge review` or expand `forge init`.
 
+The constitutional milestone establishes `CONSTITUTION.md` as the highest governing document in Forge. Forge now officially identifies as an AI-Native Software Engineering Platform. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from the Constitution.
+
 ## Next Recommended Work
 
-1. Review and commit Forge `0.3` Developer Platform changes.
-2. Tag Forge `v0.3.0` after local checks pass.
+1. Complete constitutional review.
+2. Commit constitutional identity and governance documentation.
 3. Decide whether generated projects should use `src/` instead of `forge/`.
 4. Specify review report persistence before implementing `forge review`.
 5. Consider type checking and coverage thresholds in a future milestone.

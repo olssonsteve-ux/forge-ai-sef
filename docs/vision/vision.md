@@ -1,6 +1,8 @@
 # Vision
 
-Forge will become the reusable foundation for future software projects.
+Forge will enable trustworthy human-AI software engineering at long horizons.
+
+Forge is governed by `CONSTITUTION.md`, which is the source of its permanent identity, motto, principles, and decision framework.
 
 A project using Forge should be able to answer these questions at any point:
 
@@ -12,7 +14,7 @@ A project using Forge should be able to answer these questions at any point:
 - What should an AI agent know before contributing?
 - What must be true before release?
 
-Forge should grow into a practical framework for engineering operations, not a ceremonial documentation set. Its value should come from connecting documentation, automation, templates, and governance into one coherent project foundation.
+Forge should grow into a practical AI-native engineering platform, not a ceremonial documentation set. Its value should come from connecting documentation, automation, templates, review, memory, and governance into one coherent project foundation.
 
 ## Long-Term Shape
 
@@ -26,7 +28,7 @@ Forge should eventually provide:
 - template generation
 - quality gate checks
 - release checklists
-- migration guidance between framework versions
+- migration guidance between platform versions
 
 ## Design Character
 

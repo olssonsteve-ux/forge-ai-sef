@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-Forge is intended to become the foundation for future software projects. If implementation begins without explicit architecture review gates, the framework may accumulate automation before its contracts are stable.
+Forge is intended to become the foundation for future software projects. If implementation begins without explicit architecture review gates, the platform may accumulate automation before its contracts are stable.
 
 The initial foundation established architecture direction, but the requirement to review that direction before implementation was implicit.
 

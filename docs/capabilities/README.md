@@ -1,6 +1,6 @@
 # Forge Capability Specifications
 
-Forge Capability Specifications define permanent framework capabilities before they are implemented.
+Forge Capability Specifications define permanent platform capabilities before they are implemented.
 
 An FCS is not an engineering brief. It describes what Forge must be able to do, why it exists, what inputs it uses, what workflow it follows, what deliverables it produces, and how implementation readiness is judged.
 

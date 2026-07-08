@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-Forge is an AI Software Engineering Framework. Its purpose is to provide a durable foundation for future software projects by combining project bootstrap, memory, standards, architecture governance, testing expectations, Git workflow, and release management.
+Forge is an AI-Native Software Engineering Platform. Its purpose is to provide a durable foundation for future software projects by combining project bootstrap, memory, standards, architecture governance, testing expectations, Git workflow, release management, and human-AI collaboration.
 
 Forge focuses on the system around software delivery rather than the product being delivered.
 
@@ -10,13 +10,13 @@ Forge focuses on the system around software delivery rather than the product bei
 
 Forge should become the default foundation for future projects. It should help humans and AI agents collaborate through clear context, stable repository conventions, documented decisions, and reviewable automation.
 
-The long-term vision is a framework that can initialize, guide, inspect, and govern software projects while keeping human ownership visible.
+The long-term vision is a platform that can initialize, guide, inspect, and govern software projects while keeping human ownership visible.
 
 ## 3. Project Boundaries
 
 Forge is not an application and should not be shaped like one.
 
-Forge owns framework contracts, documentation, templates, standards, and future developer tooling.
+Forge owns platform contracts, documentation, templates, standards, and future developer tooling.
 
 Forge does not own product-specific business logic, UI, hosted runtime behavior, database schemas, or application deployment by default.
 
@@ -91,7 +91,7 @@ Forge should evolve through capability layers:
 - `0.7`: quality governance
 - `0.8`: release governance
 - `0.9`: hardening and dogfooding
-- `1.0`: stable framework contract
+- `1.0`: stable platform contract
 
 Each version should have a clear exit criterion and should update project memory.
 
@@ -105,7 +105,7 @@ The core contract layer defines files, schemas, workflows, and standards. The ad
 
 Proposed future components:
 
-- Framework Core: shared concepts and project model
+- Platform Core: shared concepts and project model
 - Memory System: project state, project brain, AI handoff, decisions
 - Template System: reusable project files and standards
 - Bootstrap Engine: creates project foundations from profiles
