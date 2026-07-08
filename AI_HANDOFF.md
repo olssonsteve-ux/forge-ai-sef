@@ -14,6 +14,8 @@ There is now a Python package and Typer CLI implementation for `forge init <proj
 
 Release readiness documentation lives under `docs/release/`.
 
+DAR-0001 lives at `docs/reviews/DAR-0001-Forge-0.2.md` and is the baseline for Forge `0.3`.
+
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
 Project memory schemas, ADR lifecycle rules, standard categories, template governance, and the `forge init <project-name>` pre-implementation specification are documented under `docs/contracts/`, `standards/`, and `templates/`.
@@ -45,6 +47,7 @@ Forge should be built in this order:
 - Follow `docs/contracts/bootstrap-template-system.md` before changing bootstrap templates or generation behavior.
 - Follow `docs/capabilities/FCS-001-Review.md` before designing or implementing review behavior.
 - Follow `docs/release/release-standard.md` before tagging or changing release process.
+- Read `docs/reviews/DAR-0001-Forge-0.2.md` before planning Forge `0.3`.
 - Keep documentation clear enough for a new contributor to understand without chat history.
 - Prefer small, reviewable changes over broad framework expansion.
 
@@ -59,6 +62,6 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next logical work is to run release verification, commit release readiness documentation, and tag `v0.2.0` if the working tree is clean.
+The next logical work is to commit DAR-0001, then choose Forge `0.3` scope with the DAR risks in view.
 
 Do not implement `forge review`, plugins, project profiles, or migration tooling yet.

@@ -76,6 +76,8 @@ Forge may eventually include:
 - Release Forge `0.2.0` as local editable only.
 - Use tag format `vX.Y.Z`, starting with `v0.2.0`.
 - Do not publish Forge `0.2.0` to a package index.
+- Use DAR-0001 as the baseline for Forge `0.3` planning.
+- Treat roadmap drift, CI, testing standard, review persistence, and template provenance as known governance work.
 
 ## Open Questions
 
@@ -89,3 +91,4 @@ Forge may eventually include:
 - Should review project memory updates be automatic, suggested, or manual?
 - Should `forge init` eventually write template provenance metadata into generated projects?
 - What packaging channel should Forge use after local editable releases?
+- Should Forge `0.3` prioritize testing/CI governance or FCS-001 review persistence?

@@ -55,6 +55,7 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added tests for project creation, invalid names, dry-run, overwrite protection, template rendering, and template discovery.
 - Added release standard.
 - Added Forge `0.2.0` release checklist.
+- Added DAR-0001 Design Authority Review for Forge `0.2.0`.
 
 ### Not Added
 
