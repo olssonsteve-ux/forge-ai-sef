@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from forge.bootstrap import load_bootstrap_templates
+from forge.bootstrap import is_version_compatible, load_bootstrap_templates
 from forge.cli import app
 
 
@@ -88,3 +88,9 @@ def test_all_bootstrap_templates_are_discovered() -> None:
         "LICENSE",
         ".gitignore",
     }
+
+
+def test_template_compatibility_validation() -> None:
+    assert is_version_compatible("0.2.0", ">=0.2,<0.3")
+    assert not is_version_compatible("0.1.0", ">=0.2,<0.3")
+    assert not is_version_compatible("0.3.0", ">=0.2,<0.3")

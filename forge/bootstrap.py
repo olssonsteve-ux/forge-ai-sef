@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 import re
-from typing import Iterable
 
 from . import __version__
 
@@ -90,7 +89,8 @@ def init_project(project_name: str, base_dir: Path, dry_run: bool = False) -> In
             folder.mkdir(parents=True, exist_ok=True)
         for output_name, content in rendered_files:
             destination = target / output_name
-            destination.write_text(content, encoding="utf-8")
+            with destination.open("x", encoding="utf-8") as file:
+                file.write(content)
     except OSError as error:
         raise ForgeInitError(f"Failed while writing '{target}': {error}") from error
 
