@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from forge import __version__
 from forge.bootstrap import is_version_compatible, load_bootstrap_templates
 from forge.cli import app
 
@@ -70,6 +71,7 @@ def test_template_rendering_strips_metadata(
     assert result.exit_code == 0
     readme = (tmp_path / "demo-project" / "README.md").read_text(encoding="utf-8")
     assert readme.startswith("# demo-project")
+    assert f"Forge `{__version__}`" in readme
     assert "template_name:" not in readme
     assert "{{PROJECT_NAME}}" not in readme
 

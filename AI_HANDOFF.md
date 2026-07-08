@@ -8,13 +8,17 @@ Forge is not an application. Do not assume product UI, API routes, database mode
 
 ## Current Repository State
 
-The repository is at Forge `0.2.0` release readiness stage.
+The repository is at Forge `0.2.2` patch readiness stage.
 
 There is now a Python package and Typer CLI implementation for `forge init <project-name>`.
 
 Release readiness documentation lives under `docs/release/`.
 
 DAR-0001 lives at `docs/reviews/DAR-0001-Forge-0.2.md` and is the baseline for Forge `0.3`.
+
+Gate 1 dogfooding lives at `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md`. It verified that `python -m forge init ForgePlayground` runs successfully from outside the repository and produced a decision of `PASS WITH COMMENTS`.
+
+The current patch resolves non-blocking Gate 1 issues by aligning generated Forge version output with `v0.2.1` and strengthening first-session architecture discovery guidance in the generated README and AI handoff templates.
 
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
@@ -48,6 +52,7 @@ Forge should be built in this order:
 - Follow `docs/capabilities/FCS-001-Review.md` before designing or implementing review behavior.
 - Follow `docs/release/release-standard.md` before tagging or changing release process.
 - Read `docs/reviews/DAR-0001-Forge-0.2.md` before planning Forge `0.3`.
+- Read `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md` before changing bootstrap templates, generated structure, or Forge `0.3` scope.
 - Keep documentation clear enough for a new contributor to understand without chat history.
 - Prefer small, reviewable changes over broad framework expansion.
 
@@ -59,9 +64,12 @@ Forge should be built in this order:
 - Do not hardcode generated project file contents in CLI code.
 - Do not implement `forge review` until report persistence, `N/A` scoring behavior, command scope, and output format are specified.
 - Do not publish Forge `0.2.0` to a package index.
+- Do not redesign the generated `forge/` folder as part of the `0.2.x` patch.
 
 ## Immediate Next Step
 
-The next logical work is to commit DAR-0001, then choose Forge `0.3` scope with the DAR risks in view.
+The next logical work is to run patch readiness checks, commit the Forge `0.2.2` patch readiness changes, then choose Forge `0.3` scope with both DAR-0001 and Gate 1 findings in view.
 
 Do not implement `forge review`, plugins, project profiles, or migration tooling yet.
+
+Before expanding functionality, revisit the remaining bootstrap concern from Gate 1: generated `forge/` versus `src/`.

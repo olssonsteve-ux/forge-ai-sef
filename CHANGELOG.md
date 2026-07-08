@@ -4,6 +4,17 @@ All notable changes to Forge will be documented in this file.
 
 Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking changes are allowed when they improve the long-term framework contract, but they must be documented.
 
+## [0.2.2] - 2026-07-08
+
+### Fixed
+
+- Updated package and runtime version metadata so generated projects report Forge `0.2.1`.
+- Strengthened generated `README.md` and `AI_HANDOFF.md` guidance for the first architecture discovery session.
+
+### Known Issues
+
+- Generated projects still use a `forge/` placeholder directory. This remains a known Forge `0.3` design item and is not redesigned in this patch.
+
 ## [0.1.0] - 2026-07-08
 
 ### Added
@@ -65,3 +76,17 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - No template migration tooling.
 - No release automation.
 - No package publishing.
+
+## [0.2.1] - 2026-07-08
+
+### Added
+
+- Added Gate 1 dogfooding review for bootstrapping `ForgePlayground`.
+- Recorded successful outside-repository execution of `python -m forge init ForgePlayground`.
+- Documented generated project usefulness, template quality, project memory usefulness, and folder structure findings.
+
+### Known Issues
+
+- Generated projects report Forge `0.2.0` even when dogfooding release tag `v0.2.1`.
+- Generated projects use a `forge/` placeholder directory, which may be less appropriate than `src/` for non-Forge projects.
+- Bootstrap templates need stronger first-session architecture discovery guidance.

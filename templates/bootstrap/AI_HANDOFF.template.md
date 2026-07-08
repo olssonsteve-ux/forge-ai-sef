@@ -1,6 +1,6 @@
 ---
 template_name: bootstrap-ai-handoff
-version: 0.1.0
+version: 0.1.1
 compatible_forge_versions: ">=0.2,<0.3"
 description: "Initial AI_HANDOFF.md for AI contributors."
 variables:
@@ -39,3 +39,11 @@ Begin with architecture discovery, project memory, and ADRs before implementatio
 ## Immediate Next Step
 
 Perform architecture discovery for `{{PROJECT_NAME}}`.
+
+Recommended first-session sequence:
+
+1. Read `README.md`, `PROJECT_STATE.md`, and `PROJECT_BRAIN.md`.
+2. Ask for or define the project purpose, boundaries, and non-goals.
+3. Identify architectural risks before proposing implementation.
+4. Record accepted decisions in `docs/decisions/`.
+5. Update project memory before writing production code.

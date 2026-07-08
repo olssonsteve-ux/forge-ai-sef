@@ -25,6 +25,7 @@ Forge is not an application. It is a foundation for creating and governing futur
 - Permanent Forge capabilities are specified through FCS documents before implementation.
 - Reviews must produce scores and narrative findings, not scores alone.
 - The first implementation must stay narrow and prove the template-driven bootstrap path.
+- Dogfooding is a release gate: generated projects must be judged for real usefulness, not only successful file creation.
 
 ## Product Shape
 
@@ -78,6 +79,12 @@ Forge may eventually include:
 - Do not publish Forge `0.2.0` to a package index.
 - Use DAR-0001 as the baseline for Forge `0.3` planning.
 - Treat roadmap drift, CI, testing standard, review persistence, and template provenance as known governance work.
+- Accept Gate 1 dogfooding for `ForgePlayground` as `PASS WITH COMMENTS`.
+- Treat generated `forge/` versus `src/` as a Forge `0.3` design decision.
+- Treat release tag, package version, and generated `FORGE_VERSION` alignment as required traceability work before future release confidence increases.
+- Fix generated Forge version traceability for `v0.2.1` before starting Forge `0.3`.
+- Strengthen first-session architecture discovery guidance in bootstrap templates without expanding `forge init` scope.
+- Do not redesign the generated `forge/` folder in the `0.2.x` patch; carry it into Forge `0.3` as an explicit design item.
 
 ## Open Questions
 
@@ -92,3 +99,5 @@ Forge may eventually include:
 - Should `forge init` eventually write template provenance metadata into generated projects?
 - What packaging channel should Forge use after local editable releases?
 - Should Forge `0.3` prioritize testing/CI governance or FCS-001 review persistence?
+- Should generated projects use a neutral `src/` directory instead of `forge/`?
+- Should `forge init` generate an architecture discovery starter or only point to one?

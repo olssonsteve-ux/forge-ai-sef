@@ -1,6 +1,6 @@
 ---
 template_name: bootstrap-readme
-version: 0.1.0
+version: 0.1.1
 compatible_forge_versions: ">=0.2,<0.3"
 description: "README for a new Forge-governed project."
 variables:
@@ -31,6 +31,14 @@ Foundation stage.
 
 Author: {{AUTHOR}}
 
-## Next Step
+## First Session
 
 Begin architecture discovery before writing production code.
+
+Recommended first-session sequence:
+
+1. Define the project purpose.
+2. Define project boundaries and non-goals.
+3. Identify architectural risks.
+4. Record durable decisions in `docs/decisions/`.
+5. Update `PROJECT_STATE.md`, `PROJECT_BRAIN.md`, and `AI_HANDOFF.md`.

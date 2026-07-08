@@ -2,15 +2,15 @@
 
 ## Status
 
-Forge 0.2.0 Design Authority Review complete.
+Forge 0.2.2 patch readiness in progress.
 
 ## Current Version
 
-`0.2.0`
+`0.2.1`
 
 ## Current Objective
 
-Record the first Design Authority Review as the baseline for Forge `0.3`.
+Resolve non-blocking Gate 1 bootstrap issues before starting Forge `0.3`.
 
 ## What Exists
 
@@ -48,6 +48,9 @@ Record the first Design Authority Review as the baseline for Forge `0.3`.
 - documented packaging decision
 - tag recommendation for `v0.2.0`
 - DAR-0001 Design Authority Review baseline
+- Gate 1 dogfooding review for `ForgePlayground`
+- patch update aligning generated Forge version with `v0.2.1`
+- strengthened first-session guidance in bootstrap README and AI handoff templates
 
 ## What Does Not Exist
 
@@ -61,6 +64,8 @@ Record the first Design Authority Review as the baseline for Forge `0.3`.
 - CI pipeline
 - formal testing standard
 - review report persistence contract
+- generated-project template provenance
+- generated architecture discovery starter
 
 ## Architectural Posture
 
@@ -82,10 +87,14 @@ Forge 0.2.0 is prepared as a local-editable release. It should not be published 
 
 DAR-0001 gives Forge `0.2.0` a decision of `PASS WITH COMMENTS`. The main baseline risks are roadmap drift, lack of CI, missing testing standard, minimal template metadata parsing, missing review persistence, and missing template provenance.
 
+Gate 1 dogfooding verified that `python -m forge init ForgePlayground` runs successfully from outside the Forge repository and creates a usable project foundation. The decision is `PASS WITH COMMENTS`. The main findings were version traceability drift between tag `v0.2.1` and generated `0.2.0` content, possible confusion from generating a `forge/` folder in arbitrary projects, and a need for stronger first-session guidance in generated templates.
+
+The non-blocking Gate 1 issues are being handled as a narrow patch. Generated projects should now report Forge `0.2.1`, and the generated README and AI handoff templates should better guide the first architecture discovery session. The generated `forge/` folder concern is documented as a Forge `0.3` design item and is intentionally not redesigned in this patch.
+
 ## Next Recommended Work
 
-1. Commit DAR-0001.
-2. Select Forge `0.3` scope.
-3. Define testing standard and CI expectations.
-4. Specify review report persistence before implementing `forge review`.
-5. Reconcile roadmap drift before planning further releases.
+1. Run patch readiness checks.
+2. Commit the Forge `0.2.2` patch readiness changes.
+3. Decide whether generated projects should use `src/` instead of `forge/` during Forge `0.3` planning.
+4. Define testing standard and CI expectations.
+5. Specify review report persistence before implementing `forge review`.
