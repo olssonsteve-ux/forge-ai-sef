@@ -20,6 +20,10 @@ Forge is not an application. It is a foundation for creating and governing futur
 - Architecture review gates protect Forge from premature automation.
 - Project memory files are contracts, not casual notes.
 - CLI behavior must be specified before it is implemented.
+- Bootstrap generation must be template-driven, not hardcoded in CLI code.
+- Templates are versioned architecture assets.
+- Permanent Forge capabilities are specified through FCS documents before implementation.
+- Reviews must produce scores and narrative findings, not scores alone.
 
 ## Product Shape
 
@@ -58,6 +62,12 @@ Forge may eventually include:
 - Govern standards through categories and acceptance criteria before automation.
 - Govern templates through ownership, versioning, and change rules before generation.
 - Specify `forge init <project-name>` before implementation.
+- Use `templates/bootstrap/` as the source for generated project files.
+- Require every template to define metadata, variables, required variables, and optional variables.
+- Reject unknown or missing template variables before writing files.
+- Verify first CLI behavior against the `forge init` specification before expanding scope.
+- Use `docs/capabilities/` for Forge Capability Specifications.
+- Accept FCS-001 as the Review Capability specification.
 
 ## Open Questions
 
@@ -66,5 +76,6 @@ Forge may eventually include:
 - How strict should Forge be when a project violates standards?
 - Should Forge support plugin-style extensions before `1.0`?
 - What scoring model should future architecture reviews use?
-- Which accepted templates are required for the first `forge init` implementation?
-- What testing standard should apply to the first CLI implementation?
+- What migration metadata should generated projects store after Forge `0.2`?
+- Where should Forge Review Reports be stored?
+- Should review project memory updates be automatic, suggested, or manual?

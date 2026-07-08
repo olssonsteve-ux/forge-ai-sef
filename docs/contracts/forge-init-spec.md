@@ -80,25 +80,28 @@ CHANGELOG.md
 PROJECT_STATE.md
 PROJECT_BRAIN.md
 AI_HANDOFF.md
-docs/README.md
-docs/architecture/discovery.md
-docs/architecture/proposal.md
-docs/contracts/README.md
-docs/contracts/project-state-schema.md
-docs/contracts/project-brain-schema.md
-docs/contracts/ai-handoff-schema.md
-docs/contracts/adr-lifecycle.md
-docs/decisions/0001-documentation-first-foundation.md
-docs/vision/purpose.md
-docs/vision/vision.md
-docs/vision/boundaries.md
-standards/README.md
-templates/README.md
-forge/.gitkeep
-tests/.gitkeep
+LICENSE
+.gitignore
 ```
 
-The exact generated content should come from accepted templates once template contracts exist.
+Generated file contents must come from `templates/bootstrap/`. The CLI must not hardcode generated document bodies.
+
+## Template Output Mapping
+
+The first implementation should use this mapping:
+
+| Template | Generated file |
+| --- | --- |
+| `templates/bootstrap/README.template.md` | `README.md` |
+| `templates/bootstrap/PROJECT_STATE.template.md` | `PROJECT_STATE.md` |
+| `templates/bootstrap/PROJECT_BRAIN.template.md` | `PROJECT_BRAIN.md` |
+| `templates/bootstrap/AI_HANDOFF.template.md` | `AI_HANDOFF.md` |
+| `templates/bootstrap/CHANGELOG.template.md` | `CHANGELOG.md` |
+| `templates/bootstrap/ROADMAP.template.md` | `ROADMAP.md` |
+| `templates/bootstrap/LICENSE.template` | `LICENSE` |
+| `templates/bootstrap/gitignore.template` | `.gitignore` |
+
+Additional generated files require accepted templates before they can be added to `forge init`.
 
 ## Overwrite Behavior
 
@@ -141,6 +144,8 @@ Before writing anything, the command should validate:
 - target parent exists or can be created safely
 - target is absent or empty
 - required templates are available
+- template metadata is valid
+- template variables can be resolved
 - generated file plan has no duplicate paths
 
 ## Error Handling
@@ -158,6 +163,22 @@ Expected errors:
 - unexpected filesystem failure
 
 The command should avoid partial writes. If partial writes occur due to an unexpected failure, the error should say which path failed and what may have been created.
+
+## Implementation Verification Expectations
+
+The first implementation should include tests or equivalent verification for:
+
+- valid project name creates the expected output plan
+- invalid project names fail before writing files
+- non-empty target directory fails by default
+- `--dry-run` writes no files or directories
+- all bootstrap templates are discovered
+- template metadata is validated
+- missing required variables fail validation
+- unknown template variables fail validation
+- generated output strips template metadata
+- generated file contents come from templates, not hardcoded CLI strings
+- success output reports created folder and file counts
 
 ## Success Output
 
@@ -189,3 +210,4 @@ Implementation may begin only after:
 - ADR lifecycle is accepted
 - template governance is accepted
 - this command behavior is reviewed
+- implementation verification expectations are accepted

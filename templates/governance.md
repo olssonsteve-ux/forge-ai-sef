@@ -27,6 +27,8 @@ Template metadata should eventually include:
 
 Until template metadata exists, the owning documentation file must describe compatibility manually.
 
+Bootstrap template metadata is now defined in `docs/contracts/bootstrap-template-system.md`.
+
 ## Change Rules
 
 Template changes must be classified as:
@@ -66,3 +68,5 @@ Templates must not:
 `forge init` should use accepted templates only.
 
 If no accepted template exists for a generated file, the CLI specification must either defer that file or mark the command as not ready for implementation.
+
+`forge init` must not hardcode generated file contents in CLI code.

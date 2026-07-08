@@ -2,7 +2,7 @@
 
 ## Status
 
-Forge 0.1 RC1 pre-implementation hardening.
+Capability specification stage.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ Forge 0.1 RC1 pre-implementation hardening.
 
 ## Current Objective
 
-Accept Forge 0.1 RC1 and harden document contracts before CLI implementation.
+Define FCS-001 Review Capability as the first permanent Forge capability.
 
 ## What Exists
 
@@ -29,6 +29,12 @@ Accept Forge 0.1 RC1 and harden document contracts before CLI implementation.
 - standard categories and acceptance criteria
 - template ownership, versioning, and change rules
 - pre-implementation specification for `forge init <project-name>`
+- bootstrap template system contract
+- versioned bootstrap template directory
+- initial bootstrap templates with metadata and variables
+- Forge Capability Specification directory
+- FCS-001 Review Capability specification
+- ADR for Forge Capability Specifications
 
 ## What Does Not Exist
 
@@ -39,9 +45,13 @@ Accept Forge 0.1 RC1 and harden document contracts before CLI implementation.
 - automated tests
 - release automation
 - implemented `forge init`
-- Python package configuration
-- accepted testing standard
+- accepted first CLI verification expectations
 - accepted release standard
+- automated template validation
+- template migration tooling
+- implemented review command
+- review report template
+- automated review scoring
 
 ## Architectural Posture
 
@@ -53,10 +63,14 @@ Milestone 0 adds an explicit architecture review gate before implementation work
 
 Forge 0.1 RC1 is accepted as the architecture foundation. Pre-implementation hardening defines contracts for project memory, ADRs, standards, templates, and the first CLI command without writing production code.
 
+The final architecture milestone defines Forge as template-driven. `forge init <project-name>` must render versioned templates from `templates/bootstrap/` and must not hardcode generated file contents.
+
+Forge now evolves permanent capabilities through Forge Capability Specifications under `docs/capabilities/`. FCS-001 defines how Forge performs project reviews before any review command is implemented.
+
 ## Next Recommended Work
 
-1. Review the `forge init <project-name>` specification.
-2. Decide whether accepted templates are sufficient for first CLI implementation.
-3. Define testing expectations for CLI behavior before writing code.
-4. Create Python package scaffolding only after implementation approval.
-5. Implement `forge init` only after the above review is complete.
+1. Decide whether to implement `forge init` first or specify review report persistence before review implementation.
+2. For FCS-001 implementation, define review report file location and naming.
+3. Finalize `N/A` scoring behavior for review categories.
+4. Choose the first review command scope.
+5. Keep review automation advisory until memory update behavior is specified.

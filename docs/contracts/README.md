@@ -18,4 +18,5 @@ Contracts describe the expected structure, ownership, and update rules for files
 - `project-brain-schema.md`
 - `ai-handoff-schema.md`
 - `adr-lifecycle.md`
+- `bootstrap-template-system.md`
 - `forge-init-spec.md`

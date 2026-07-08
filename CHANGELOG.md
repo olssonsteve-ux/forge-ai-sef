@@ -24,6 +24,14 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added standard categories and acceptance criteria.
 - Added template ownership, versioning, and change rules.
 - Added pre-implementation specification for `forge init <project-name>`.
+- Added bootstrap template system contract.
+- Added template-driven bootstrap generation ADR.
+- Added initial versioned bootstrap templates with metadata and variables.
+- Added template category directories for bootstrap, documentation, engineering, and standards templates.
+- Added first CLI implementation verification expectations for `forge init`.
+- Added Forge Capability Specifications directory.
+- Added FCS-001 Review Capability.
+- Added ADR for permanent Forge Capability Specifications.
 
 ### Not Added
 

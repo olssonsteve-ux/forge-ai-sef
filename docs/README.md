@@ -14,7 +14,9 @@ Forge documentation is intentionally split by authority. Files may reference the
 | Boundaries | `docs/vision/boundaries.md` | `docs/architecture/discovery.md` |
 | Architecture proposal | `docs/architecture/proposal.md` | `docs/architecture/discovery.md` |
 | Architecture discovery and review findings | `docs/architecture/discovery.md` | `docs/architecture/review-000.md` |
+| Forge capabilities | `docs/capabilities/` | `docs/decisions/0010-forge-capability-specifications.md` |
 | Document contracts | `docs/contracts/` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md`, `AI_HANDOFF.md` |
+| Bootstrap template system | `docs/contracts/bootstrap-template-system.md` | `templates/`, `docs/decisions/0009-template-driven-bootstrap-generation.md` |
 | First CLI behavior | `docs/contracts/forge-init-spec.md` | `ROADMAP.md`, `docs/decisions/0008-specify-forge-init-before-implementation.md` |
 | Version roadmap | `ROADMAP.md` | `README.md` |
 | Current project state | `PROJECT_STATE.md` | `AI_HANDOFF.md` |

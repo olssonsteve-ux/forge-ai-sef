@@ -4,6 +4,13 @@ This directory will contain reusable Forge templates.
 
 Templates are reusable project starting points, not hidden generators. A generated or copied template should remain understandable without Forge installed.
 
+## Directory Structure
+
+- `bootstrap/` contains templates used by `forge init <project-name>`.
+- `documentation/` is reserved for documentation artifact templates.
+- `engineering/` is reserved for engineering workflow templates.
+- `standards/` is reserved for standard document templates.
+
 ## Planned Templates
 
 Planned templates include:
@@ -17,6 +24,8 @@ Planned templates include:
 - release checklist template
 
 See `governance.md` for template ownership, versioning, and change rules.
+
+See `../docs/contracts/bootstrap-template-system.md` for bootstrap template architecture, metadata, variables, validation, compatibility, and versioning rules.
 
 ## Acceptance Criteria
 

@@ -16,6 +16,10 @@ Milestone 0 architecture review has been recorded in `docs/architecture/review-0
 
 Project memory schemas, ADR lifecycle rules, standard categories, template governance, and the `forge init <project-name>` pre-implementation specification are documented under `docs/contracts/`, `standards/`, and `templates/`.
 
+The bootstrap template system is defined in `docs/contracts/bootstrap-template-system.md`. `forge init` must use versioned templates from `templates/bootstrap/` and must not hardcode generated file contents.
+
+Forge Capability Specifications live under `docs/capabilities/`. FCS-001 defines the Review Capability and should be read before any `forge review` implementation work.
+
 ## Current Architectural Intent
 
 Forge should be built in this order:
@@ -36,6 +40,8 @@ Forge should be built in this order:
 - Add architectural decisions under `docs/decisions/` for meaningful direction changes.
 - Check `docs/README.md` before changing documentation authority or duplicating concepts.
 - Follow `docs/contracts/` before changing project memory or CLI behavior.
+- Follow `docs/contracts/bootstrap-template-system.md` before changing bootstrap templates or generation behavior.
+- Follow `docs/capabilities/FCS-001-Review.md` before designing or implementing review behavior.
 - Keep documentation clear enough for a new contributor to understand without chat history.
 - Prefer small, reviewable changes over broad framework expansion.
 
@@ -45,9 +51,11 @@ Forge should be built in this order:
 - Do not add production code during architecture or hardening work.
 - Do not add destructive overwrite behavior without an ADR.
 - Do not add dependency installation behavior to `forge init`.
+- Do not hardcode generated project file contents in CLI code.
+- Do not implement `forge review` until report persistence, `N/A` scoring behavior, command scope, and output format are specified.
 
 ## Immediate Next Step
 
-The next logical work is to review the `forge init <project-name>` specification, confirm template readiness, and define CLI testing expectations.
+The next logical work is to either begin `forge init` implementation after explicit approval or continue specifying FCS-001 implementation details such as review report storage, `N/A` scoring, command scope, and output format.
 
 Do not implement `forge init` until bootstrap behavior is specified and reviewed.

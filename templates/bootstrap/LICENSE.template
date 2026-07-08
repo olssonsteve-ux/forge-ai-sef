@@ -1,0 +1,22 @@
+---
+template_name: bootstrap-license
+version: 0.1.0
+compatible_forge_versions: ">=0.1,<0.2"
+description: "License placeholder for a Forge-governed project."
+variables:
+  - PROJECT_NAME
+  - AUTHOR
+  - LICENSE
+  - YEAR
+required_variables:
+  - PROJECT_NAME
+  - LICENSE
+  - YEAR
+optional_variables:
+  - AUTHOR
+---
+{{LICENSE}}
+
+Copyright (c) {{YEAR}} {{AUTHOR}}
+
+License terms for {{PROJECT_NAME}} should be reviewed before release.
