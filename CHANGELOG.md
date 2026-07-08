@@ -4,6 +4,20 @@ All notable changes to Forge will be documented in this file.
 
 Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking changes are allowed when they improve the long-term platform contract, but they must be documented.
 
+## [Unreleased]
+
+### Added
+
+- Added `AI_ENGINEERING_CONDUCT.md` as the root AI behavior contract for Forge-governed projects.
+- Added ADR 0012 for AI Engineering Conduct.
+- Updated README and project memory to place AI conduct beneath the Constitution and before Governance Runtime.
+
+### Not Added
+
+- No Python changes.
+- No CLI behavior changes.
+- No new commands.
+
 ## [0.3.0] - 2026-07-08
 
 ### Added

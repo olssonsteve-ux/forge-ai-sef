@@ -10,9 +10,11 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
-The repository is at Forge `0.3.0` constitutional identity stage.
+The repository is at Forge `0.3.1` AI Engineering Conduct stage.
 
 The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
+
+AI agent behavior is governed by `AI_ENGINEERING_CONDUCT.md`.
 
 There is now a Python package and Typer CLI implementation for `forge init <project-name>`.
 
@@ -27,6 +29,8 @@ The current patch resolves non-blocking Gate 1 issues by aligning generated Forg
 Forge 0.3 adds the Developer Platform baseline: testing standard, code quality standard, GitHub Actions CI standard, Ruff configuration, and a CI workflow under `.github/workflows/ci.yml`.
 
 ADR 0011 records the decision to use `CONSTITUTION.md` as the highest governing document and to identify Forge as an AI-Native Software Engineering Platform.
+
+ADR 0012 records the decision to establish `AI_ENGINEERING_CONDUCT.md` as the root AI behavior contract.
 
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
@@ -51,6 +55,7 @@ Forge should be built in this order:
 
 - Keep production code scoped to explicitly approved Forge capabilities.
 - Read `CONSTITUTION.md` before major planning, governance, capability, review, or release work.
+- Read `AI_ENGINEERING_CONDUCT.md` before any meaningful project work.
 - Preserve project memory files when making changes.
 - Update `PROJECT_STATE.md` when the project status changes.
 - Update `PROJECT_BRAIN.md` when durable decisions or project beliefs change.
@@ -67,6 +72,7 @@ Forge should be built in this order:
 - Read `docs/reviews/DAR-0001-Forge-0.2.md` before planning Forge `0.3`.
 - Read `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md` before changing bootstrap templates, generated structure, or Forge `0.3` scope.
 - Read `docs/decisions/0011-forge-constitutional-governance-and-product-identity.md` before changing Forge identity or governance hierarchy.
+- Read `docs/decisions/0012-ai-engineering-conduct.md` before changing AI conduct rules.
 - Keep documentation clear enough for a new contributor to understand without chat history.
 - Prefer small, reviewable changes over broad platform expansion.
 
@@ -79,10 +85,11 @@ Forge should be built in this order:
 - Do not implement `forge review` until report persistence, `N/A` scoring behavior, command scope, and output format are specified.
 - Do not publish Forge `0.2.0` to a package index.
 - Do not redesign the generated `forge/` folder as part of the `0.2.x` patch.
+- Do not start Forge `0.4` Governance Runtime until AI Engineering Conduct is accepted.
 
 ## Immediate Next Step
 
-The next logical work is to complete constitutional review, commit the constitutional identity milestone, and then plan the next capability from the constitutional hierarchy.
+The next logical work is to review and commit AI Engineering Conduct, then begin Forge `0.4` Governance Runtime planning from the constitutional hierarchy.
 
 Do not implement `forge review`, plugins, project profiles, or migration tooling yet.
 

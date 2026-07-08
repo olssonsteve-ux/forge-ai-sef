@@ -54,6 +54,8 @@ Design Authority Review
 Release
 ```
 
+AI agent behavior is governed by [AI_ENGINEERING_CONDUCT.md](AI_ENGINEERING_CONDUCT.md).
+
 ## Purpose
 
 Forge exists to make AI-assisted software engineering repeatable, auditable, durable, and governable.
@@ -62,7 +64,7 @@ Forge addresses the layer around code: purpose, memory, architecture, specificat
 
 ## Current State
 
-This repository is in Forge `0.3.0` Developer Platform stage.
+This repository is in Forge `0.3.1` AI Engineering Conduct stage.
 
 Forge includes the first local CLI command:
 
@@ -73,6 +75,8 @@ forge init <project-name>
 The command creates a Forge-governed project foundation from versioned templates under `templates/bootstrap/`.
 
 Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing standards, code quality standards, and GitHub Actions CI.
+
+Forge `v0.3.1` adds the constitutional identity foundation. The current governance milestone adds the AI conduct layer before Forge 0.4 Governance Runtime begins.
 
 The current implementation deliberately does not include `forge review`, plugins, release automation, remote templates, or project profiles beyond bootstrap.
 
@@ -87,6 +91,7 @@ Forge is:
 - a bootstrap and template foundation
 - a quality and release discipline
 - a human-AI collaboration structure
+- an AI engineering conduct model
 
 Forge is not:
 
@@ -119,6 +124,7 @@ Forge is not:
 +-- templates/
 +-- tests/
 +-- AI_HANDOFF.md
++-- AI_ENGINEERING_CONDUCT.md
 +-- CHANGELOG.md
 +-- CONSTITUTION.md
 +-- PROJECT_BRAIN.md
@@ -175,6 +181,7 @@ The GitHub Actions workflow runs the same quality gate on push and pull request.
 Forge develops through durable governing artifacts:
 
 - the Constitution defines permanent identity and principles
+- AI Engineering Conduct defines how AI agents must behave
 - the roadmap orders strategic work
 - Forge Capability Specifications define permanent capabilities
 - Engineering Briefs define bounded implementation work

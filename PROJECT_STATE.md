@@ -2,15 +2,15 @@
 
 ## Status
 
-Forge constitutional identity milestone in progress.
+AI Engineering Conduct milestone in progress.
 
 ## Current Version
 
-`0.3.0`
+`0.3.1`
 
 ## Current Objective
 
-Establish Forge's permanent constitutional identity and governance foundation.
+Establish the AI conduct layer before Forge `0.4` Governance Runtime.
 
 ## What Exists
 
@@ -62,6 +62,8 @@ Establish Forge's permanent constitutional identity and governance foundation.
 - official Forge identity as an AI-Native Software Engineering Platform
 - official motto: "Build software with intention."
 - ADR 0011 for constitutional governance and product identity
+- root `AI_ENGINEERING_CONDUCT.md`
+- ADR 0012 for AI Engineering Conduct
 
 ## What Does Not Exist
 
@@ -72,7 +74,6 @@ Establish Forge's permanent constitutional identity and governance foundation.
 - automated review scoring
 - plugin system
 - project profiles beyond bootstrap
-- formal testing standard
 - review report persistence contract
 - generated-project template provenance
 - generated architecture discovery starter
@@ -108,10 +109,12 @@ Forge 0.3 establishes the Developer Platform baseline. It adds documented testin
 
 The constitutional milestone establishes `CONSTITUTION.md` as the highest governing document in Forge. Forge now officially identifies as an AI-Native Software Engineering Platform. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from the Constitution.
 
+The AI Engineering Conduct milestone defines how AI agents must behave inside Forge-governed projects. It requires agents to read before changing, understand before implementing, motivate before deciding, specify before coding, test before claiming completion, review before release, document before moving on, preserve architecture unless an ADR justifies change, follow the Constitution, and escalate uncertainty instead of inventing certainty.
+
 ## Next Recommended Work
 
-1. Complete constitutional review.
-2. Commit constitutional identity and governance documentation.
-3. Decide whether generated projects should use `src/` instead of `forge/`.
-4. Specify review report persistence before implementing `forge review`.
+1. Review and commit AI Engineering Conduct milestone.
+2. Decide whether generated projects should use `src/` instead of `forge/`.
+3. Specify review report persistence before implementing `forge review`.
+4. Prepare Forge `0.4` Governance Runtime only after conduct is accepted.
 5. Consider type checking and coverage thresholds in a future milestone.

@@ -31,6 +31,7 @@ Forge is not an application. It is a constitutional foundation for creating and 
 - Forge must have a reliable developer platform before new capabilities are added.
 - Forge's permanent motto is: Build software with intention.
 - Every future engineering decision should ultimately derive from `CONSTITUTION.md`.
+- AI agents must follow `AI_ENGINEERING_CONDUCT.md` when working in Forge-governed projects.
 
 ## Product Shape
 
@@ -99,6 +100,9 @@ Forge may eventually include:
 - Officially position Forge as an AI-Native Software Engineering Platform.
 - Use ADR 0011 as the decision record for constitutional governance and product identity.
 - Treat "framework" language as historical or supporting language unless it conflicts with the official platform identity.
+- Use `AI_ENGINEERING_CONDUCT.md` as the root AI behavior contract.
+- Use ADR 0012 as the decision record for AI Engineering Conduct.
+- Require AI agents to escalate uncertainty instead of inventing certainty.
 
 ## Open Questions
 
@@ -118,3 +122,4 @@ Forge may eventually include:
 - Should Forge add type checking before `1.0`?
 - What test coverage threshold should Forge require before review automation exists?
 - What constitutional review cadence should Forge use after major milestones?
+- How should Governance Runtime enforce AI Engineering Conduct without becoming brittle?
