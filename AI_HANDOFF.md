@@ -8,9 +8,11 @@ Forge is not an application. Do not assume product UI, API routes, database mode
 
 ## Current Repository State
 
-The repository is at Forge `0.2.0` MVP implementation stage.
+The repository is at Forge `0.2.0` release readiness stage.
 
 There is now a Python package and Typer CLI implementation for `forge init <project-name>`.
+
+Release readiness documentation lives under `docs/release/`.
 
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
@@ -42,6 +44,7 @@ Forge should be built in this order:
 - Follow `docs/contracts/` before changing project memory or CLI behavior.
 - Follow `docs/contracts/bootstrap-template-system.md` before changing bootstrap templates or generation behavior.
 - Follow `docs/capabilities/FCS-001-Review.md` before designing or implementing review behavior.
+- Follow `docs/release/release-standard.md` before tagging or changing release process.
 - Keep documentation clear enough for a new contributor to understand without chat history.
 - Prefer small, reviewable changes over broad framework expansion.
 
@@ -52,9 +55,10 @@ Forge should be built in this order:
 - Do not add dependency installation behavior to `forge init`.
 - Do not hardcode generated project file contents in CLI code.
 - Do not implement `forge review` until report persistence, `N/A` scoring behavior, command scope, and output format are specified.
+- Do not publish Forge `0.2.0` to a package index.
 
 ## Immediate Next Step
 
-The next logical work is to review the Forge 0.2 MVP implementation, commit it if accepted, then define release standards or continue specifying FCS-001 implementation details.
+The next logical work is to run release verification, commit release readiness documentation, and tag `v0.2.0` if the working tree is clean.
 
 Do not implement `forge review`, plugins, project profiles, or migration tooling yet.

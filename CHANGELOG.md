@@ -53,6 +53,8 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added conservative overwrite protection for non-empty target directories.
 - Added template metadata, variable, and compatibility validation.
 - Added tests for project creation, invalid names, dry-run, overwrite protection, template rendering, and template discovery.
+- Added release standard.
+- Added Forge `0.2.0` release checklist.
 
 ### Not Added
 
@@ -61,3 +63,4 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - No project profiles beyond bootstrap.
 - No template migration tooling.
 - No release automation.
+- No package publishing.

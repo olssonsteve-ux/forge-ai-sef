@@ -73,6 +73,9 @@ Forge may eventually include:
 - Implement only `forge init <project-name>` for the first MVP.
 - Keep generated file content in `templates/bootstrap/`, not in Python code.
 - Use tests to protect dry-run, validation, overwrite protection, and template rendering.
+- Release Forge `0.2.0` as local editable only.
+- Use tag format `vX.Y.Z`, starting with `v0.2.0`.
+- Do not publish Forge `0.2.0` to a package index.
 
 ## Open Questions
 
@@ -85,3 +88,4 @@ Forge may eventually include:
 - Where should Forge Review Reports be stored?
 - Should review project memory updates be automatic, suggested, or manual?
 - Should `forge init` eventually write template provenance metadata into generated projects?
+- What packaging channel should Forge use after local editable releases?

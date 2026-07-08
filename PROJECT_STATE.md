@@ -2,7 +2,7 @@
 
 ## Status
 
-Forge 0.2 MVP implementation stage.
+Forge 0.2.0 release readiness stage.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ Forge 0.2 MVP implementation stage.
 
 ## Current Objective
 
-Implement the first MVP CLI command: `forge init <project-name>`.
+Prepare Forge `0.2.0` for tagging.
 
 ## What Exists
 
@@ -43,11 +43,14 @@ Implement the first MVP CLI command: `forge init <project-name>`.
 - dry-run mode
 - conservative overwrite protection
 - automated tests for the first CLI command
+- release standard
+- Forge `0.2.0` release checklist
+- documented packaging decision
+- tag recommendation for `v0.2.0`
 
 ## What Does Not Exist
 
 - release automation
-- accepted release standard
 - template migration tooling
 - implemented review command
 - review report template
@@ -71,10 +74,12 @@ Forge now evolves permanent capabilities through Forge Capability Specifications
 
 Forge 0.2 introduces the first implementation layer. `forge init <project-name>` is intentionally narrow: it renders bootstrap templates, creates the default folder structure, supports dry-run, validates project names, and refuses to overwrite non-empty directories.
 
+Forge 0.2.0 is prepared as a local-editable release. It should not be published to a package index yet.
+
 ## Next Recommended Work
 
-1. Review Forge 0.2 MVP implementation.
-2. Decide whether to commit the CLI implementation.
-3. Define release standard and release checklist.
-4. Specify review report persistence before implementing `forge review`.
-5. Keep plugins, project profiles, and migration tooling out of scope until separately specified.
+1. Run `python -m pytest`.
+2. Run `python -m forge init release-smoke --dry-run`.
+3. Commit release readiness documentation.
+4. Tag `v0.2.0` if the working tree is clean.
+5. After tagging, specify review report persistence before implementing `forge review`.
