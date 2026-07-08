@@ -39,6 +39,9 @@ Roadmap
 Capability Specifications
   |
   v
+Capability Slices
+  |
+  v
 Engineering Briefs
   |
   v
@@ -77,6 +80,8 @@ The command creates a Forge-governed project foundation from versioned templates
 Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing standards, code quality standards, and GitHub Actions CI.
 
 Forge `v0.3.1` adds the constitutional identity foundation. The current governance milestone adds the AI conduct layer before Forge 0.4 Governance Runtime begins.
+
+Forge now specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md) and is not implemented yet.
 
 The current implementation deliberately does not include `forge review`, plugins, release automation, remote templates, or project profiles beyond bootstrap.
 
@@ -184,6 +189,8 @@ Forge develops through durable governing artifacts:
 - AI Engineering Conduct defines how AI agents must behave
 - the roadmap orders strategic work
 - Forge Capability Specifications define permanent capabilities
+- Capability Slices decompose large capabilities into implementation-sized increments
+- Governance Runtime will interpret the governance model operationally
 - Engineering Briefs define bounded implementation work
 - tests and standards verify quality
 - Design Authority Reviews protect long-term coherence
@@ -202,7 +209,7 @@ Forge will evolve from constitutional foundation to a stable AI-native engineeri
 - `0.1`: foundation and architecture
 - `0.2`: bootstrap MVP and dogfooding
 - `0.3`: developer platform, CI, testing, code quality, and constitutional identity
-- future milestones: review, knowledge, capability runtime, governance, and ecosystem maturity
+- future milestones: Governance Runtime, review, knowledge, capability runtime, and ecosystem maturity
 - `1.0`: stable platform contract
 
 See [ROADMAP.md](ROADMAP.md) for the full roadmap.

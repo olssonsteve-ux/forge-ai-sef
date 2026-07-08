@@ -2,15 +2,15 @@
 
 ## Status
 
-AI Engineering Conduct milestone in progress.
+Engineering hierarchy architecture review complete.
 
 ## Current Version
 
-`0.3.1`
+`0.3.2`
 
 ## Current Objective
 
-Establish the AI conduct layer before Forge `0.4` Governance Runtime.
+Introduce Capability Slice as the layer between Capability Specification and Engineering Brief.
 
 ## What Exists
 
@@ -64,12 +64,19 @@ Establish the AI conduct layer before Forge `0.4` Governance Runtime.
 - ADR 0011 for constitutional governance and product identity
 - root `AI_ENGINEERING_CONDUCT.md`
 - ADR 0012 for AI Engineering Conduct
+- FCS-002 Governance Runtime capability specification
+- ADR 0013 for Governance Runtime Capability
+- AR-0001 Engineering Hierarchy architecture review
+- ADR 0014 introducing Capability Slices
 
 ## What Does Not Exist
 
 - release automation
 - template migration tooling
 - implemented review command
+- implemented Governance Runtime
+- Capability Slice template
+- Capability Slice standard
 - review report template
 - automated review scoring
 - plugin system
@@ -111,10 +118,14 @@ The constitutional milestone establishes `CONSTITUTION.md` as the highest govern
 
 The AI Engineering Conduct milestone defines how AI agents must behave inside Forge-governed projects. It requires agents to read before changing, understand before implementing, motivate before deciding, specify before coding, test before claiming completion, review before release, document before moving on, preserve architecture unless an ADR justifies change, follow the Constitution, and escalate uncertainty instead of inventing certainty.
 
+FCS-002 defines Governance Runtime as the future operational layer that interprets the Constitution and continuously evaluates engineering health, governance compliance, project memory health, capability health, risk, and release readiness. It is specification-only and does not implement Python, CLI commands, scoring formulas, file mutation, or release automation.
+
+AR-0001 concludes that Forge should introduce Capability Slice as a new engineering layer between Capability Specification and Engineering Brief. This change is accepted in ADR 0014. Capability Slices decompose large accepted capabilities into implementation-sized increments without replacing FCS documents or Engineering Briefs.
+
 ## Next Recommended Work
 
-1. Review and commit AI Engineering Conduct milestone.
-2. Decide whether generated projects should use `src/` instead of `forge/`.
-3. Specify review report persistence before implementing `forge review`.
-4. Prepare Forge `0.4` Governance Runtime only after conduct is accepted.
-5. Consider type checking and coverage thresholds in a future milestone.
+1. Commit Governance Runtime and engineering hierarchy documentation.
+2. Define a Capability Slice standard and template before Governance Runtime implementation.
+3. Define the first Governance Runtime Capability Slice.
+4. Decide whether the first interface is CLI, report-only, or library-level.
+5. Specify runtime inputs, outputs, persistence, scoring policy, and failure behavior.

@@ -212,6 +212,9 @@ Roadmap
 Capability Specifications
   |
   v
+Capability Slices
+  |
+  v
 Engineering Briefs
   |
   v
@@ -234,6 +237,8 @@ Product Strategy interprets the Constitution into product direction.
 The Roadmap orders strategic work into coherent milestones.
 
 Capability Specifications define permanent platform capabilities before implementation.
+
+Capability Slices decompose accepted capabilities into coherent implementation-sized increments.
 
 Engineering Briefs define bounded engineering work within accepted capabilities or platform needs.
 

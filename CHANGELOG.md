@@ -8,6 +8,12 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 
 ### Added
 
+- Added FCS-002 Governance Runtime capability specification.
+- Added ADR 0013 for Governance Runtime as a permanent capability.
+- Updated README and project memory to identify Governance Runtime as the future operational layer of Forge.
+- Added AR-0001 Engineering Hierarchy architecture review.
+- Added ADR 0014 introducing Capability Slices between Capability Specifications and Engineering Briefs.
+- Updated constitutional and documentation hierarchy references to include Capability Slices.
 - Added `AI_ENGINEERING_CONDUCT.md` as the root AI behavior contract for Forge-governed projects.
 - Added ADR 0012 for AI Engineering Conduct.
 - Updated README and project memory to place AI conduct beneath the Constitution and before Governance Runtime.

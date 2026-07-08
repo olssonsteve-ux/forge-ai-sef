@@ -17,7 +17,9 @@ Forge documentation is intentionally split by authority. Files may reference the
 | Boundaries | `docs/vision/boundaries.md` | `docs/architecture/discovery.md` |
 | Architecture proposal | `docs/architecture/proposal.md` | `docs/architecture/discovery.md` |
 | Architecture discovery and review findings | `docs/architecture/discovery.md` | `docs/architecture/review-000.md` |
+| Engineering hierarchy reviews | `docs/architecture/AR-0001-Engineering-Hierarchy.md` | `CONSTITUTION.md`, ADRs |
 | Forge capabilities | `docs/capabilities/` | `docs/decisions/0010-forge-capability-specifications.md` |
+| Capability Slices | future slice standard/template | `docs/architecture/AR-0001-Engineering-Hierarchy.md`, `docs/decisions/0014-introduce-capability-slices.md` |
 | Document contracts | `docs/contracts/` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md`, `AI_HANDOFF.md` |
 | Bootstrap template system | `docs/contracts/bootstrap-template-system.md` | `templates/`, `docs/decisions/0009-template-driven-bootstrap-generation.md` |
 | First CLI behavior | `docs/contracts/forge-init-spec.md` | `ROADMAP.md`, `docs/decisions/0008-specify-forge-init-before-implementation.md` |

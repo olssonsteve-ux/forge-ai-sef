@@ -32,6 +32,8 @@ Forge is not an application. It is a constitutional foundation for creating and 
 - Forge's permanent motto is: Build software with intention.
 - Every future engineering decision should ultimately derive from `CONSTITUTION.md`.
 - AI agents must follow `AI_ENGINEERING_CONDUCT.md` when working in Forge-governed projects.
+- Governance Runtime is the future operational layer that interprets Forge governance and evaluates engineering health.
+- Capability Slices keep large capabilities traceable and implementation-sized without weakening capability-first governance.
 
 ## Product Shape
 
@@ -103,6 +105,13 @@ Forge may eventually include:
 - Use `AI_ENGINEERING_CONDUCT.md` as the root AI behavior contract.
 - Use ADR 0012 as the decision record for AI Engineering Conduct.
 - Require AI agents to escalate uncertainty instead of inventing certainty.
+- Accept FCS-002 as the Governance Runtime capability specification.
+- Use ADR 0013 as the decision record for Governance Runtime as a permanent capability.
+- Do not implement Governance Runtime until first service, inputs, outputs, persistence, scoring policy, and failure behavior are specified.
+- Introduce Capability Slice between Capability Specification and Engineering Brief.
+- Use ADR 0014 as the decision record for Capability Slices.
+- Use AR-0001 as the architecture review baseline for the engineering hierarchy.
+- Do not create Engineering Briefs for large multi-service capabilities until the relevant Capability Slice is accepted.
 
 ## Open Questions
 
@@ -123,3 +132,7 @@ Forge may eventually include:
 - What test coverage threshold should Forge require before review automation exists?
 - What constitutional review cadence should Forge use after major milestones?
 - How should Governance Runtime enforce AI Engineering Conduct without becoming brittle?
+- Which Governance Runtime service should be implemented first?
+- Should Governance Runtime begin as a CLI command, report generator, or internal service?
+- What should the Capability Slice template require?
+- Where should Capability Slices live in the repository?
