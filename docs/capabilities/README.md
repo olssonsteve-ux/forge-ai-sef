@@ -16,6 +16,7 @@ Capability Slices are governed by `docs/standards/capability-slice-standard.md`.
 ## Capability Slices
 
 - `CS-002.1-Governance-Runtime-Status-Service.md` - first Governance Runtime slice; defines read-only status evaluation for the future `forge status` command.
+- `CS-002.2-Governance-Runtime-Version-Consistency-Check.md` - proposed Governance Runtime slice; defines read-only version consistency checks for `forge status`.
 
 ## Naming
 

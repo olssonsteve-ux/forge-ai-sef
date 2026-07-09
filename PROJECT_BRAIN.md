@@ -37,6 +37,7 @@ Forge is not an application. It is a constitutional foundation for creating and 
 - Capability Slices are first-class Forge artifacts governed by `docs/standards/capability-slice-standard.md`.
 - Governance Runtime should begin with a read-only Status Service before any scoring, enforcement, release approval, or memory mutation.
 - Capability Slice Design Authority Reviews should verify slice readiness before Engineering Briefs are created for major runtime capabilities.
+- Engineering Brief implementation must follow a standard protocol so AI implementation behavior remains repeatable, reviewable, and scope-controlled.
 
 ## Product Shape
 
@@ -133,6 +134,25 @@ Forge may eventually include:
 - Version consistency is a Governance Runtime concern because release identity spans Git tags, package metadata, documentation, project memory, changelog, and handoff context.
 - CI cannot be assumed to catch governance drift unless explicit checks exist.
 - `forge status` should evolve through slices from artifact presence toward semantic governance consistency checks.
+- Version consistency should extend `forge status` as a read-only status category or item group, not as a separate command.
+- Accept CS-002.2 as the specified Capability Slice for Governance Runtime Version Consistency Check.
+- Treat historical version references as valid context unless they conflict with active release-facing version identity.
+- Do not implement version consistency checks until CS-002.2 passes DAR-CS and an Engineering Brief is accepted.
+- Accept DAR-CS-0002 as `PASS WITH COMMENTS` for CS-002.2.
+- Require EB-002.2 to define exact version parsing, active versus historical reference handling, latest tag selection, package metadata policy, output placement, fixtures, and read-only tests.
+- Keep version consistency informational; it must not become release approval or automatic remediation.
+- Accept EB-002.2 as the implementation brief for adding Version Consistency Status to `forge status`.
+- Implement version consistency with conservative parsing, local Git-only inspection, and explicit historical-reference exclusions.
+- Keep `pyproject.toml` version mismatches as warnings until Forge has a package publishing policy.
+- Implement Version Consistency Status as one additional read-only `forge status` category, not a new command.
+- Use the latest local `vMAJOR.MINOR.PATCH` Git tag as the comparison target when available.
+- Compare only active release-facing document sections, not every historical version reference in a file.
+- Treat missing `pyproject.toml` as `NOT_APPLICABLE` because Forge-generated projects may not be Python packages.
+- Report version mismatches as `WARNING`; do not automatically fix files, approve releases, create tags, or persist reports.
+- Use `docs/standards/ai-implementation-protocol.md` as the default implementation process for future Engineering Briefs.
+- Use ADR 0015 as the decision record for the AI Implementation Protocol.
+- Require implementation agents to read governing documents, implement only approved scope, run required verification, update required documentation, report risks, and prepare review handoff.
+- Let Engineering Briefs define stricter verification or process requirements, but not silently bypass the protocol.
 
 ## Open Questions
 
@@ -156,5 +176,5 @@ Forge may eventually include:
 - Should a future slice add JSON output for `forge status`?
 - Should a future slice persist status reports, and if so where?
 - Should Governance Runtime define a shared result model before adding more services?
-- Should CS-002.2 define Version Consistency Check as a new `forge status` category or as items inside existing Release and Runtime Memory categories?
 - Should package metadata version match release tags before Forge publishes packages, or only after a package distribution strategy is accepted?
+- Should future release policy require package metadata to match release tags before package publishing exists?

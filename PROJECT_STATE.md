@@ -2,7 +2,7 @@
 
 ## Status
 
-Forge `v0.4.0` post-release review recorded.
+AI Implementation Protocol standard created.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ Forge `v0.4.0` post-release review recorded.
 
 ## Current Objective
 
-Prepare a future Governance Runtime version consistency slice.
+Adopt AI Implementation Protocol as the default standard for future Engineering Brief implementation.
 
 ## What Exists
 
@@ -77,6 +77,14 @@ Prepare a future Governance Runtime version consistency slice.
 - implemented `forge status` command
 - automated tests for status categories, missing artifacts, no-Git repositories, and read-only behavior
 - PRR-0001 post-release review for `v0.4.0`
+- CS-002.2 Governance Runtime Version Consistency Check Capability Slice
+- DAR-CS-0002 review for CS-002.2
+- EB-002.2 implementation brief for Governance Runtime Version Consistency Check
+- implemented Version Consistency Status category inside `forge status`
+- conservative local version comparison across Git tags, README, changelog, project memory, AI handoff, and `pyproject.toml` when present
+- tests for matching versions, mismatches, missing tags, optional package metadata, dirty working trees, and read-only behavior
+- AI Implementation Protocol standard
+- ADR 0015 adopting the AI Implementation Protocol
 
 ## What Does Not Exist
 
@@ -94,7 +102,6 @@ Prepare a future Governance Runtime version consistency slice.
 - coverage threshold
 - type checking
 - release automation
-- Governance Runtime version consistency check
 
 ## Architectural Posture
 
@@ -142,9 +149,19 @@ Forge now implements EB-002.1 through `forge/status.py` and the `forge status` C
 
 PRR-0001 records a post-release version consistency issue after `v0.4.0`: active documentation still referenced Forge `0.3.3` after the release tag was created. The root cause was a missing release-time version consistency gate. CI did not catch it because CI currently checks tests, lint, and formatting. `forge status` did not catch it because CS-002.1 only checks artifact presence and simple status, not semantic version agreement.
 
+`docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md` specifies a read-only Governance Runtime extension to `forge status`. It defines version consistency as a status category or item group that compares Git tags, active documentation, project memory, package metadata when present, release documentation, and repository metadata without modifying files.
+
+`docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` reviews CS-002.2 and gives it a decision of `PASS WITH COMMENTS`. The slice is ready for EB-002.2. The Engineering Brief must define exact parsing and matching rules, active versus historical reference policy, status output placement, fixtures, and read-only tests.
+
+`docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` defines the implementation boundary for adding Version Consistency Status to `forge status`. It requires read-only behavior, conservative parsing, local Git-only inspection, no new CLI command, no automatic fixes, no report persistence, no release approval, and no runtime project memory mutation.
+
+Forge now implements EB-002.2 as an additional read-only `forge status` category. Version Consistency Status compares the latest local release tag with active release-facing references in `README.md`, `CHANGELOG.md`, `PROJECT_STATE.md`, `AI_HANDOFF.md`, and `pyproject.toml` when present. The implementation intentionally avoids broad historical scans, automatic fixes, release approval, report persistence, network calls, and project memory mutation.
+
+`docs/standards/ai-implementation-protocol.md` defines the mandatory implementation workflow for AI agents implementing Engineering Briefs. ADR 0015 accepts it as the default implementation protocol for future Engineering Briefs. The protocol standardizes read-first behavior, scope discipline, verification, documentation updates, reporting, review handoff, and commit preparation.
+
 ## Next Recommended Work
 
-1. Create a future Capability Slice for Governance Runtime version consistency, likely `CS-002.2-Governance-Runtime-Version-Consistency-Check.md`.
-2. Define a read-only check for release tag, changelog, README, project state, handoff, package metadata, and release documentation agreement.
-3. Decide whether version consistency should appear as a new `forge status` category or status item.
-4. Do not add automatic version updates, changelog rewrites, release approval, or project memory mutation without a new accepted slice and brief.
+1. Use the AI Implementation Protocol for the next Engineering Brief implementation.
+2. Perform implementation review for EB-002.2.
+3. Verify that Version Consistency Status remains read-only and informational.
+4. Do not add automatic version updates, changelog rewrites, release approval, CI enforcement, report persistence, or project memory mutation.

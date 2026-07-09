@@ -59,6 +59,8 @@ Release
 
 AI agent behavior is governed by [AI_ENGINEERING_CONDUCT.md](AI_ENGINEERING_CONDUCT.md).
 
+Engineering Brief implementation by AI agents is governed by [docs/standards/ai-implementation-protocol.md](docs/standards/ai-implementation-protocol.md).
+
 ## Purpose
 
 Forge exists to make AI-assisted software engineering repeatable, auditable, durable, and governable.
@@ -78,13 +80,13 @@ forge status
 
 `forge init` creates a Forge-governed project foundation from versioned templates under `templates/bootstrap/`.
 
-`forge status` inspects the current repository and reports read-only governance status. It does not approve releases, calculate a score, persist reports, or update project files.
+`forge status` inspects the current repository and reports read-only governance status. It includes a Version Consistency Status category that compares local release tags with active version references in README, changelog, project memory, handoff context, and `pyproject.toml` when present. It does not approve releases, calculate a score, persist reports, fix mismatches, or update project files.
 
 Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing standards, code quality standards, and GitHub Actions CI.
 
 Forge `v0.3.1` adds the constitutional identity foundation. The current governance milestone adds the AI conduct layer before Forge 0.4 Governance Runtime begins.
 
-Forge specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md). Its first read-only Status Service is implemented through `forge status`.
+Forge specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md). Its first read-only Status Service is implemented through `forge status`, including artifact presence checks and conservative version consistency checks.
 
 Capability Slices are now a first-class Forge artifact governed by [docs/standards/capability-slice-standard.md](docs/standards/capability-slice-standard.md). New slices should start from [templates/capability-slices/CS-template.md](templates/capability-slices/CS-template.md).
 
@@ -204,6 +206,7 @@ Forge develops through durable governing artifacts:
 - Capability Slices decompose large capabilities into implementation-sized increments
 - Governance Runtime will interpret the governance model operationally
 - Engineering Briefs define bounded implementation work
+- the AI Implementation Protocol defines how Engineering Briefs are implemented by AI agents
 - tests and standards verify quality
 - Design Authority Reviews protect long-term coherence
 - releases publish only reviewed work

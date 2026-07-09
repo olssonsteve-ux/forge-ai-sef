@@ -10,9 +10,17 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
-The repository is released as Forge `v0.4.0` with the Governance Runtime Status Service implemented.
+The repository is released as Forge `v0.4.0` with the Governance Runtime Status Service and Version Consistency Status implemented.
+
+`docs/standards/ai-implementation-protocol.md` is now the default implementation protocol for AI agents implementing Engineering Briefs. ADR 0015 records this decision.
 
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
+
+CS-002.2 now specifies that future version consistency check as a read-only `forge status` extension.
+
+DAR-CS-0002 reviews CS-002.2 and gives it a decision of `PASS WITH COMMENTS`. The slice is ready for EB-002.2.
+
+`docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` is the accepted implementation brief for adding Version Consistency Status to `forge status`. The implementation is now present in `forge/status.py`.
 
 The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
 
@@ -26,11 +34,17 @@ Capability Slices are governed by `docs/standards/capability-slice-standard.md`.
 
 The first Governance Runtime Capability Slice is `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md`. It defines a read-only Status Service that will later support `forge status`.
 
+The second Governance Runtime Capability Slice is `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md`. It defines read-only version consistency checks across Git tags, active documentation, project memory, changelog, package metadata when present, release documentation, and repository metadata.
+
+`docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` records the architecture review for CS-002.2.
+
+EB-002.2 requires conservative parsing, local Git-only inspection, no new CLI command, no automatic fixes, no report persistence, no release approval, and no runtime project memory mutation.
+
 `docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` reviews CS-002.1 and gives it a decision of `PASS WITH COMMENTS`. It confirms that the slice is ready for Engineering Brief creation.
 
 `docs/engineering/EB-002.1-Implement-Status-Service.md` is the accepted implementation brief for the first Governance Runtime service and future `forge status` command.
 
-`forge/status.py` implements the read-only Status Service. `forge status` is wired in `forge/cli.py`.
+`forge/status.py` implements the read-only Status Service. `forge status` is wired in `forge/cli.py`. Version Consistency Status compares the latest local release tag with active release-facing references in README, changelog, project state, AI handoff, and package metadata when present.
 
 There is now a Python package and Typer CLI implementation for `forge init <project-name>` and `forge status`.
 
@@ -51,6 +65,8 @@ ADR 0012 records the decision to establish `AI_ENGINEERING_CONDUCT.md` as the ro
 ADR 0013 records the decision to establish Governance Runtime as a permanent Forge capability.
 
 ADR 0014 records the decision to introduce Capability Slices.
+
+ADR 0015 records the decision to adopt the AI Implementation Protocol.
 
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
@@ -87,7 +103,11 @@ Forge should be built in this order:
 - Follow `docs/capabilities/FCS-002-Governance-Runtime.md` before designing or implementing governance runtime behavior.
 - Follow `docs/architecture/AR-0001-Engineering-Hierarchy.md` before changing the engineering hierarchy.
 - Follow `docs/standards/capability-slice-standard.md` before creating or changing Capability Slices.
+- Follow `docs/standards/ai-implementation-protocol.md` before implementing any Engineering Brief.
 - Follow `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md` before creating the first Governance Runtime Engineering Brief or implementing `forge status`.
+- Follow `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md` before extending `forge status` with version consistency behavior.
+- Follow `docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` before creating EB-002.2.
+- Follow `docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` before implementing version consistency behavior.
 - Follow `docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` before creating EB-002.1.
 - Follow `docs/engineering/EB-002.1-Implement-Status-Service.md` before implementing `forge status`.
 - Follow `docs/release/release-standard.md` before tagging or changing release process.
@@ -102,6 +122,7 @@ Forge should be built in this order:
 - Read `docs/decisions/0012-ai-engineering-conduct.md` before changing AI conduct rules.
 - Read `docs/decisions/0013-governance-runtime-capability.md` before changing Governance Runtime direction.
 - Read `docs/decisions/0014-introduce-capability-slices.md` before creating or bypassing Capability Slices.
+- Read `docs/decisions/0015-ai-implementation-protocol.md` before changing implementation workflow expectations.
 - Keep documentation clear enough for a new contributor to understand without chat history.
 - Prefer small, reviewable changes over broad platform expansion.
 
@@ -121,12 +142,15 @@ Forge should be built in this order:
 - Do not make the first Status Service mutate files, approve releases, create reviews, update project memory, or score complex code quality.
 - Do not add strict mode, JSON output, persisted reports, Governance Score, policy packs, or release-blocking behavior as part of EB-002.1.
 - Do not add automatic version updates, changelog rewrites, release approval, or project memory mutation without a dedicated accepted Capability Slice and Engineering Brief.
+- Do not implement CS-002.2 before it passes DAR-CS and has an accepted Engineering Brief.
+- Do not implement version consistency outside the EB-002.2 scope.
+- Do not implement future Engineering Briefs without following the AI Implementation Protocol.
 
 ## Immediate Next Step
 
-The next logical Governance Runtime work is to create a future Capability Slice for version consistency, likely `CS-002.2-Governance-Runtime-Version-Consistency-Check.md`.
+The next logical Governance Runtime work is implementation review for EB-002.2.
 
-That slice should define a read-only check for release tag, changelog, README, project state, handoff, package metadata, and release documentation agreement.
+The review should verify that Version Consistency Status remains read-only, conservative, informational, and scoped to the accepted Engineering Brief.
 
 Do not change `forge init`, bootstrap templates, `forge review`, plugins, project profiles, or migration tooling as part of the Status Service review.
 
