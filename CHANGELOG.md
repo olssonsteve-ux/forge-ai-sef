@@ -18,6 +18,17 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added AI Implementation Protocol standard for Engineering Brief implementation by AI agents.
 - Added ADR 0015 adopting the AI Implementation Protocol as the default implementation process.
 
+## [0.4.1] - 2026-07-09
+
+### Added
+
+- Added CS-002.2 Governance Runtime Version Consistency Check Capability Slice.
+- Added DAR-CS-0002 Capability Slice Design Authority Review for CS-002.2.
+- Added EB-002.2 Engineering Brief for implementing Version Consistency Status.
+- Added read-only Version Consistency Status to `forge status`.
+- Added AI Implementation Protocol standard for Engineering Brief implementation by AI agents.
+- Added ADR 0015 adopting the AI Implementation Protocol as the default implementation process.
+
 ## [0.4.0] - 2026-07-08
 
 ### Added

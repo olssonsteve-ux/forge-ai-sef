@@ -6,7 +6,7 @@ AI Implementation Protocol standard created.
 
 ## Current Version
 
-`v0.4.0`
+`v0.4.1`
 
 ## Current Objective
 

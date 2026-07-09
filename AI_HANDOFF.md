@@ -10,7 +10,7 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
-The repository is released as Forge `v0.4.0` with the Governance Runtime Status Service and Version Consistency Status implemented.
+The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
 `docs/standards/ai-implementation-protocol.md` is now the default implementation protocol for AI agents implementing Engineering Briefs. ADR 0015 records this decision.
 
