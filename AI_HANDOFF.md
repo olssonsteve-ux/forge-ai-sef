@@ -22,6 +22,8 @@ DAR-CS-0002 reviews CS-002.2 and gives it a decision of `PASS WITH COMMENTS`. Th
 
 `docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` is the accepted implementation brief for adding Version Consistency Status to `forge status`. The implementation is now present in `forge/status.py`.
 
+`docs/reviews/DAR-EB-0002-EB-002.2-Version-Consistency-Implementation.md` reviews the EB-002.2 implementation and gives it a `PASS` decision.
+
 The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
 
 AI agent behavior is governed by `AI_ENGINEERING_CONDUCT.md`.
@@ -108,6 +110,7 @@ Forge should be built in this order:
 - Follow `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md` before extending `forge status` with version consistency behavior.
 - Follow `docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` before creating EB-002.2.
 - Follow `docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` before implementing version consistency behavior.
+- Follow `docs/reviews/DAR-EB-0002-EB-002.2-Version-Consistency-Implementation.md` before closing CS-002.2 or extending version consistency behavior.
 - Follow `docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` before creating EB-002.1.
 - Follow `docs/engineering/EB-002.1-Implement-Status-Service.md` before implementing `forge status`.
 - Follow `docs/release/release-standard.md` before tagging or changing release process.
@@ -148,9 +151,9 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next logical Governance Runtime work is implementation review for EB-002.2.
+The next logical Governance Runtime work is closing CS-002.2 after accepting the EB-002.2 implementation review.
 
-The review should verify that Version Consistency Status remains read-only, conservative, informational, and scoped to the accepted Engineering Brief.
+Any future version consistency enhancement should begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.
 
 Do not change `forge init`, bootstrap templates, `forge review`, plugins, project profiles, or migration tooling as part of the Status Service review.
 

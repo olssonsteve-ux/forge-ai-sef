@@ -8,15 +8,7 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 
 ### Added
 
-- Added PRR-0001 post-release review for `v0.4.0`.
-- Captured version consistency as a future Governance Runtime requirement.
-- Added CS-002.2 Governance Runtime Version Consistency Check Capability Slice.
-- Added DAR-CS-0002 Capability Slice Design Authority Review for CS-002.2 with a `PASS WITH COMMENTS` decision.
-- Added EB-002.2 Engineering Brief for implementing Version Consistency Status inside `forge status`.
-- Added read-only Version Consistency Status to `forge status`.
-- Added tests for matching versions, version mismatches, missing release tags, optional package metadata, dirty working tree context, and read-only behavior.
-- Added AI Implementation Protocol standard for Engineering Brief implementation by AI agents.
-- Added ADR 0015 adopting the AI Implementation Protocol as the default implementation process.
+- Added DAR-EB-0002 implementation review for EB-002.2 Version Consistency Check with a `PASS` decision.
 
 ## [0.4.1] - 2026-07-09
 
