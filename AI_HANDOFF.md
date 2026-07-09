@@ -22,7 +22,7 @@ DAR-CS-0002 reviews CS-002.2 and gives it a decision of `PASS WITH COMMENTS`. Th
 
 `docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` is the accepted implementation brief for adding Version Consistency Status to `forge status`. The implementation is now present in `forge/status.py`.
 
-`docs/reviews/DAR-EB-0002-EB-002.2-Version-Consistency-Implementation.md` reviews the EB-002.2 implementation and gives it a `PASS` decision.
+`docs/reviews/DAR-EB-0002-EB-002.2-Version-Consistency-Implementation.md` reviews the EB-002.2 implementation and gives it a `PASS` decision. CS-002.2 is now closed.
 
 The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
 
@@ -151,7 +151,7 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next logical Governance Runtime work is closing CS-002.2 after accepting the EB-002.2 implementation review.
+The next logical Governance Runtime work is selecting or defining the next Capability Slice.
 
 Any future version consistency enhancement should begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.
 

@@ -154,7 +154,7 @@ Forge may eventually include:
 - Require implementation agents to read governing documents, implement only approved scope, run required verification, update required documentation, report risks, and prepare review handoff.
 - Let Engineering Briefs define stricter verification or process requirements, but not silently bypass the protocol.
 - Accept DAR-EB-0002 as the implementation review for EB-002.2.
-- Treat CS-002.2 as ready to close after the implementation review is accepted.
+- Treat CS-002.2 as closed after passing implementation review.
 - Keep future Version Consistency enhancements in separate Capability Slices rather than expanding the current implementation opportunistically.
 
 ## Open Questions

@@ -2,7 +2,7 @@
 
 ## Status
 
-EB-002.2 implementation review completed.
+CS-002.2 closed.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ EB-002.2 implementation review completed.
 
 ## Current Objective
 
-Close CS-002.2 after accepting the EB-002.2 implementation review.
+Prepare the next Governance Runtime Capability Slice after CS-002.2 closure.
 
 ## What Exists
 
@@ -86,6 +86,7 @@ Close CS-002.2 after accepting the EB-002.2 implementation review.
 - AI Implementation Protocol standard
 - ADR 0015 adopting the AI Implementation Protocol
 - DAR-EB-0002 implementation review for EB-002.2 with a `PASS` decision
+- closed CS-002.2 Governance Runtime Version Consistency Check
 
 ## What Does Not Exist
 
@@ -162,9 +163,11 @@ Forge now implements EB-002.2 as an additional read-only `forge status` category
 
 `docs/reviews/DAR-EB-0002-EB-002.2-Version-Consistency-Implementation.md` reviews the EB-002.2 implementation and gives it a `PASS` decision. The review confirms that Version Consistency Status matches CS-002.2 and EB-002.2, remains read-only, introduces no new command, performs no runtime file modification, avoids scoring and persistence, and reports a clean state on the committed `v0.4.1` repository.
 
+CS-002.2 is now closed after passing implementation review.
+
 ## Next Recommended Work
 
-1. Accept and commit the EB-002.2 implementation review.
-2. Close CS-002.2 as implemented and reviewed.
-3. Use the AI Implementation Protocol for the next Engineering Brief implementation.
+1. Select or define the next Governance Runtime Capability Slice.
+2. Use the AI Implementation Protocol for the next Engineering Brief implementation.
+3. Keep Version Consistency enhancements in future slices.
 4. Do not add automatic version updates, changelog rewrites, release approval, CI enforcement, report persistence, or project memory mutation.
