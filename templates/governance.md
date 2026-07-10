@@ -1,12 +1,22 @@
 # Template Governance
 
+Status: Approved - Contract Review `PASS`
+
+Owner: Chief Architect
+
+Authority: Template governance contract under ADR 0007, ADR 0009, and ADR 0017.
+
+This file governs template ownership, versioning, acceptance, and relationship to `forge init`. It is not a versioned bootstrap template asset, is not located under `templates/bootstrap/`, is not discovered or rendered by current bootstrap generation, and does not alter generated output.
+
+The ADR 0017 requirements below are accepted contract requirements. They do not modify current bootstrap templates or generated output and do not authorize implementation.
+
 Forge templates provide reusable starting points for project documents and structures.
 
-Templates must remain transparent. A project created from templates should be understandable without Forge installed.
+Templates MUST remain transparent. A project created from templates SHOULD be understandable without Forge installed.
 
 ## Ownership
 
-Every template must have:
+Every template MUST have:
 
 - an owning standard or contract
 - a clear intended user
@@ -17,7 +27,7 @@ Every template must have:
 
 Templates follow the Forge version that introduced or changed them.
 
-Template metadata should eventually include:
+Template metadata SHOULD eventually include:
 
 - template name
 - template version
@@ -25,25 +35,25 @@ Template metadata should eventually include:
 - owner document
 - change summary
 
-Until template metadata exists, the owning documentation file must describe compatibility manually.
+Until template metadata exists, the owning documentation file MUST describe compatibility manually.
 
 Bootstrap template metadata is now defined in `docs/contracts/bootstrap-template-system.md`.
 
 ## Change Rules
 
-Template changes must be classified as:
+Template changes MUST be classified as:
 
 - patch: wording, formatting, or examples that do not change expected output
 - minor: new optional sections or improved defaults
 - major: changed required sections, renamed files, removed sections, or changed generated structure
 
-Major template changes before `1.0` are allowed but must be documented in `CHANGELOG.md`.
+Major template changes before `1.0` are allowed but MUST be documented in `CHANGELOG.md`.
 
 After `1.0`, major template changes require migration guidance.
 
 ## Acceptance Criteria
 
-Every template must define:
+Every template MUST define:
 
 - intended use
 - required inputs
@@ -55,7 +65,7 @@ Every template must define:
 
 ## Prohibited Template Behavior
 
-Templates must not:
+Templates MUST NOT:
 
 - hide architectural decisions
 - generate production code before project intent is captured
@@ -65,8 +75,23 @@ Templates must not:
 
 ## Relationship To `forge init`
 
-`forge init` should use accepted templates only.
+`forge init` SHOULD use accepted templates only.
 
-If no accepted template exists for a generated file, the CLI specification must either defer that file or mark the command as not ready for implementation.
+If no accepted template exists for a generated file, the CLI specification MUST either defer that file or mark the command as not ready for implementation.
 
-`forge init` must not hardcode generated file contents in CLI code.
+`forge init` MUST NOT hardcode generated file contents in CLI code.
+
+### Universal Bootstrap Structure Boundary
+
+Bootstrap templates MUST follow the accepted universal output contract in `docs/contracts/forge-init-spec.md` and the compatibility rules in `docs/contracts/bootstrap-template-system.md`.
+
+Universal bootstrap templates MUST NOT select or imply a source-code directory, language, package name, framework, application structure, or project profile.
+
+For the prospective `forge-bootstrap/2.0.0` output contract:
+
+- generated README guidance MUST explain that no source directory is generated and direct architecture discovery
+- generated AI handoff guidance MUST prevent source-layout invention before a project decision
+- applicable templates MUST declare and render the accepted bootstrap output-contract identity
+- template compatibility ranges and versions MUST be updated coherently when implementation is later authorized
+
+Template changes remain unauthorized until the affected contract revisions are accepted and a bounded Engineering Brief is accepted.

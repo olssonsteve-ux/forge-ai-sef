@@ -15,6 +15,7 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added AR-0002 Generated Project Source Layout architecture review.
 - Added DAR-AR-0002 with a `PASS` decision.
 - Added ADR 0017 accepting a language-neutral universal bootstrap with no generated source-code directory; implementation remains pending contract revision and an Engineering Brief.
+- Specified and accepted after focused contract review the prospective `forge-bootstrap/2.0.0` output contract, architecture-discovery boundary, manual compatibility policy, and future implementation acceptance criteria without changing runtime behavior.
 
 ## [0.4.1] - 2026-07-09
 

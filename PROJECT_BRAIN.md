@@ -93,11 +93,11 @@ Forge may eventually include:
 - Use DAR-0001 as the baseline for Forge `0.3` planning.
 - Treat roadmap drift, CI, testing standard, review persistence, and template provenance as known governance work.
 - Accept Gate 1 dogfooding for `ForgePlayground` as `PASS WITH COMMENTS`.
-- Treat generated `forge/` versus `src/` as a Forge `0.3` design decision.
+- Treat the generated project source-layout question as resolved by ADR 0017: the universal bootstrap will generate no source-code directory after contract and implementation gates pass.
 - Treat release tag, package version, and generated `FORGE_VERSION` alignment as required traceability work before future release confidence increases.
 - Fix generated Forge version traceability for `v0.2.1` before starting Forge `0.3`.
 - Strengthen first-session architecture discovery guidance in bootstrap templates without expanding `forge init` scope.
-- Do not redesign the generated `forge/` folder in the `0.2.x` patch; carry it into Forge `0.3` as an explicit design item.
+- Preserve the historical `0.2.x` output until the ADR 0017 contract revision and bounded implementation pass their required gates.
 - Establish Forge `0.3` as the Developer Platform milestone.
 - Use `pytest` as the required test runner.
 - Use Ruff for lightweight lint and format checks.
@@ -166,6 +166,8 @@ Forge may eventually include:
 - Require generated projects to choose source layout during architecture discovery unless a future accepted profile governs the choice.
 - Do not automatically migrate existing generated projects or alter populated project-owned directories.
 - Treat project-profile-dependent layouts and Python-specific `src/<package_name>/` generation as separate future capability work.
+- Use `forge-bootstrap/2.0.0` as the accepted universal bootstrap output-contract identity, distinct from Forge release versions and owned by the Chief Architect.
+- Treat the ADR 0017 bootstrap contract revisions and manual compatibility guidance as accepted after focused contract review `PASS`.
 
 ## Open Questions
 
@@ -180,7 +182,6 @@ Forge may eventually include:
 - Should `forge init` eventually write template provenance metadata into generated projects?
 - What packaging channel should Forge use after local editable releases?
 - Should Forge `0.3` prioritize testing/CI governance or FCS-001 review persistence?
-- Should generated projects use a neutral `src/` directory instead of `forge/`?
 - Should `forge init` generate an architecture discovery starter or only point to one?
 - Should Forge add type checking before `1.0`?
 - What test coverage threshold should Forge require before review automation exists?

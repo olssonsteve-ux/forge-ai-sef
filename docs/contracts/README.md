@@ -18,5 +18,5 @@ Contracts describe the expected structure, ownership, and update rules for files
 - `project-brain-schema.md`
 - `ai-handoff-schema.md`
 - `adr-lifecycle.md`
-- `bootstrap-template-system.md`
-- `forge-init-spec.md`
+- `bootstrap-template-system.md` - template architecture, output-contract compatibility identity, and authoritative manual compatibility guidance.
+- `forge-init-spec.md` - exact universal bootstrap output, architecture-discovery boundary, dry-run behavior, and implementation verification contract.

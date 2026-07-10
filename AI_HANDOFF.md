@@ -16,7 +16,9 @@ The repository is released as Forge `v0.4.1` with the Governance Runtime Status 
 
 `docs/standards/lifecycle-standard.md` is now the lifecycle authority for Forge artifacts. ADR 0016 records this decision.
 
-`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` recommends that the universal bootstrap generate no source-code directory rather than `forge/` or a universal `src/`. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts that direction with a `PASS` decision. ADR 0017 records the binding decision. No source-layout change is implemented; implementation remains `NOT READY` pending contract revision, manual compatibility guidance, and an accepted Engineering Brief.
+`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` recommends that the universal bootstrap generate no source-code directory rather than `forge/` or a universal `src/`. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts that direction with a `PASS` decision. ADR 0017 records the binding decision. No source-layout change is implemented; implementation remains `NOT READY` pending an accepted Engineering Brief.
+
+`docs/contracts/forge-init-spec.md` and `docs/contracts/bootstrap-template-system.md` specify the prospective `forge-bootstrap/2.0.0` contract and manual compatibility guidance. Focused contract review returned `PASS`; the contracts and guidance are accepted. Engineering Brief creation is authorized. Implementation remains `NOT READY` until the bounded brief is accepted and reaches `Implementation Ready`.
 
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
@@ -150,7 +152,7 @@ Forge should be built in this order:
 - Do not hardcode generated project file contents in CLI code.
 - Do not implement `forge review` until report persistence, `N/A` scoring behavior, command scope, and output format are specified.
 - Do not publish Forge `0.2.0` to a package index.
-- Do not redesign the generated `forge/` folder as part of the `0.2.x` patch.
+- Do not change the generated source layout before the ADR 0017 contract revisions and a bounded Engineering Brief are accepted.
 - Do not start Forge `0.4` Governance Runtime until AI Engineering Conduct is accepted.
 - Do not implement Governance Runtime until its first service, interface, inputs, outputs, persistence, scoring policy, and failure behavior are specified.
 - Do not create Engineering Briefs for large multi-service capabilities until a Capability Slice is accepted.
@@ -165,8 +167,8 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Revise the affected bootstrap contracts and define manual compatibility guidance without changing implementation.
+Create a bounded Generated Project Source Layout Engineering Brief from the accepted ADR 0017 contracts.
 
-Do not change `forge init`, bootstrap templates, tests, generated output, project profiles, or migration tooling. Create a bounded Engineering Brief only after the contract revisions and compatibility guidance are accepted.
+Do not change `forge init`, bootstrap templates, tests, runtime behavior, generated output, project profiles, or migration tooling before the Engineering Brief is accepted and reaches `Implementation Ready`.
 
-Do not begin a new Governance Runtime Capability Slice while source-layout contract revision is the active governance objective. Any future Version Consistency enhancement must still begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.
+Do not begin a new Governance Runtime Capability Slice while source-layout Engineering Brief creation is the active governance objective. Any future Version Consistency enhancement must still begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.

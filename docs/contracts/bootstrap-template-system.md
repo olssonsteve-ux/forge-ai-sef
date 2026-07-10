@@ -1,10 +1,18 @@
 # Bootstrap Template System
 
-Forge project generation must be template-driven.
+Status: Approved - Contract Review `PASS`
 
-The CLI must never hardcode the contents of generated project files. `forge init <project-name>` should read versioned templates, validate metadata and variables, render them, and write the rendered output to the target project.
+Revision authority: ADR 0017
 
-This document defines the architecture contract for that behavior. It is not an implementation.
+Owner: Chief Architect
+
+Implementation readiness: `NOT READY`
+
+Forge project generation MUST be template-driven.
+
+The CLI MUST NOT hardcode the contents of generated project files. `forge init <project-name>` MUST read versioned templates, validate metadata and variables, render them, and write the rendered output to the target project.
+
+This document defines the contract for that behavior and for compatibility of the universal bootstrap output. It is not an implementation. Current templates and generated output remain unchanged until a bounded Engineering Brief is accepted and implementation is authorized.
 
 ## Why Template-Driven Generation
 
@@ -45,7 +53,9 @@ templates/
 
 Templates used by `forge init <project-name>` to create the initial repository foundation.
 
-The accepted first bootstrap templates generate root project files only. Documentation subdirectories are created as empty working areas for future architecture documents.
+The universal bootstrap templates generate root project files only. Documentation subdirectories are created as empty working areas for future architecture documents.
+
+The universal bootstrap MUST NOT create or imply a source-code directory, language, package name, framework, application structure, or project profile. The exact directory and file plan is owned by `docs/contracts/forge-init-spec.md`.
 
 ### `templates/documentation/`
 
@@ -61,9 +71,9 @@ Templates for future Forge standard documents.
 
 ## Template Metadata
 
-Every template must include a metadata block at the top of the file.
+Every template MUST include a metadata block at the top of the file.
 
-Metadata is part of the template source and must not be emitted into the generated project file unless a template explicitly says otherwise.
+Metadata is part of the template source and MUST NOT be emitted into the generated project file unless a template explicitly says otherwise.
 
 Metadata format:
 
@@ -117,22 +127,28 @@ Initial supported variables:
 - `{{FORGE_VERSION}}`
 - `{{CREATED_DATE}}`
 
+The prospective `forge-bootstrap/2.0.0` implementation MUST add:
+
+- `{{BOOTSTRAP_OUTPUT_CONTRACT}}`
+
+Its value MUST be `forge-bootstrap/2.0.0`. Templates that emit required compatibility or orientation guidance MUST declare this variable in metadata before use. Adding the variable to templates and runtime support is implementation work and is not performed by this contract revision.
+
 ## Substitution Rules
 
 - Variables are case-sensitive.
-- Variable names must use uppercase letters, numbers, and underscores.
-- Variables must be declared in template metadata before use.
-- Required variables must receive non-empty values.
-- Optional variables may be empty.
-- Unknown variables must fail validation.
-- Missing required variables must fail validation before writing files.
-- Substitution should be plain text replacement only.
+- Variable names MUST use uppercase letters, numbers, and underscores.
+- Variables MUST be declared in template metadata before use.
+- Required variables MUST receive non-empty values.
+- Optional variables MAY be empty.
+- Unknown variables MUST fail validation.
+- Missing required variables MUST fail validation before writing files.
+- Substitution SHOULD be plain text replacement only.
 - No logic, loops, expressions, shell expansion, or code execution is allowed in templates.
-- Escaping rules should be specified before implementation if literal `{{` or `}}` is needed.
+- Escaping rules MUST be specified before implementation if literal `{{` or `}}` is needed.
 
 ## Template Validation
 
-Forge should validate templates before rendering.
+Forge MUST validate templates before rendering.
 
 ### Missing Variables
 
@@ -168,7 +184,7 @@ Result:
 - warn during dry run
 - fail during generation if no non-deprecated accepted template exists for a required output
 
-Deprecation metadata may be added later once template registry behavior exists.
+Deprecation metadata MAY be added later once template registry behavior exists.
 
 ## Template Versioning
 
@@ -199,21 +215,60 @@ Major changes require:
 - migration guidance
 - compatibility range update
 
+Removing the historical generated `forge/` placeholder is a major generated-structure change. Its prospective output-contract identity is `forge-bootstrap/2.0.0`.
+
+## Bootstrap Output Contract Compatibility
+
+Individual template versions identify file-content evolution. `compatible_forge_versions` identifies which Forge releases may render a template. Neither value alone identifies the complete generated folder and file plan.
+
+The universal generated structure therefore has its own identity:
+
+```text
+forge-bootstrap/2.0.0
+```
+
+The output-contract identity MUST be:
+
+- defined by `docs/contracts/forge-init-spec.md`
+- available to future templates as `{{BOOTSTRAP_OUTPUT_CONTRACT}}`
+- rendered into the generated README and AI handoff for repository-local traceability
+- reported by dry-run and success output
+- included in implementation verification and release evidence
+
+The exact identifier syntax, ownership, and version-increment rules are defined by `docs/contracts/forge-init-spec.md`. Bootstrap contract identifiers and Forge release versions are separate namespaces and MUST NOT be compared as the same version type.
+
+This existing contract is sufficient to define compatibility metadata for the bounded change. A separate compatibility contract is not required. A future provenance system MAY add a manifest or richer per-file history only through separate accepted governance.
+
 ## Project Compatibility
 
-Generated projects should remain compatible with newer Forge versions through explicit compatibility metadata and migration guidance.
+Generated projects SHOULD remain compatible with newer Forge versions through explicit compatibility metadata and migration guidance.
 
 Rules:
 
-- Generated files should include `FORGE_VERSION` where useful for traceability.
-- Forge should know which template version generated each file before automated migration is attempted.
-- New Forge versions should avoid breaking generated project contracts without migration guidance.
-- Pre-1.0 compatibility may change, but changes must be documented.
-- After `1.0`, breaking template changes require documented migration steps.
+- Generated files SHOULD include `FORGE_VERSION` where useful for traceability.
+- Generated README and AI handoff files MUST include the bootstrap output-contract identity.
+- Forge MUST know which template and output-contract versions apply before automated migration is considered.
+- New Forge versions SHOULD avoid breaking generated project contracts without migration guidance.
+- Pre-1.0 compatibility MAY change, but changes MUST be documented.
+- After `1.0`, breaking template changes MUST include documented migration steps.
+
+## Manual Compatibility Guidance for Historical Projects
+
+This section is the authoritative manual compatibility guidance for projects created with the historical universal output shape that included an empty `forge/` placeholder.
+
+- Existing generated projects MUST NOT be automatically migrated.
+- A populated `forge/` directory is project-owned and MUST NOT be renamed, removed, moved, or rewritten automatically.
+- An empty placeholder directory MAY be removed manually after the project adopts that action through its own governance.
+- Existing projects MAY retain their current layout indefinitely.
+- Adoption of a different layout is a project architecture decision.
+- Forge MUST NOT provide migration tooling as part of the `forge-bootstrap/2.0.0` change.
+- This guidance is advisory unless an existing project adopts it through its own governance.
+
+Forge does not have historical output-plan provenance sufficient to distinguish every empty generated placeholder from later project-owned state. The absence of files is not sufficient authority for automatic deletion.
 
 ## Migration Strategy
 
-Forge should eventually support template migration by comparing:
+Future separately governed migration capabilities MAY compare:
 
 - project Forge version
 - source template name
@@ -222,11 +277,11 @@ Forge should eventually support template migration by comparing:
 - changed required variables
 - changed output paths
 
-Initial migration can be manual and documentation-led. Automated migration is out of scope for the first `forge init` implementation.
+For the `forge-bootstrap/2.0.0` structure change, migration is manual and documentation-led. Automated migration and migration tooling are prohibited within this change.
 
 ## Relationship To `forge init`
 
-`forge init <project-name>` should:
+`forge init <project-name>` MUST:
 
 1. load accepted bootstrap templates
 2. validate template metadata
@@ -237,15 +292,19 @@ Initial migration can be manual and documentation-led. Automated migration is ou
 7. render templates
 8. write generated files only after validation succeeds
 
-The command must not embed generated file bodies in Python code.
+The command MUST NOT embed generated file bodies in Python code.
 
-The first accepted output mapping is defined in `docs/contracts/forge-init-spec.md`.
+The prospective `forge-bootstrap/2.0.0` output mapping and directory plan are defined in `docs/contracts/forge-init-spec.md`. The command MUST NOT create a source-code directory under the universal contract.
+
+The generated README MUST explain that no source directory exists because source layout is selected through architecture discovery. The generated AI handoff MUST direct the first agent to architecture discovery and MUST prohibit inventing source structure before a project decision exists.
+
+Dry-run output MUST exactly match the generated directory and file plan, identify `forge-bootstrap/2.0.0`, and confirm that no source-code directory will be created.
 
 ## First Implementation Boundary
 
-The first implementation may use only `templates/bootstrap/`.
+The bounded implementation MAY use only `templates/bootstrap/`.
 
-The first implementation should not support:
+The bounded implementation MUST NOT support:
 
 - template selection
 - remote templates
@@ -255,3 +314,48 @@ The first implementation should not support:
 - conditionals or loops
 
 Those capabilities require future ADRs.
+
+The bounded implementation also MUST NOT support project profiles, language-specific source layouts, migration tooling, or automatic modification of existing generated projects.
+
+## Future Implementation Surfaces
+
+The future Engineering Brief MUST account for:
+
+- bootstrap output-plan constants and directory counts
+- dry-run and success reporting
+- template-variable support for `BOOTSTRAP_OUTPUT_CONTRACT`
+- README and AI handoff template metadata and guidance
+- output-plan, validation, overwrite-protection, and rendering tests
+- manual compatibility documentation
+- changelog, release notes, compatibility ranges, and implementation-review evidence
+
+These surfaces are identified for planning only. This contract revision does not authorize changes to Python, CLI behavior, tests, templates, runtime behavior, or generated output.
+
+## Contract Questions
+
+Blocking questions: none.
+
+Compatibility metadata is fully definable in the existing `forge init` and Bootstrap Template System contracts through `forge-bootstrap/2.0.0` and `BOOTSTRAP_OUTPUT_CONTRACT`. Richer provenance, project profiles, Python package normalization, and migration automation remain deferred.
+
+## Contract Acceptance Criteria
+
+This revision is acceptable when reviewers confirm that:
+
+- template-driven generation remains mandatory
+- the exact universal output plan is owned by `docs/contracts/forge-init-spec.md`
+- templates cannot imply or create a universal source-code layout
+- generated README and AI handoff guidance requirements are explicit
+- output-contract identity is distinct from Forge and individual template versions
+- manual compatibility guidance protects project-owned directories and prohibits automatic migration
+- template, runtime, test, and release surfaces are bounded for a future Engineering Brief
+- no separate compatibility contract is required
+- no blocking contract question remains
+- implementation remains `NOT READY` pending an accepted Engineering Brief
+
+## Contract Readiness
+
+Contract review result: `PASS`.
+
+This revision, the corresponding `forge init` specification revision, and the manual compatibility guidance are accepted. Engineering Brief creation is now authorized.
+
+Implementation remains `NOT READY` and MUST NOT begin until a bounded Engineering Brief is created, accepted, and reaches `Implementation Ready` under the Lifecycle Standard.

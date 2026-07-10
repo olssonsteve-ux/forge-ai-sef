@@ -2,7 +2,7 @@
 
 ## Status
 
-ADR 0017 Generated Project Source Layout accepted; implementation `NOT READY`.
+Generated Project Source Layout contract review `PASS`; Engineering Brief creation authorized.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ ADR 0017 Generated Project Source Layout accepted; implementation `NOT READY`.
 
 ## Current Objective
 
-Revise the affected bootstrap contracts and define manual compatibility guidance before creating an Engineering Brief.
+Create a bounded Generated Project Source Layout Engineering Brief without beginning implementation.
 
 ## What Exists
 
@@ -94,6 +94,10 @@ Revise the affected bootstrap contracts and define manual compatibility guidance
 - AR-0002 Generated Project Source Layout architecture review
 - DAR-AR-0002 Generated Project Source Layout review with a `PASS` decision
 - ADR 0017 accepting the Generated Project Source Layout decision
+- accepted ADR 0017 revisions to the `forge init` and Bootstrap Template System contracts
+- accepted manual compatibility guidance for projects generated with the historical `forge/` placeholder
+- accepted `forge-bootstrap/2.0.0` output-contract identity
+- focused bootstrap contract review with a `PASS` result
 
 ## What Does Not Exist
 
@@ -176,12 +180,12 @@ CS-002.2 is now closed after passing implementation review.
 
 The focused re-review of the Lifecycle Standard corrections returned `PASS`. All required review conditions are closed, and the Lifecycle Standard work is closed.
 
-`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` evaluates the generated `forge/`, universal `src/`, Python-style `src/<project_name>/`, profile-dependent, and minimal-bootstrap options. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts the minimal universal bootstrap recommendation with a `PASS` decision. ADR 0017 records the binding decision. No source-layout change is implemented. Implementation remains `NOT READY` until the affected bootstrap contracts are revised, manual compatibility guidance is defined, and a bounded Engineering Brief is accepted.
+`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` evaluates the generated `forge/`, universal `src/`, Python-style `src/<project_name>/`, profile-dependent, and minimal-bootstrap options. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts the minimal universal bootstrap recommendation with a `PASS` decision. ADR 0017 records the binding decision.
+
+The `forge init` and Bootstrap Template System contracts specify the prospective `forge-bootstrap/2.0.0` universal output with exactly eight directories, eight files, and no source-code directory. The Bootstrap Template System contract contains the authoritative manual compatibility guidance for historical projects. Focused contract review returned `PASS`, and the revisions and guidance are accepted. Engineering Brief creation is authorized. No source-layout change is implemented, and implementation remains `NOT READY` until a bounded Engineering Brief is accepted and reaches `Implementation Ready`.
 
 ## Next Recommended Work
 
-1. Revise the affected bootstrap contracts without changing implementation.
-2. Define manual compatibility guidance for existing generated projects.
-3. Create a bounded Engineering Brief only after the contract and guidance are accepted.
-4. Do not change `forge init`, templates, tests, or generated output before the Engineering Brief is accepted.
-5. Keep project-profile work separate from the universal bootstrap decision.
+1. Create a bounded Engineering Brief from the accepted ADR 0017 contracts.
+2. Do not change `forge init`, templates, tests, runtime behavior, or generated output before the Engineering Brief is accepted and reaches `Implementation Ready`.
+3. Keep project-profile and migration-tooling work separate from the universal bootstrap decision.
