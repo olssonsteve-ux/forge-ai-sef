@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle Standard closed after focused re-review `PASS`.
+ADR 0017 Generated Project Source Layout accepted; implementation `NOT READY`.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ Lifecycle Standard closed after focused re-review `PASS`.
 
 ## Current Objective
 
-No active implementation objective. The Forge Lifecycle Standard work is closed.
+Revise the affected bootstrap contracts and define manual compatibility guidance before creating an Engineering Brief.
 
 ## What Exists
 
@@ -91,6 +91,9 @@ No active implementation objective. The Forge Lifecycle Standard work is closed.
 - ADR 0016 adopting the Forge Lifecycle Standard
 - `docs/standards/README.md` standards index
 - focused Lifecycle Standard re-review with a `PASS` result
+- AR-0002 Generated Project Source Layout architecture review
+- DAR-AR-0002 Generated Project Source Layout review with a `PASS` decision
+- ADR 0017 accepting the Generated Project Source Layout decision
 
 ## What Does Not Exist
 
@@ -173,9 +176,12 @@ CS-002.2 is now closed after passing implementation review.
 
 The focused re-review of the Lifecycle Standard corrections returned `PASS`. All required review conditions are closed, and the Lifecycle Standard work is closed.
 
+`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` evaluates the generated `forge/`, universal `src/`, Python-style `src/<project_name>/`, profile-dependent, and minimal-bootstrap options. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts the minimal universal bootstrap recommendation with a `PASS` decision. ADR 0017 records the binding decision. No source-layout change is implemented. Implementation remains `NOT READY` until the affected bootstrap contracts are revised, manual compatibility guidance is defined, and a bounded Engineering Brief is accepted.
+
 ## Next Recommended Work
 
-1. Use the Lifecycle Standard when changing artifact status.
-2. Select or define the next Governance Runtime Capability Slice.
-3. Use the AI Implementation Protocol for the next Engineering Brief implementation.
-4. Keep Version Consistency enhancements in future slices.
+1. Revise the affected bootstrap contracts without changing implementation.
+2. Define manual compatibility guidance for existing generated projects.
+3. Create a bounded Engineering Brief only after the contract and guidance are accepted.
+4. Do not change `forge init`, templates, tests, or generated output before the Engineering Brief is accepted.
+5. Keep project-profile work separate from the universal bootstrap decision.

@@ -160,6 +160,12 @@ Forge may eventually include:
 - Use `docs/standards/lifecycle-standard.md` as the shared lifecycle model for Forge artifacts.
 - Use ADR 0016 as the decision record for the Forge Lifecycle Standard.
 - Treat `Closed`, `Withdrawn`, `Archived`, `Released`, `Deprecated`, `Superseded`, and `Implementation Reviewed` as distinct states with distinct authority and evidence requirements.
+- Use ADR 0017 as the durable generated project source-layout decision.
+- Keep the universal bootstrap language-neutral and generate no source-code directory after the affected contracts and bounded implementation are accepted.
+- Keep Forge's own `forge/` Python package separate from generated project source layout.
+- Require generated projects to choose source layout during architecture discovery unless a future accepted profile governs the choice.
+- Do not automatically migrate existing generated projects or alter populated project-owned directories.
+- Treat project-profile-dependent layouts and Python-specific `src/<package_name>/` generation as separate future capability work.
 
 ## Open Questions
 

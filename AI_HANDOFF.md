@@ -16,6 +16,8 @@ The repository is released as Forge `v0.4.1` with the Governance Runtime Status 
 
 `docs/standards/lifecycle-standard.md` is now the lifecycle authority for Forge artifacts. ADR 0016 records this decision.
 
+`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` recommends that the universal bootstrap generate no source-code directory rather than `forge/` or a universal `src/`. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts that direction with a `PASS` decision. ADR 0017 records the binding decision. No source-layout change is implemented; implementation remains `NOT READY` pending contract revision, manual compatibility guidance, and an accepted Engineering Brief.
+
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
 CS-002.2 now specifies that future version consistency check as a read-only `forge status` extension.
@@ -74,6 +76,8 @@ ADR 0015 records the decision to adopt the AI Implementation Protocol.
 
 ADR 0016 records the decision to adopt the Forge Lifecycle Standard.
 
+ADR 0017 records the decision that the universal bootstrap will generate no source-code directory and that existing generated projects will not be automatically migrated.
+
 Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
 
 Project memory schemas, ADR lifecycle rules, standard categories, template governance, and the `forge init <project-name>` pre-implementation specification are documented under `docs/contracts/`, `standards/`, and `templates/`.
@@ -111,6 +115,9 @@ Forge should be built in this order:
 - Follow `docs/standards/capability-slice-standard.md` before creating or changing Capability Slices.
 - Follow `docs/standards/ai-implementation-protocol.md` before implementing any Engineering Brief.
 - Follow `docs/standards/lifecycle-standard.md` before changing artifact lifecycle status.
+- Read `docs/architecture/AR-0002-Generated-Project-Source-Layout.md` before changing generated project structure or planning project profiles.
+- Read `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` before revising source-layout contracts or planning implementation.
+- Read `docs/decisions/0017-generated-project-source-layout.md` before revising bootstrap contracts or planning source-layout implementation.
 - Follow `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md` before creating the first Governance Runtime Engineering Brief or implementing `forge status`.
 - Follow `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md` before extending `forge status` with version consistency behavior.
 - Follow `docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` before creating EB-002.2.
@@ -158,10 +165,8 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next logical Governance Runtime work is selecting or defining the next Capability Slice.
+Revise the affected bootstrap contracts and define manual compatibility guidance without changing implementation.
 
-Any future version consistency enhancement should begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.
+Do not change `forge init`, bootstrap templates, tests, generated output, project profiles, or migration tooling. Create a bounded Engineering Brief only after the contract revisions and compatibility guidance are accepted.
 
-Do not change `forge init`, bootstrap templates, `forge review`, plugins, project profiles, or migration tooling as part of the Status Service review.
-
-Before expanding functionality, revisit the remaining bootstrap concern from Gate 1: generated `forge/` versus `src/`.
+Do not begin a new Governance Runtime Capability Slice while source-layout contract revision is the active governance objective. Any future Version Consistency enhancement must still begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.

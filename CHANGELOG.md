@@ -12,6 +12,9 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added Forge Lifecycle Standard for common, artifact-specific, and release states, including withdrawal, archival, reopening, and auditable release transitions.
 - Added ADR 0016 adopting the Forge Lifecycle Standard.
 - Added `docs/standards/README.md` standards index.
+- Added AR-0002 Generated Project Source Layout architecture review.
+- Added DAR-AR-0002 with a `PASS` decision.
+- Added ADR 0017 accepting a language-neutral universal bootstrap with no generated source-code directory; implementation remains pending contract revision and an Engineering Brief.
 
 ## [0.4.1] - 2026-07-09
 
