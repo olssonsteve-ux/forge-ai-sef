@@ -168,6 +168,12 @@ Forge may eventually include:
 - Treat project-profile-dependent layouts and Python-specific `src/<package_name>/` generation as separate future capability work.
 - Use `forge-bootstrap/2.0.0` as the accepted universal bootstrap output-contract identity, distinct from Forge release versions and owned by the Chief Architect.
 - Treat the ADR 0017 bootstrap contract revisions and manual compatibility guidance as accepted after focused contract review `PASS`.
+- Implement `forge-bootstrap/2.0.0` through one authoritative runtime identity shared by template
+  rendering, dry-run reporting, successful generation reporting, and verification.
+- Keep the universal bootstrap output fixed at eight contracted directories and eight generated
+  files until a separately accepted output-contract revision changes it.
+- Keep generated README and AI handoff guidance explicit that source layout is selected during
+  architecture discovery, and keep universal `.gitignore` defaults language-neutral.
 
 ## Open Questions
 

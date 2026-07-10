@@ -17,6 +17,34 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added ADR 0017 accepting a language-neutral universal bootstrap with no generated source-code directory; implementation remains pending contract revision and an Engineering Brief.
 - Specified and accepted after focused contract review the prospective `forge-bootstrap/2.0.0` output contract, architecture-discovery boundary, manual compatibility policy, and future implementation acceptance criteria without changing runtime behavior.
 - Added and accepted after focused review EB-004 for the bounded implementation of `forge-bootstrap/2.0.0`; the brief is `Implementation Ready`.
+- Added explicit `forge-bootstrap/2.0.0` identity to bootstrap rendering, generated README and AI
+  handoff guidance, dry-run output, and successful generation output.
+- Added exact-output and dry-run equivalence tests for the eight-directory and eight-file universal
+  bootstrap contract.
+- Added DAR-EB-0003 formal EB-004 implementation review, initially `PASS WITH CONDITIONS`, and its
+  focused condition-closure review with final status `PASS`.
+- Added the Release Authority decision selecting pre-`1.0` minor release target `v0.5.0` and
+  accepting `>=0.5,<0.6` for the three changed bootstrap templates.
+- Added the planned `v0.5.0` release checklist; tagging remains unauthorized.
+- Closed both DAR-EB-0003 conditions after verifying the `v0.5.0` target, `>=0.5,<0.6` compatibility
+  range, complete template set, version alignment, and required quality gates.
+
+### Changed
+
+- Changed universal `forge init` output from nine directories to the eight contracted
+  language-neutral directories by removing only the generated `forge/` placeholder.
+- Changed generated README and AI handoff guidance to defer language, packaging, deployment, and
+  source-layout decisions to architecture discovery.
+- Changed the generated `.gitignore` to remove only Python-, pytest-, and virtual-environment-specific
+  entries while preserving the six common repository exclusions.
+- Aligned runtime and package version metadata to the planned `0.5.0` implementation target so the
+  accepted template compatibility range validates truthfully.
+
+### Compatibility
+
+- Existing generated projects are not migrated, renamed, removed, or rewritten. Populated
+  directories remain project-owned, existing layouts may remain indefinitely, and empty historical
+  placeholders require deliberate manual project action.
 
 ## [0.4.1] - 2026-07-09
 

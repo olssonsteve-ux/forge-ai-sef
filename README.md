@@ -80,7 +80,21 @@ forge init <project-name>
 forge status
 ```
 
-`forge init` creates a Forge-governed project foundation from versioned templates under `templates/bootstrap/`.
+The uncommitted EB-004 implementation under formal review changes `forge init` to universal output
+contract `forge-bootstrap/2.0.0`: exactly eight directories and eight generated files from versioned
+templates under `templates/bootstrap/`, with no generated `forge/`, `src/`, language package,
+framework structure, or other source-code directory. Dry-run reports the same ordered output plan
+as generation without writing files. Generated README and AI handoff guidance direct each project
+to select language, packaging, deployment architecture, and source layout through architecture
+discovery. This behavior is not part of the released `v0.4.1` baseline.
+
+Release Authority has accepted `v0.5.0` as the planned pre-`1.0` minor release for EB-004. The
+implementation passed focused condition-closure review and is ready to commit. It remains
+unreleased and is not approved for tagging.
+
+Projects generated with the historical empty `forge/` placeholder are not migrated automatically.
+Populated directories remain project-owned, existing layouts may remain indefinitely, and an empty
+placeholder may be removed only through deliberate manual project action.
 
 `forge status` inspects the current repository and reports read-only governance status. It includes a Version Consistency Status category that compares local release tags with active version references in README, changelog, project memory, handoff context, and `pyproject.toml` when present. It does not approve releases, calculate a score, persist reports, fix mismatches, or update project files.
 

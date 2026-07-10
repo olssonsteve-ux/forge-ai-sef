@@ -16,11 +16,21 @@ The repository is released as Forge `v0.4.1` with the Governance Runtime Status 
 
 `docs/standards/lifecycle-standard.md` is now the lifecycle authority for Forge artifacts. ADR 0016 records this decision.
 
-`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` recommends that the universal bootstrap generate no source-code directory rather than `forge/` or a universal `src/`. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts that direction with a `PASS` decision. ADR 0017 records the binding decision. No source-layout change is implemented; implementation remains `NOT READY` pending an accepted Engineering Brief.
+`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` recommends that the universal bootstrap generate no source-code directory rather than `forge/` or a universal `src/`. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts that direction with a `PASS` decision. ADR 0017 records the binding decision.
 
-`docs/contracts/forge-init-spec.md` and `docs/contracts/bootstrap-template-system.md` specify the prospective `forge-bootstrap/2.0.0` contract and manual compatibility guidance. Focused contract review returned `PASS`; the contracts and guidance are accepted. Engineering Brief creation is authorized. Implementation remains `NOT READY` until the bounded brief is accepted and reaches `Implementation Ready`.
+`docs/contracts/forge-init-spec.md` and `docs/contracts/bootstrap-template-system.md` specify the accepted `forge-bootstrap/2.0.0` contract and manual compatibility guidance. Focused contract review returned `PASS`.
 
 `docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` is the accepted bounded Engineering Brief for implementing the contract. Focused review returned `PASS`, and the brief is `Implementation Ready`. Implementation is authorized only within EB-004 and must follow the AI Implementation Protocol.
+
+The bounded EB-004 implementation is present and verified: `forge init` now plans and creates
+exactly eight contracted directories and eight generated files, generates no source-code directory,
+reports `forge-bootstrap/2.0.0`, renders the identity and architecture-discovery guidance into the
+generated README and AI handoff, and uses a language-neutral `.gitignore`. Evidence is recorded in
+`docs/release/EB-004-universal-bootstrap-output-contract-readiness.md`. DAR-EB-0003 returned `PASS
+WITH CONDITIONS`. Release Authority has resolved both conditions by selecting pre-`1.0` minor
+release target `v0.5.0` and accepting `>=0.5,<0.6` for all three changed templates. Runtime and
+package metadata target `0.5.0`. Focused condition-closure review returned `PASS`; the implementation
+is ready to commit but is not closed, released, or approved for tagging.
 
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
@@ -170,8 +180,12 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Implement EB-004 using the AI Implementation Protocol.
+Commit the reviewed EB-004 implementation and its governance evidence as one bounded change.
 
-Limit changes to the exact EB-004 runtime, template, test, documentation, and release-evidence surfaces. Do not add project profiles, migration tooling, replacement source directories, or unrelated `forge init` behavior.
+Preserve target `v0.5.0`, `>=0.5,<0.6` template compatibility, `forge-bootstrap/2.0.0`, exact output,
+and the non-migration boundary. Do not begin release-candidate work, tag, publish, or mark the work
+`Closed` or `Released` during the implementation commit.
 
-Do not begin a new Governance Runtime Capability Slice while EB-004 implementation is the active objective. Any future Version Consistency enhancement must still begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.
+Do not add project profiles, migration tooling, replacement source directories, or unrelated
+`forge init` behavior. Do not begin a new Governance Runtime Capability Slice while EB-004 review is
+the active objective.

@@ -7,13 +7,14 @@ from pathlib import Path
 
 from . import __version__
 
+BOOTSTRAP_OUTPUT_CONTRACT = "forge-bootstrap/2.0.0"
+
 FOLDER_PATHS = (
     "docs",
     "docs/architecture",
     "docs/contracts",
     "docs/decisions",
     "docs/vision",
-    "forge",
     "standards",
     "templates",
     "tests",
@@ -37,6 +38,7 @@ SUPPORTED_VARIABLES = {
     "LICENSE",
     "YEAR",
     "FORGE_VERSION",
+    "BOOTSTRAP_OUTPUT_CONTRACT",
     "CREATED_DATE",
 }
 
@@ -53,6 +55,7 @@ class InitResult:
     target: Path
     folders: tuple[Path, ...]
     files: tuple[Path, ...]
+    output_contract: str
 
 
 @dataclass(frozen=True)
@@ -82,7 +85,12 @@ def init_project(project_name: str, base_dir: Path, dry_run: bool = False) -> In
     files = tuple(target / output_name for output_name, _ in rendered_files)
 
     if dry_run:
-        return InitResult(target=target, folders=folders, files=files)
+        return InitResult(
+            target=target,
+            folders=folders,
+            files=files,
+            output_contract=BOOTSTRAP_OUTPUT_CONTRACT,
+        )
 
     try:
         target.mkdir(parents=True, exist_ok=True)
@@ -95,7 +103,12 @@ def init_project(project_name: str, base_dir: Path, dry_run: bool = False) -> In
     except OSError as error:
         raise ForgeInitError(f"Failed while writing '{target}': {error}") from error
 
-    return InitResult(target=target, folders=folders, files=files)
+    return InitResult(
+        target=target,
+        folders=folders,
+        files=files,
+        output_contract=BOOTSTRAP_OUTPUT_CONTRACT,
+    )
 
 
 def validate_project_name(project_name: str) -> None:
@@ -273,6 +286,7 @@ def default_variables(project_name: str) -> dict[str, str]:
         "LICENSE": "License TBD",
         "YEAR": str(today.year),
         "FORGE_VERSION": __version__,
+        "BOOTSTRAP_OUTPUT_CONTRACT": BOOTSTRAP_OUTPUT_CONTRACT,
         "CREATED_DATE": today.isoformat(),
     }
 

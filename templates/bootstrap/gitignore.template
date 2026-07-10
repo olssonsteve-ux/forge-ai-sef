@@ -1,7 +1,7 @@
 ---
 template_name: bootstrap-gitignore
-version: 0.1.0
-compatible_forge_versions: ">=0.3,<0.4"
+version: 1.0.0
+compatible_forge_versions: ">=0.5,<0.6"
 description: "Initial .gitignore template for a Forge-governed project."
 variables: []
 required_variables: []
@@ -11,8 +11,5 @@ optional_variables: []
 Thumbs.db
 .env
 .env.*
-__pycache__/
-.pytest_cache/
-.venv/
 dist/
 build/

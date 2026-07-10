@@ -42,12 +42,19 @@ def init(
         typer.echo(f"Files to create: {len(result.files)}")
         for file_path in result.files:
             typer.echo(f"  {file_path}")
+        typer.echo(f"Bootstrap output contract: {result.output_contract}")
+        typer.echo("Source layout: not selected")
         return
 
     typer.echo(f"Forge project initialized: {project_name}")
     typer.echo(f"Created folders: {len(result.folders)}")
     typer.echo(f"Created files: {len(result.files)}")
-    typer.echo("Next step: review PROJECT_STATE.md and begin architecture discovery.")
+    typer.echo(f"Bootstrap output contract: {result.output_contract}")
+    typer.echo("Source layout: not selected")
+    typer.echo(
+        "Next step: review PROJECT_STATE.md and select source layout through "
+        "architecture discovery."
+    )
 
 
 @app.command("status")

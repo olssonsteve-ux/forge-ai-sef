@@ -2,15 +2,20 @@
 
 ## Status
 
-EB-004 Universal Bootstrap Output Contract is `Implementation Ready` after focused review `PASS`.
+DAR-EB-0003 focused condition-closure review returned `PASS`. Both Release Authority conditions are
+closed, and the EB-004 implementation is ready to commit but is not closed or released.
 
 ## Current Version
 
 `v0.4.1`
 
+## Planned Release
+
+`v0.5.0` — pre-`1.0` minor release; not released or approved for tagging.
+
 ## Current Objective
 
-Implement EB-004 through the AI Implementation Protocol without expanding its scope.
+Commit the reviewed EB-004 implementation and governance evidence without beginning release.
 
 ## What Exists
 
@@ -100,6 +105,16 @@ Implement EB-004 through the AI Implementation Protocol without expanding its sc
 - focused bootstrap contract review with a `PASS` result
 - accepted EB-004 Implement Universal Bootstrap Output Contract 2.0.0 in `Implementation Ready`
 - focused EB-004 review with a `PASS` result
+- implemented `forge-bootstrap/2.0.0` output identity and exact eight-directory/eight-file plan
+- generated README and AI handoff source-layout deferral guidance
+- language-neutral generated `.gitignore` baseline
+- exact-output, dry-run equivalence, identity, template, and safeguard tests for EB-004
+- EB-004 implementation and release-readiness evidence pending formal review
+- DAR-EB-0003 formal EB-004 implementation review with `PASS WITH CONDITIONS`
+- accepted Release Authority decision targeting `v0.5.0` with template compatibility
+  `>=0.5,<0.6`
+- planned `v0.5.0` release checklist with tagging blocked pending remaining gates
+- focused DAR-EB-0003 condition-closure review with final status `PASS`
 
 ## What Does Not Exist
 
@@ -184,13 +199,30 @@ The focused re-review of the Lifecycle Standard corrections returned `PASS`. All
 
 `docs/architecture/AR-0002-Generated-Project-Source-Layout.md` evaluates the generated `forge/`, universal `src/`, Python-style `src/<project_name>/`, profile-dependent, and minimal-bootstrap options. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts the minimal universal bootstrap recommendation with a `PASS` decision. ADR 0017 records the binding decision.
 
-The `forge init` and Bootstrap Template System contracts specify the prospective `forge-bootstrap/2.0.0` universal output with exactly eight directories, eight files, and no source-code directory. The Bootstrap Template System contract contains the authoritative manual compatibility guidance for historical projects. Focused contract review returned `PASS`, and the revisions and guidance are accepted. Engineering Brief creation is authorized. No source-layout change is implemented, and implementation remains `NOT READY` until a bounded Engineering Brief is accepted and reaches `Implementation Ready`.
+The `forge init` and Bootstrap Template System contracts specify `forge-bootstrap/2.0.0`
+universal output with exactly eight directories, eight files, and no source-code directory. The
+Bootstrap Template System contract contains the authoritative manual compatibility guidance for
+historical projects. Focused contract review returned `PASS`, and the revisions and guidance are
+accepted.
 
 `docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` defines the bounded implementation scope, affected runtime and template surfaces, exact-output tests, compatibility boundaries, verification, release evidence, and rollback requirements. Focused review returned `PASS`; the brief is accepted as `Implementation Ready`. Implementation is authorized only within EB-004 and must follow the AI Implementation Protocol.
 
+The EB-004 implementation now produces `forge-bootstrap/2.0.0`: exactly eight contracted
+directories and eight generated files, no source-code directory, explicit output-contract identity
+in generated guidance and CLI reporting, and language-neutral `.gitignore` defaults. Automated and
+manual verification evidence is recorded in
+`docs/release/EB-004-universal-bootstrap-output-contract-readiness.md`. DAR-EB-0003 originally
+returned `PASS WITH CONDITIONS`. Release Authority selected pre-`1.0` minor release `v0.5.0` and
+accepted `>=0.5,<0.6` as the template compatibility range. Runtime and package metadata target
+`0.5.0`, and all eight templates validate coherently. Focused condition-closure review returned
+`PASS`; both conditions are closed and the implementation is ready to commit. It is not `Closed`,
+`Released`, or approved for tagging.
+
 ## Next Recommended Work
 
-1. Implement EB-004 using the AI Implementation Protocol.
-2. Keep every change inside the accepted modules, templates, tests, documentation, and release-evidence scope.
-3. Do not add project profiles, migration tooling, replacement source directories, or unrelated `forge init` behavior.
-4. Prepare formal implementation-review handoff before closure or release.
+1. Commit the complete reviewed EB-004 implementation, review record, release plan, and project
+   memory as one bounded change.
+2. Verify the committed file set and clean working tree.
+3. Keep project profiles, migration tooling, replacement source directories, and unrelated
+   `forge init` behavior out of scope.
+4. Do not tag, publish, or mark `v0.5.0` released during implementation commit and closeout.
