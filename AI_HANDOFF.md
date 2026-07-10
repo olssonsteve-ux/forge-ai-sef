@@ -20,6 +20,8 @@ The repository is released as Forge `v0.4.1` with the Governance Runtime Status 
 
 `docs/contracts/forge-init-spec.md` and `docs/contracts/bootstrap-template-system.md` specify the prospective `forge-bootstrap/2.0.0` contract and manual compatibility guidance. Focused contract review returned `PASS`; the contracts and guidance are accepted. Engineering Brief creation is authorized. Implementation remains `NOT READY` until the bounded brief is accepted and reaches `Implementation Ready`.
 
+`docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` is the accepted bounded Engineering Brief for implementing the contract. Focused review returned `PASS`, and the brief is `Implementation Ready`. Implementation is authorized only within EB-004 and must follow the AI Implementation Protocol.
+
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
 CS-002.2 now specifies that future version consistency check as a read-only `forge status` extension.
@@ -120,6 +122,7 @@ Forge should be built in this order:
 - Read `docs/architecture/AR-0002-Generated-Project-Source-Layout.md` before changing generated project structure or planning project profiles.
 - Read `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` before revising source-layout contracts or planning implementation.
 - Read `docs/decisions/0017-generated-project-source-layout.md` before revising bootstrap contracts or planning source-layout implementation.
+- Read `docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` before reviewing or implementing the source-layout contract.
 - Follow `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md` before creating the first Governance Runtime Engineering Brief or implementing `forge status`.
 - Follow `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md` before extending `forge status` with version consistency behavior.
 - Follow `docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` before creating EB-002.2.
@@ -167,8 +170,8 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Create a bounded Generated Project Source Layout Engineering Brief from the accepted ADR 0017 contracts.
+Implement EB-004 using the AI Implementation Protocol.
 
-Do not change `forge init`, bootstrap templates, tests, runtime behavior, generated output, project profiles, or migration tooling before the Engineering Brief is accepted and reaches `Implementation Ready`.
+Limit changes to the exact EB-004 runtime, template, test, documentation, and release-evidence surfaces. Do not add project profiles, migration tooling, replacement source directories, or unrelated `forge init` behavior.
 
-Do not begin a new Governance Runtime Capability Slice while source-layout Engineering Brief creation is the active governance objective. Any future Version Consistency enhancement must still begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.
+Do not begin a new Governance Runtime Capability Slice while EB-004 implementation is the active objective. Any future Version Consistency enhancement must still begin as a new Capability Slice rather than expanding EB-002.2 opportunistically.

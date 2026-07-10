@@ -18,7 +18,7 @@ Forge documentation is intentionally split by authority. Files may reference the
 | Architecture proposal | `docs/architecture/proposal.md` | `docs/architecture/discovery.md` |
 | Architecture discovery and review findings | `docs/architecture/discovery.md` | `docs/architecture/review-000.md` |
 | Engineering hierarchy reviews | `docs/architecture/AR-0001-Engineering-Hierarchy.md` | `CONSTITUTION.md`, ADRs |
-| Generated project source layout | `docs/decisions/0017-generated-project-source-layout.md` | `docs/contracts/forge-init-spec.md`, `docs/contracts/bootstrap-template-system.md`, `docs/architecture/AR-0002-Generated-Project-Source-Layout.md`, `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` |
+| Generated project source layout | `docs/decisions/0017-generated-project-source-layout.md` | `docs/contracts/forge-init-spec.md`, `docs/contracts/bootstrap-template-system.md`, `docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md`, `docs/architecture/AR-0002-Generated-Project-Source-Layout.md`, `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` |
 | Forge capabilities | `docs/capabilities/` | `docs/decisions/0010-forge-capability-specifications.md` |
 | Capability Slices | `docs/standards/capability-slice-standard.md` | `templates/capability-slices/CS-template.md`, `docs/architecture/AR-0001-Engineering-Hierarchy.md`, `docs/decisions/0014-introduce-capability-slices.md` |
 | AI implementation protocol | `docs/standards/ai-implementation-protocol.md` | `AI_ENGINEERING_CONDUCT.md`, Engineering Briefs, `docs/decisions/0015-ai-implementation-protocol.md` |

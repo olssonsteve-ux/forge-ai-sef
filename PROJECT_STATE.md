@@ -2,7 +2,7 @@
 
 ## Status
 
-Generated Project Source Layout contract review `PASS`; Engineering Brief creation authorized.
+EB-004 Universal Bootstrap Output Contract is `Implementation Ready` after focused review `PASS`.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ Generated Project Source Layout contract review `PASS`; Engineering Brief creati
 
 ## Current Objective
 
-Create a bounded Generated Project Source Layout Engineering Brief without beginning implementation.
+Implement EB-004 through the AI Implementation Protocol without expanding its scope.
 
 ## What Exists
 
@@ -98,6 +98,8 @@ Create a bounded Generated Project Source Layout Engineering Brief without begin
 - accepted manual compatibility guidance for projects generated with the historical `forge/` placeholder
 - accepted `forge-bootstrap/2.0.0` output-contract identity
 - focused bootstrap contract review with a `PASS` result
+- accepted EB-004 Implement Universal Bootstrap Output Contract 2.0.0 in `Implementation Ready`
+- focused EB-004 review with a `PASS` result
 
 ## What Does Not Exist
 
@@ -184,8 +186,11 @@ The focused re-review of the Lifecycle Standard corrections returned `PASS`. All
 
 The `forge init` and Bootstrap Template System contracts specify the prospective `forge-bootstrap/2.0.0` universal output with exactly eight directories, eight files, and no source-code directory. The Bootstrap Template System contract contains the authoritative manual compatibility guidance for historical projects. Focused contract review returned `PASS`, and the revisions and guidance are accepted. Engineering Brief creation is authorized. No source-layout change is implemented, and implementation remains `NOT READY` until a bounded Engineering Brief is accepted and reaches `Implementation Ready`.
 
+`docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` defines the bounded implementation scope, affected runtime and template surfaces, exact-output tests, compatibility boundaries, verification, release evidence, and rollback requirements. Focused review returned `PASS`; the brief is accepted as `Implementation Ready`. Implementation is authorized only within EB-004 and must follow the AI Implementation Protocol.
+
 ## Next Recommended Work
 
-1. Create a bounded Engineering Brief from the accepted ADR 0017 contracts.
-2. Do not change `forge init`, templates, tests, runtime behavior, or generated output before the Engineering Brief is accepted and reaches `Implementation Ready`.
-3. Keep project-profile and migration-tooling work separate from the universal bootstrap decision.
+1. Implement EB-004 using the AI Implementation Protocol.
+2. Keep every change inside the accepted modules, templates, tests, documentation, and release-evidence scope.
+3. Do not add project profiles, migration tooling, replacement source directories, or unrelated `forge init` behavior.
+4. Prepare formal implementation-review handoff before closure or release.
