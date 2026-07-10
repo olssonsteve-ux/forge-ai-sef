@@ -30,7 +30,8 @@ generated README and AI handoff, and uses a language-neutral `.gitignore`. Evide
 WITH CONDITIONS`. Release Authority has resolved both conditions by selecting pre-`1.0` minor
 release target `v0.5.0` and accepting `>=0.5,<0.6` for all three changed templates. Runtime and
 package metadata target `0.5.0`. Focused condition-closure review returned `PASS`; the implementation
-is ready to commit but is not closed, released, or approved for tagging.
+was committed as `5c926759591f617a8245526cdc27cdfd10dbb8e5`, and EB-004 is now `Closed`.
+Release `v0.5.0` remains `Planned`; it is not a Release Candidate, tagged, published, or released.
 
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
@@ -180,11 +181,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Commit the reviewed EB-004 implementation and its governance evidence as one bounded change.
+Select the next Forge work item separately through the governed workflow.
 
-Preserve target `v0.5.0`, `>=0.5,<0.6` template compatibility, `forge-bootstrap/2.0.0`, exact output,
-and the non-migration boundary. Do not begin release-candidate work, tag, publish, or mark the work
-`Closed` or `Released` during the implementation commit.
+EB-004 is closed. Preserve target `v0.5.0`, `>=0.5,<0.6` template compatibility,
+`forge-bootstrap/2.0.0`, exact output, and the non-migration boundary. Do not infer or begin release
+execution, another capability, or unrelated governance work from this closeout.
 
 Do not add project profiles, migration tooling, replacement source directories, or unrelated
 `forge init` behavior. Do not begin a new Governance Runtime Capability Slice while EB-004 review is

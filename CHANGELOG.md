@@ -28,6 +28,9 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added the planned `v0.5.0` release checklist; tagging remains unauthorized.
 - Closed both DAR-EB-0003 conditions after verifying the `v0.5.0` target, `>=0.5,<0.6` compatibility
   range, complete template set, version alignment, and required quality gates.
+- Committed the reviewed EB-004 implementation as
+  `5c926759591f617a8245526cdc27cdfd10dbb8e5` and closed the Engineering Brief after final
+  implementation-review `PASS`; `v0.5.0` remains unreleased and `Planned`.
 
 ### Changed
 

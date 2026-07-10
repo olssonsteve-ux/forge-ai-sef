@@ -1,6 +1,6 @@
 # EB-004 Universal Bootstrap Output Contract Implementation Readiness
 
-Status: DAR-EB-0003 condition-closure review `PASS` — implementation ready to commit
+Status: EB-004 implementation committed and closed — release `v0.5.0` remains `Planned`
 
 Date: 2026-07-10
 
@@ -161,6 +161,12 @@ Original implementation-review result: `PASS WITH CONDITIONS`
 
 Focused condition-closure result: `PASS`
 
+Final implementation-review result: `PASS`
+
+Implementation commit: `5c926759591f617a8245526cdc27cdfd10dbb8e5`
+
+Engineering Brief lifecycle state: `Closed`
+
 Release Authority resolution:
 
 1. Release classification and target resolved as pre-`1.0` minor release `v0.5.0`.
@@ -169,6 +175,9 @@ Release Authority resolution:
 
 Review Authority verified traceability, exact output, identity separation, template behavior,
 safeguards, compatibility boundaries, verification evidence, and absence of migration, profile, or
-replacement-source behavior. Both original conditions are closed. The implementation is ready to
-commit but remains unclosed and unreleased; release-candidate and release transitions require
-separate evidence and authority.
+replacement-source behavior. Both original conditions are closed.
+
+Closeout update: the reviewed implementation was committed as
+`5c926759591f617a8245526cdc27cdfd10dbb8e5`, and EB-004 then transitioned from `Implementation
+Reviewed` to `Closed`. This closeout does not alter release state. `v0.5.0` remains `Planned` and is
+not approved for tagging, publication, or release.

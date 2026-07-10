@@ -51,7 +51,8 @@ existing layouts may remain indefinitely, and empty placeholders require deliber
 ## Release Dependencies
 
 - DAR-EB-0003 condition-closure review returned `PASS`.
-- EB-004 implementation changes must be committed after review approval.
+- EB-004 implementation was committed after review approval as
+  `5c926759591f617a8245526cdc27cdfd10dbb8e5` and the Engineering Brief is closed.
 - Final candidate validation and version consistency must pass.
 - Known limitations and rollback instructions must remain current.
 - Release Authority must separately authorize `Release Candidate` and `Released` transitions.
@@ -94,7 +95,8 @@ generated project or rewrite accepted ADR and contract history.
 - [x] Template compatibility range selected.
 - [x] Runtime and package version metadata aligned.
 - [x] Focused DAR-EB-0003 condition-closure review passes.
-- [ ] Implementation commit is created after review approval.
+- [x] Implementation commit is created after review approval.
+- [x] EB-004 implementation closeout is recorded.
 - [ ] Final release-candidate validation passes.
 - [ ] Version consistency evidence is accepted.
 - [ ] Release notes and changelog are finalized.

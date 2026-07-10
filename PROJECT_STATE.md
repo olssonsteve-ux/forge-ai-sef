@@ -2,8 +2,8 @@
 
 ## Status
 
-DAR-EB-0003 focused condition-closure review returned `PASS`. Both Release Authority conditions are
-closed, and the EB-004 implementation is ready to commit but is not closed or released.
+EB-004 Universal Bootstrap Output Contract is `Closed` after implementation review `PASS` and
+implementation commit `5c926759591f617a8245526cdc27cdfd10dbb8e5`.
 
 ## Current Version
 
@@ -15,7 +15,8 @@ closed, and the EB-004 implementation is ready to commit but is not closed or re
 
 ## Current Objective
 
-Commit the reviewed EB-004 implementation and governance evidence without beginning release.
+Select the next Forge work item separately through the governed workflow. No release execution or
+new capability work is active.
 
 ## What Exists
 
@@ -115,6 +116,8 @@ Commit the reviewed EB-004 implementation and governance evidence without beginn
   `>=0.5,<0.6`
 - planned `v0.5.0` release checklist with tagging blocked pending remaining gates
 - focused DAR-EB-0003 condition-closure review with final status `PASS`
+- committed EB-004 implementation at `5c926759591f617a8245526cdc27cdfd10dbb8e5`
+- closed EB-004 Engineering Brief with no unresolved implementation findings
 
 ## What Does Not Exist
 
@@ -215,14 +218,14 @@ manual verification evidence is recorded in
 returned `PASS WITH CONDITIONS`. Release Authority selected pre-`1.0` minor release `v0.5.0` and
 accepted `>=0.5,<0.6` as the template compatibility range. Runtime and package metadata target
 `0.5.0`, and all eight templates validate coherently. Focused condition-closure review returned
-`PASS`; both conditions are closed and the implementation is ready to commit. It is not `Closed`,
-`Released`, or approved for tagging.
+`PASS`; both conditions are closed. Commit `5c926759591f617a8245526cdc27cdfd10dbb8e5`
+contains the complete reviewed implementation and governance evidence. Review Authority closed
+EB-004 after confirming the committed scope and no unresolved implementation findings. Release
+`v0.5.0` remains `Planned`; no Release Candidate, tag, publication, approval, or release transition
+has occurred.
 
 ## Next Recommended Work
 
-1. Commit the complete reviewed EB-004 implementation, review record, release plan, and project
-   memory as one bounded change.
-2. Verify the committed file set and clean working tree.
-3. Keep project profiles, migration tooling, replacement source directories, and unrelated
-   `forge init` behavior out of scope.
-4. Do not tag, publish, or mark `v0.5.0` released during implementation commit and closeout.
+1. Select the next Forge work item separately through Product Owner and architecture governance.
+2. Keep `v0.5.0` in `Planned` until Release Authority explicitly authorizes a later release state.
+3. Do not infer release execution, tagging, publication, or a new capability from EB-004 closure.
