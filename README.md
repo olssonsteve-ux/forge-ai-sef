@@ -61,6 +61,8 @@ AI agent behavior is governed by [AI_ENGINEERING_CONDUCT.md](AI_ENGINEERING_COND
 
 Engineering Brief implementation by AI agents is governed by [docs/standards/ai-implementation-protocol.md](docs/standards/ai-implementation-protocol.md).
 
+Forge artifact lifecycle language is governed by [docs/standards/lifecycle-standard.md](docs/standards/lifecycle-standard.md).
+
 ## Purpose
 
 Forge exists to make AI-assisted software engineering repeatable, auditable, durable, and governable.
@@ -207,6 +209,7 @@ Forge develops through durable governing artifacts:
 - Governance Runtime will interpret the governance model operationally
 - Engineering Briefs define bounded implementation work
 - the AI Implementation Protocol defines how Engineering Briefs are implemented by AI agents
+- the Lifecycle Standard defines consistent artifact status and closure language
 - tests and standards verify quality
 - Design Authority Reviews protect long-term coherence
 - releases publish only reviewed work

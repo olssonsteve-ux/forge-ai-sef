@@ -2,7 +2,7 @@
 
 ## Status
 
-CS-002.2 closed.
+Lifecycle Standard closed after focused re-review `PASS`.
 
 ## Current Version
 
@@ -10,7 +10,7 @@ CS-002.2 closed.
 
 ## Current Objective
 
-Prepare the next Governance Runtime Capability Slice after CS-002.2 closure.
+No active implementation objective. The Forge Lifecycle Standard work is closed.
 
 ## What Exists
 
@@ -87,6 +87,10 @@ Prepare the next Governance Runtime Capability Slice after CS-002.2 closure.
 - ADR 0015 adopting the AI Implementation Protocol
 - DAR-EB-0002 implementation review for EB-002.2 with a `PASS` decision
 - closed CS-002.2 Governance Runtime Version Consistency Check
+- Forge Lifecycle Standard
+- ADR 0016 adopting the Forge Lifecycle Standard
+- `docs/standards/README.md` standards index
+- focused Lifecycle Standard re-review with a `PASS` result
 
 ## What Does Not Exist
 
@@ -165,9 +169,13 @@ Forge now implements EB-002.2 as an additional read-only `forge status` category
 
 CS-002.2 is now closed after passing implementation review.
 
+`docs/standards/lifecycle-standard.md` defines common, artifact-specific, and release lifecycle states; governs withdrawal, archival, and reopening; and requires explicit authority and auditable evidence for every transition. ADR 0016 accepts it as the governing lifecycle standard for Forge artifacts.
+
+The focused re-review of the Lifecycle Standard corrections returned `PASS`. All required review conditions are closed, and the Lifecycle Standard work is closed.
+
 ## Next Recommended Work
 
-1. Select or define the next Governance Runtime Capability Slice.
-2. Use the AI Implementation Protocol for the next Engineering Brief implementation.
-3. Keep Version Consistency enhancements in future slices.
-4. Do not add automatic version updates, changelog rewrites, release approval, CI enforcement, report persistence, or project memory mutation.
+1. Use the Lifecycle Standard when changing artifact status.
+2. Select or define the next Governance Runtime Capability Slice.
+3. Use the AI Implementation Protocol for the next Engineering Brief implementation.
+4. Keep Version Consistency enhancements in future slices.

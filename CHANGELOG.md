@@ -9,6 +9,9 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 ### Added
 
 - Added DAR-EB-0002 implementation review for EB-002.2 Version Consistency Check with a `PASS` decision.
+- Added Forge Lifecycle Standard for common, artifact-specific, and release states, including withdrawal, archival, reopening, and auditable release transitions.
+- Added ADR 0016 adopting the Forge Lifecycle Standard.
+- Added `docs/standards/README.md` standards index.
 
 ## [0.4.1] - 2026-07-09
 

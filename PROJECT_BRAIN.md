@@ -38,6 +38,7 @@ Forge is not an application. It is a constitutional foundation for creating and 
 - Governance Runtime should begin with a read-only Status Service before any scoring, enforcement, release approval, or memory mutation.
 - Capability Slice Design Authority Reviews should verify slice readiness before Engineering Briefs are created for major runtime capabilities.
 - Engineering Brief implementation must follow a standard protocol so AI implementation behavior remains repeatable, reviewable, and scope-controlled.
+- Lifecycle language must be governed consistently so artifact state remains explicit, traceable, and reviewable.
 
 ## Product Shape
 
@@ -156,6 +157,9 @@ Forge may eventually include:
 - Accept DAR-EB-0002 as the implementation review for EB-002.2.
 - Treat CS-002.2 as closed after passing implementation review.
 - Keep future Version Consistency enhancements in separate Capability Slices rather than expanding the current implementation opportunistically.
+- Use `docs/standards/lifecycle-standard.md` as the shared lifecycle model for Forge artifacts.
+- Use ADR 0016 as the decision record for the Forge Lifecycle Standard.
+- Treat `Closed`, `Withdrawn`, `Archived`, `Released`, `Deprecated`, `Superseded`, and `Implementation Reviewed` as distinct states with distinct authority and evidence requirements.
 
 ## Open Questions
 

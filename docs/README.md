@@ -21,6 +21,7 @@ Forge documentation is intentionally split by authority. Files may reference the
 | Forge capabilities | `docs/capabilities/` | `docs/decisions/0010-forge-capability-specifications.md` |
 | Capability Slices | `docs/standards/capability-slice-standard.md` | `templates/capability-slices/CS-template.md`, `docs/architecture/AR-0001-Engineering-Hierarchy.md`, `docs/decisions/0014-introduce-capability-slices.md` |
 | AI implementation protocol | `docs/standards/ai-implementation-protocol.md` | `AI_ENGINEERING_CONDUCT.md`, Engineering Briefs, `docs/decisions/0015-ai-implementation-protocol.md` |
+| Lifecycle governance | `docs/standards/lifecycle-standard.md` | `PROJECT_STATE.md`, `CHANGELOG.md`, `docs/decisions/0016-lifecycle-standard.md` |
 | Document contracts | `docs/contracts/` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md`, `AI_HANDOFF.md` |
 | Bootstrap template system | `docs/contracts/bootstrap-template-system.md` | `templates/`, `docs/decisions/0009-template-driven-bootstrap-generation.md` |
 | First CLI behavior | `docs/contracts/forge-init-spec.md` | `ROADMAP.md`, `docs/decisions/0008-specify-forge-init-before-implementation.md` |
@@ -30,7 +31,7 @@ Forge documentation is intentionally split by authority. Files may reference the
 | AI contributor instructions | `AI_HANDOFF.md` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md` |
 | Architectural decisions | `docs/decisions/` | architecture documents |
 | Constitutional decision record | `docs/decisions/0011-forge-constitutional-governance-and-product-identity.md` | `CONSTITUTION.md` |
-| Standards | `standards/README.md` | future standards files |
+| Standards | `docs/standards/README.md` | `standards/README.md`, standards files |
 | Templates | `templates/README.md` | future template files |
 
 ## Update Rules
