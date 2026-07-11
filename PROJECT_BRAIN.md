@@ -174,6 +174,18 @@ Forge may eventually include:
   files until a separately accepted output-contract revision changes it.
 - Keep generated README and AI handoff guidance explicit that source layout is selected during
   architecture discovery, and keep universal `.gitignore` defaults language-neutral.
+- Select Project Memory Health as CS-002.3, the next Governance Runtime increment after the closed
+  Status Service and Version Consistency slices.
+- Extend `forge status` through deterministic, read-only project-memory checks before pursuing JSON
+  output, persistence, release readiness evaluation, or further Version Consistency enhancement.
+- Reuse the existing Governance Runtime status result model for CS-002.3; do not create a shared
+  result-model prerequisite without concrete evidence from Design Authority Review or a bounded
+  Engineering Brief.
+- Accept DAR-CS-0003's `PASS` decision for CS-002.3 and its bounded architecture: use one private
+  `forge/project_memory.py` helper for deterministic parsing and reference resolution while status
+  types, rule evaluation, aggregation, and CLI-facing composition remain in `forge/status.py`.
+- Treat CS-002.3 as `DAR Approved`: a bounded Engineering Brief may be created and reviewed, but
+  implementation remains unauthorized until that brief is accepted and `Implementation Ready`.
 
 ## Open Questions
 
@@ -195,6 +207,5 @@ Forge may eventually include:
 - How should Governance Runtime enforce AI Engineering Conduct without becoming brittle?
 - Should a future slice add JSON output for `forge status`?
 - Should a future slice persist status reports, and if so where?
-- Should Governance Runtime define a shared result model before adding more services?
 - Should package metadata version match release tags before Forge publishes packages, or only after a package distribution strategy is accepted?
 - Should future release policy require package metadata to match release tags before package publishing exists?

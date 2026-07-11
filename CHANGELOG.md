@@ -31,6 +31,9 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Committed the reviewed EB-004 implementation as
   `5c926759591f617a8245526cdc27cdfd10dbb8e5` and closed the Engineering Brief after final
   implementation-review `PASS`; `v0.5.0` remains unreleased and `Planned`.
+- Added proposed CS-002.3 Governance Runtime Project Memory Health after Product Owner selection;
+  DAR-CS-0003 returned `PASS`, advanced the slice to `DAR Approved`, and authorized bounded
+  Engineering Brief creation without authorizing implementation.
 
 ### Changed
 

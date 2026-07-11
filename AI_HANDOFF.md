@@ -33,6 +33,11 @@ package metadata target `0.5.0`. Focused condition-closure review returned `PASS
 was committed as `5c926759591f617a8245526cdc27cdfd10dbb8e5`, and EB-004 is now `Closed`.
 Release `v0.5.0` remains `Planned`; it is not a Release Candidate, tagged, published, or released.
 
+Product Owner selected `docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md` as
+the next Governance Runtime slice. `docs/reviews/DAR-CS-0003-CS-002.3-Project-Memory-Health.md`
+returned `PASS`; the slice is `DAR Approved` and authorizes one bounded Engineering Brief, not
+implementation.
+
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
 CS-002.2 now specifies that future version consistency check as a read-only `forge status` extension.
@@ -56,6 +61,13 @@ Capability Slices are governed by `docs/standards/capability-slice-standard.md`.
 The first Governance Runtime Capability Slice is `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md`. It defines a read-only Status Service that will later support `forge status`.
 
 The second Governance Runtime Capability Slice is `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md`. It defines read-only version consistency checks across Git tags, active documentation, project memory, changelog, package metadata when present, release documentation, and repository metadata.
+
+The DAR-approved third slice is
+`docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md`.
+It defines deterministic, read-only checks for required memory files, schema sections, active-work
+coherence, explicit lifecycle claims, handoff staleness, release-state labels, and active artifact
+references. It excludes semantic scoring, JSON, persistence, automatic repair, release blocking,
+and general repository consistency.
 
 `docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` records the architecture review for CS-002.2.
 
@@ -181,12 +193,12 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Select the next Forge work item separately through the governed workflow.
+Create and review one bounded Engineering Brief for CS-002.3.
 
-EB-004 is closed. Preserve target `v0.5.0`, `>=0.5,<0.6` template compatibility,
-`forge-bootstrap/2.0.0`, exact output, and the non-migration boundary. Do not infer or begin release
-execution, another capability, or unrelated governance work from this closeout.
+Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
+normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
+helper boundary. Keep status ownership and CLI-facing composition in `forge/status.py`.
 
-Do not add project profiles, migration tooling, replacement source directories, or unrelated
-`forge init` behavior. Do not begin a new Governance Runtime Capability Slice while EB-004 review is
-the active objective.
+Keep `v0.5.0` `Planned`. Do not implement CS-002.3 before its brief is accepted and
+`Implementation Ready`; do not add JSON or persistence, create a Release Candidate, or begin
+another work item.
