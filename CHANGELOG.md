@@ -37,6 +37,10 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added EB-005 for the bounded implementation of Project Memory Health; formal Engineering Brief
   review returned `PASS`, advanced it to `Implementation Ready`, and authorized only its bounded
   implementation under the AI Implementation Protocol.
+- Added the read-only Project Memory Health category to `forge status`, with nine deterministic
+  rules, exact active-section and reference boundaries, conservative failure states, and focused
+  regression/read-only tests. DAR-EB-0004 returned `PASS`; the implementation is reviewed and ready
+  to commit but remains open and unreleased.
 
 ### Changed
 

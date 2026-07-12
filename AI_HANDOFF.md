@@ -39,8 +39,12 @@ returned `PASS`; the slice is `DAR Approved` and authorizes one bounded Engineer
 implementation.
 
 `docs/engineering/EB-005-Implement-Project-Memory-Health.md` is that bounded brief. It is
-`Implementation Ready` after formal Engineering Brief review `PASS`. Implementation is authorized
-only within EB-005 and must follow the AI Implementation Protocol.
+`Implementation Reviewed` after DAR-EB-0004 returned `PASS`. The complete reviewed change set is
+ready to commit; EB-005 and CS-002.3 are not closed.
+
+`forge status` now includes a deterministic, read-only `Project Memory Health` category after
+Runtime Memory Status and before Version Consistency Status. Evidence is recorded in
+`docs/engineering/implementation-review-handoff-EB-005.md`.
 
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
@@ -197,12 +201,12 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Implement EB-005 under the AI Implementation Protocol.
+Commit the complete reviewed EB-005 implementation and governance evidence.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
 helper boundary. Keep status ownership and CLI-facing composition in `forge/status.py`.
 
-Keep `v0.5.0` `Planned`. Implement only EB-005's accepted scope, run its complete verification, and
-prepare formal implementation-review handoff. Do not add JSON or persistence, create a Release
-Candidate, or begin another work item.
+Use DAR-EB-0004 as the final implementation-review decision. Include only the bounded implementation,
+tests, documentation, handoff, and review record. Keep `v0.5.0` `Planned`; do not close EB-005, add
+JSON or persistence, create a Release Candidate, or begin another work item in the commit step.

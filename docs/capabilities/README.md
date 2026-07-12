@@ -17,9 +17,8 @@ Capability Slices are governed by `docs/standards/capability-slice-standard.md` 
 
 - `CS-002.1-Governance-Runtime-Status-Service.md` - first Governance Runtime slice; defines read-only status evaluation for the future `forge status` command.
 - `CS-002.2-Governance-Runtime-Version-Consistency-Check.md` - closed Governance Runtime slice; implements read-only version consistency checks for `forge status`.
-- `CS-002.3-Governance-Runtime-Project-Memory-Health.md` - DAR-approved Governance Runtime slice;
-  defines deterministic, read-only project-memory health checks and is ready for a bounded
-  Engineering Brief.
+- `CS-002.3-Governance-Runtime-Project-Memory-Health.md` - implementation-reviewed Governance
+  Runtime slice; DAR-EB-0004 returned `PASS`, and the reviewed implementation is ready to commit.
 
 ## Naming
 

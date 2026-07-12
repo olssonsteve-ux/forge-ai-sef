@@ -2,8 +2,8 @@
 
 ## Status
 
-Formal Engineering Brief review returned `PASS` for EB-005 Project Memory Health. The brief is
-`Implementation Ready`; bounded implementation is authorized under the AI Implementation Protocol.
+DAR-EB-0004 returned `PASS` for the EB-005 Project Memory Health implementation. EB-005 and
+CS-002.3 are `Implementation Reviewed` and ready to commit; they are not closed or released.
 
 ## Current Version
 
@@ -15,8 +15,8 @@ Formal Engineering Brief review returned `PASS` for EB-005 Project Memory Health
 
 ## Current Objective
 
-Implement EB-005 exactly within its accepted parsing, rule, module, test, and read-only boundaries;
-do not begin release work.
+Commit the complete reviewed EB-005 implementation and governance evidence without closing the
+brief or beginning release work.
 
 ## What Exists
 
@@ -121,6 +121,10 @@ do not begin release work.
 - DAR-approved CS-002.3 Governance Runtime Project Memory Health
 - DAR-CS-0003 formal Design Authority Review with final result `PASS`
 - accepted EB-005 Project Memory Health brief in `Implementation Ready`
+- implemented Project Memory Health category with nine deterministic rules
+- private `forge/project_memory.py` parsing and resolution helper
+- focused Project Memory Health tests and implementation-review handoff evidence
+- DAR-EB-0004 formal implementation review with final decision `PASS`
 
 ## What Does Not Exist
 
@@ -243,10 +247,17 @@ aggregation, read-only behavior, and separation from CS-002.2. Formal Engineerin
 returned `PASS`; EB-005 is `Implementation Ready` and authorizes only its bounded implementation
 under the AI Implementation Protocol.
 
+The bounded EB-005 implementation is complete. `forge status` now places `Project Memory Health`
+after Runtime Memory Status and before Version Consistency Status. The private helper owns facts
+only; all status authority remains in `forge/status.py`. Automated and manual verification passed,
+and `docs/engineering/implementation-review-handoff-EB-005.md` records the evidence. DAR-EB-0004
+returned `PASS`; EB-005 and CS-002.3 are `Implementation Reviewed` and ready to commit. They remain
+open, and no release transition occurred.
+
 ## Next Recommended Work
 
-1. Implement EB-005 under the AI Implementation Protocol, preserving its deterministic parsing,
-   nine rules, private helper boundary, failure behavior, fixtures, and exclusions.
-2. Prepare formal implementation-review handoff after all required verification passes; do not
-   mark the brief reviewed or closed before that review.
+1. Commit the complete DAR-EB-0004-reviewed EB-005 implementation, tests, documentation, handoff,
+   and review record as one bounded change set.
+2. Do not close EB-005 or CS-002.3 before the implementation commit is recorded and bounded
+   closeout is separately authorized.
 3. Keep `v0.5.0` in `Planned`; no release work is authorized by this slice proposal.

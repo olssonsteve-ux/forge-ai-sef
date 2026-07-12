@@ -96,13 +96,19 @@ Projects generated with the historical empty `forge/` placeholder are not migrat
 Populated directories remain project-owned, existing layouts may remain indefinitely, and an empty
 placeholder may be removed only through deliberate manual project action.
 
-`forge status` inspects the current repository and reports read-only governance status. It includes a Version Consistency Status category that compares local release tags with active version references in README, changelog, project memory, handoff context, and `pyproject.toml` when present. It does not approve releases, calculate a score, persist reports, fix mismatches, or update project files.
+`forge status` inspects the current repository and reports read-only governance status. It includes
+a Project Memory Health category for deterministic checks of required memory files and sections,
+explicit active references, active-work and lifecycle coherence, proven stale gates, release
+lifecycle labels, and current ADR authority. Version Consistency Status separately compares local
+release tags with active version references in README, changelog, project memory, handoff context,
+and `pyproject.toml` when present. The command does not approve releases, calculate a score, persist
+reports, fix findings, or update project files.
 
 Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing standards, code quality standards, and GitHub Actions CI.
 
 Forge `v0.3.1` adds the constitutional identity foundation. The current governance milestone adds the AI conduct layer before Forge 0.4 Governance Runtime begins.
 
-Forge specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md). Its first read-only Status Service is implemented through `forge status`, including artifact presence checks and conservative version consistency checks.
+Forge specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md). Its read-only Status Service is implemented through `forge status`, including artifact presence, conservative version consistency, and deterministic Project Memory Health checks.
 
 Capability Slices are now a first-class Forge artifact governed by [docs/standards/capability-slice-standard.md](docs/standards/capability-slice-standard.md). New slices should start from [templates/capability-slices/CS-template.md](templates/capability-slices/CS-template.md).
 

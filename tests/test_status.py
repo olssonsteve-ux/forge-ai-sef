@@ -13,12 +13,33 @@ def create_forge_project(root: Path, version: str = "0.4.0") -> None:
     root_docs = {
         "CONSTITUTION.md": "# Constitution\n",
         "AI_ENGINEERING_CONDUCT.md": "# AI Engineering Conduct\n",
-        "PROJECT_STATE.md": (f"# Project State\n\n## Current Version\n\n`v{version}`\n"),
-        "PROJECT_BRAIN.md": "# Project Brain\n",
+        "PROJECT_STATE.md": (
+            "# Project State\n\n"
+            "## Status\n\nFoundation stage.\n\n"
+            f"## Current Version\n\n`v{version}`\n\n"
+            f"## Planned Release\n\n`v{version}` is `Planned`.\n\n"
+            "## Current Objective\n\nMaintain the current foundation.\n\n"
+            "## What Exists\n\n- Governance.\n\n"
+            "## What Does Not Exist\n\n- Release automation.\n\n"
+            "## Architectural Posture\n\nKeep changes bounded.\n\n"
+            "## Next Recommended Work\n\n1. Select the next governed work item.\n"
+        ),
+        "PROJECT_BRAIN.md": (
+            "# Project Brain\n\n"
+            "## Core Identity\n\nForge test project.\n\n"
+            "## Guiding Beliefs\n\n- Determinism.\n\n"
+            "## Product Shape\n\nGoverned tooling.\n\n"
+            "## Important Boundaries\n\n- Read-only status.\n\n"
+            "## Current Decisions\n\nNo ADR is named as current.\n\n"
+            "## Open Questions\n\n- What comes next?\n"
+        ),
         "AI_HANDOFF.md": (
-            "# AI Handoff\n\n"
+            "# AI Handoff\n\n## Role Context\n\nMaintain Forge.\n\n"
             "## Current Repository State\n\n"
-            f"The repository is released as Forge `v{version}`.\n"
+            f"Release `v{version}` is `Planned`.\n\n"
+            "## Current Architectural Intent\n\nKeep status read-only.\n\n"
+            "## Instructions For Future AI Agents\n\nFollow governance.\n\n"
+            "## Immediate Next Step\n\nSelect the next governed work item.\n"
         ),
         "CHANGELOG.md": (
             "# Changelog\n\n"
@@ -56,6 +77,9 @@ def create_forge_project(root: Path, version: str = "0.4.0") -> None:
     (root / "docs/capabilities/FCS-001-Test.md").write_text("# FCS test\n", encoding="utf-8")
     (root / "docs/capabilities/CS-001.1-Test.md").write_text("# CS test\n", encoding="utf-8")
     (root / "docs/engineering/EB-001-Test.md").write_text("# EB test\n", encoding="utf-8")
+    (root / f"docs/release/checklist-{version}.md").write_text(
+        "# Release Checklist\n\nStatus: Planned\n", encoding="utf-8"
+    )
 
 
 def create_git_repo(root: Path, tag: str | None = "v0.4.0") -> None:
@@ -118,6 +142,7 @@ def test_status_works_in_complete_forge_repository(tmp_path: Path) -> None:
         "Testing Status",
         "Release Status",
         "Runtime Memory Status",
+        "Project Memory Health",
         "Version Consistency Status",
         "Repository Status",
     }
@@ -187,7 +212,7 @@ def test_status_category_generation(tmp_path: Path) -> None:
 
     report = evaluate_status(tmp_path)
 
-    assert len(report.categories) == 10
+    assert len(report.categories) == 11
     assert all(category.name for category in report.categories)
     assert all(category.items for category in report.categories)
 
