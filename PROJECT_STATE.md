@@ -2,8 +2,8 @@
 
 ## Status
 
-DAR-CS-0003 returned `PASS` for CS-002.3 Governance Runtime Project Memory Health. The slice is
-`DAR Approved`; bounded Engineering Brief creation is authorized, but implementation is not.
+Formal Engineering Brief review returned `PASS` for EB-005 Project Memory Health. The brief is
+`Implementation Ready`; bounded implementation is authorized under the AI Implementation Protocol.
 
 ## Current Version
 
@@ -15,8 +15,8 @@ DAR-CS-0003 returned `PASS` for CS-002.3 Governance Runtime Project Memory Healt
 
 ## Current Objective
 
-Create and review one bounded Engineering Brief for DAR-approved CS-002.3 without beginning
-implementation or release work.
+Implement EB-005 exactly within its accepted parsing, rule, module, test, and read-only boundaries;
+do not begin release work.
 
 ## What Exists
 
@@ -120,6 +120,7 @@ implementation or release work.
 - closed EB-004 Engineering Brief with no unresolved implementation findings
 - DAR-approved CS-002.3 Governance Runtime Project Memory Health
 - DAR-CS-0003 formal Design Authority Review with final result `PASS`
+- accepted EB-005 Project Memory Health brief in `Implementation Ready`
 
 ## What Does Not Exist
 
@@ -233,12 +234,19 @@ without scoring or persistence. The existing status result model is sufficient; 
 prerequisite slice is required. DAR-CS-0003 returned `PASS`, accepted one private
 `forge/project_memory.py` parsing and resolution helper while retaining status ownership in
 `forge/status.py`, and advanced CS-002.3 to `DAR Approved`. Bounded Engineering Brief creation is
-authorized; implementation remains unauthorized.
+authorized at that gate; implementation remained unauthorized until EB-005 review.
+
+`docs/engineering/EB-005-Implement-Project-Memory-Health.md` translates the approved slice into a
+bounded implementation plan. It preserves exactly three primary inputs, nine deterministic rules,
+the private `forge/project_memory.py` facts-only helper boundary, status-owned evaluation and
+aggregation, read-only behavior, and separation from CS-002.2. Formal Engineering Brief review
+returned `PASS`; EB-005 is `Implementation Ready` and authorizes only its bounded implementation
+under the AI Implementation Protocol.
 
 ## Next Recommended Work
 
-1. Create and review one bounded Engineering Brief that preserves DAR-CS-0003's deterministic
-   rules, private helper boundary, failure behavior, fixtures, and exclusions.
-2. Do not implement Project Memory Health until the Engineering Brief is accepted and reaches
-   `Implementation Ready`.
+1. Implement EB-005 under the AI Implementation Protocol, preserving its deterministic parsing,
+   nine rules, private helper boundary, failure behavior, fixtures, and exclusions.
+2. Prepare formal implementation-review handoff after all required verification passes; do not
+   mark the brief reviewed or closed before that review.
 3. Keep `v0.5.0` in `Planned`; no release work is authorized by this slice proposal.

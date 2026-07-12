@@ -21,6 +21,7 @@ Forge documentation is intentionally split by authority. Files may reference the
 | Generated project source layout | `docs/decisions/0017-generated-project-source-layout.md` | `docs/contracts/forge-init-spec.md`, `docs/contracts/bootstrap-template-system.md`, `docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md`, `docs/architecture/AR-0002-Generated-Project-Source-Layout.md`, `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md`, `docs/reviews/DAR-EB-0003-EB-004-Universal-Bootstrap-Implementation.md` |
 | Forge capabilities | `docs/capabilities/` | `docs/decisions/0010-forge-capability-specifications.md` |
 | Capability Slices | `docs/standards/capability-slice-standard.md` | `templates/capability-slices/CS-template.md`, `docs/architecture/AR-0001-Engineering-Hierarchy.md`, `docs/decisions/0014-introduce-capability-slices.md` |
+| Project Memory Health implementation brief | `docs/engineering/EB-005-Implement-Project-Memory-Health.md` | `docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md`, `docs/reviews/DAR-CS-0003-CS-002.3-Project-Memory-Health.md` |
 | AI implementation protocol | `docs/standards/ai-implementation-protocol.md` | `AI_ENGINEERING_CONDUCT.md`, Engineering Briefs, `docs/decisions/0015-ai-implementation-protocol.md` |
 | Lifecycle governance | `docs/standards/lifecycle-standard.md` | `PROJECT_STATE.md`, `CHANGELOG.md`, `docs/decisions/0016-lifecycle-standard.md` |
 | Document contracts | `docs/contracts/` | `PROJECT_STATE.md`, `PROJECT_BRAIN.md`, `AI_HANDOFF.md` |

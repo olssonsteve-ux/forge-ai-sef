@@ -38,6 +38,10 @@ the next Governance Runtime slice. `docs/reviews/DAR-CS-0003-CS-002.3-Project-Me
 returned `PASS`; the slice is `DAR Approved` and authorizes one bounded Engineering Brief, not
 implementation.
 
+`docs/engineering/EB-005-Implement-Project-Memory-Health.md` is that bounded brief. It is
+`Implementation Ready` after formal Engineering Brief review `PASS`. Implementation is authorized
+only within EB-005 and must follow the AI Implementation Protocol.
+
 PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
 
 CS-002.2 now specifies that future version consistency check as a read-only `forge status` extension.
@@ -193,12 +197,12 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Create and review one bounded Engineering Brief for CS-002.3.
+Implement EB-005 under the AI Implementation Protocol.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
 helper boundary. Keep status ownership and CLI-facing composition in `forge/status.py`.
 
-Keep `v0.5.0` `Planned`. Do not implement CS-002.3 before its brief is accepted and
-`Implementation Ready`; do not add JSON or persistence, create a Release Candidate, or begin
-another work item.
+Keep `v0.5.0` `Planned`. Implement only EB-005's accepted scope, run its complete verification, and
+prepare formal implementation-review handoff. Do not add JSON or persistence, create a Release
+Candidate, or begin another work item.

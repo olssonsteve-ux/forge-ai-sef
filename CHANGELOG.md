@@ -34,6 +34,9 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
 - Added proposed CS-002.3 Governance Runtime Project Memory Health after Product Owner selection;
   DAR-CS-0003 returned `PASS`, advanced the slice to `DAR Approved`, and authorized bounded
   Engineering Brief creation without authorizing implementation.
+- Added EB-005 for the bounded implementation of Project Memory Health; formal Engineering Brief
+  review returned `PASS`, advanced it to `Implementation Ready`, and authorized only its bounded
+  implementation under the AI Implementation Protocol.
 
 ### Changed
 
