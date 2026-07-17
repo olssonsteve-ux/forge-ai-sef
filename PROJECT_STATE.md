@@ -2,8 +2,8 @@
 
 ## Status
 
-DAR-EB-0004 returned `PASS` for the EB-005 Project Memory Health implementation. EB-005 and
-CS-002.3 are `Implementation Reviewed` and ready to commit; they are not closed or released.
+EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
+`8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
 
 ## Current Version
 
@@ -15,8 +15,7 @@ CS-002.3 are `Implementation Reviewed` and ready to commit; they are not closed 
 
 ## Current Objective
 
-Commit the complete reviewed EB-005 implementation and governance evidence without closing the
-brief or beginning release work.
+Select the next Product Owner work item separately. No release work or new capability work is active.
 
 ## What Exists
 
@@ -125,6 +124,8 @@ brief or beginning release work.
 - private `forge/project_memory.py` parsing and resolution helper
 - focused Project Memory Health tests and implementation-review handoff evidence
 - DAR-EB-0004 formal implementation review with final decision `PASS`
+- committed EB-005 implementation at `8d1ccb9854ec51c0235a06253c85019780309c32`
+- closed EB-005 Engineering Brief and CS-002.3 Capability Slice
 
 ## What Does Not Exist
 
@@ -240,24 +241,24 @@ prerequisite slice is required. DAR-CS-0003 returned `PASS`, accepted one privat
 `forge/status.py`, and advanced CS-002.3 to `DAR Approved`. Bounded Engineering Brief creation is
 authorized at that gate; implementation remained unauthorized until EB-005 review.
 
-`docs/engineering/EB-005-Implement-Project-Memory-Health.md` translates the approved slice into a
+`docs/engineering/EB-005-Implement-Project-Memory-Health.md` translated the approved slice into a
 bounded implementation plan. It preserves exactly three primary inputs, nine deterministic rules,
 the private `forge/project_memory.py` facts-only helper boundary, status-owned evaluation and
 aggregation, read-only behavior, and separation from CS-002.2. Formal Engineering Brief review
-returned `PASS`; EB-005 is `Implementation Ready` and authorizes only its bounded implementation
-under the AI Implementation Protocol.
+returned `PASS` and advanced EB-005 to `Implementation Ready`, authorizing only its bounded
+implementation under the AI Implementation Protocol.
 
 The bounded EB-005 implementation is complete. `forge status` now places `Project Memory Health`
 after Runtime Memory Status and before Version Consistency Status. The private helper owns facts
 only; all status authority remains in `forge/status.py`. Automated and manual verification passed,
 and `docs/engineering/implementation-review-handoff-EB-005.md` records the evidence. DAR-EB-0004
-returned `PASS`; EB-005 and CS-002.3 are `Implementation Reviewed` and ready to commit. They remain
-open, and no release transition occurred.
+returned `PASS`; commit `8d1ccb9854ec51c0235a06253c85019780309c32` contains the complete
+reviewed change set. Review Authority closed EB-005 and CS-002.3 with Chief Architect concurrence
+after confirming no unresolved findings, conditions, or in-scope follow-up. FCS-002 remains active,
+and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Commit the complete DAR-EB-0004-reviewed EB-005 implementation, tests, documentation, handoff,
-   and review record as one bounded change set.
-2. Do not close EB-005 or CS-002.3 before the implementation commit is recorded and bounded
-   closeout is separately authorized.
-3. Keep `v0.5.0` in `Planned`; no release work is authorized by this slice proposal.
+1. Select the next Forge work item separately through Product Owner and architecture governance.
+2. Keep FCS-002 active for future separately governed slices.
+3. Keep `v0.5.0` in `Planned`; no release work is authorized by this closeout.

@@ -1,6 +1,6 @@
 # EB-005 Project Memory Health Implementation Review Handoff
 
-Status: Formally reviewed — PASS
+Status: Committed, reviewed, and closed
 
 Date: 2026-07-12
 
@@ -14,8 +14,9 @@ Date: 2026-07-12
 
 ## Implementation Status
 
-DAR-EB-0004 returned `PASS`. EB-005 is `Implementation Reviewed` and ready to commit. It is not
-`Closed`, a Release Candidate, or released.
+DAR-EB-0004 returned `PASS`. The reviewed implementation was committed as
+`8d1ccb9854ec51c0235a06253c85019780309c32`. EB-005 and CS-002.3 are `Closed`; neither is a Release
+Candidate or released.
 
 ## Current-To-Target Delta
 
@@ -111,7 +112,7 @@ change.
 None. DAR-EB-0004 records the three narrow review corrections and final decision `PASS`. No scope
 deviation is recorded.
 
-## Review Request
+## Closeout Status
 
-The complete reviewed change set is ready to commit. Closure remains pending the implementation
-commit and separate bounded closeout. No release transition is requested or implied.
+The complete reviewed change set is committed and bounded closeout is complete. No release
+transition is requested or implied.

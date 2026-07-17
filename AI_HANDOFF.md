@@ -20,7 +20,7 @@ The repository is released as Forge `v0.4.1` with the Governance Runtime Status 
 
 `docs/contracts/forge-init-spec.md` and `docs/contracts/bootstrap-template-system.md` specify the accepted `forge-bootstrap/2.0.0` contract and manual compatibility guidance. Focused contract review returned `PASS`.
 
-`docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` is the accepted bounded Engineering Brief for implementing the contract. Focused review returned `PASS`, and the brief is `Implementation Ready`. Implementation is authorized only within EB-004 and must follow the AI Implementation Protocol.
+`docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` is the accepted bounded Engineering Brief that governed implementation of the contract. Focused review returned `PASS` and advanced the brief to `Implementation Ready`; its implementation and closeout are now complete.
 
 The bounded EB-004 implementation is present and verified: `forge init` now plans and creates
 exactly eight contracted directories and eight generated files, generates no source-code directory,
@@ -34,13 +34,12 @@ was committed as `5c926759591f617a8245526cdc27cdfd10dbb8e5`, and EB-004 is now `
 Release `v0.5.0` remains `Planned`; it is not a Release Candidate, tagged, published, or released.
 
 Product Owner selected `docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md` as
-the next Governance Runtime slice. `docs/reviews/DAR-CS-0003-CS-002.3-Project-Memory-Health.md`
-returned `PASS`; the slice is `DAR Approved` and authorizes one bounded Engineering Brief, not
-implementation.
+the next Governance Runtime slice. DAR-CS-0003 returned `PASS`; its EB-005 implementation was
+committed as `8d1ccb9854ec51c0235a06253c85019780309c32` and DAR-EB-0004 returned `PASS`.
 
 `docs/engineering/EB-005-Implement-Project-Memory-Health.md` is that bounded brief. It is
-`Implementation Reviewed` after DAR-EB-0004 returned `PASS`. The complete reviewed change set is
-ready to commit; EB-005 and CS-002.3 are not closed.
+`Closed`, as is CS-002.3. Project Memory Health remains implemented, informational, and read-only.
+FCS-002 remains active for future separately governed slices.
 
 `forge status` now includes a deterministic, read-only `Project Memory Health` category after
 Runtime Memory Status and before Version Consistency Status. Evidence is recorded in
@@ -70,7 +69,7 @@ The first Governance Runtime Capability Slice is `docs/capabilities/CS-002.1-Gov
 
 The second Governance Runtime Capability Slice is `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md`. It defines read-only version consistency checks across Git tags, active documentation, project memory, changelog, package metadata when present, release documentation, and repository metadata.
 
-The DAR-approved third slice is
+The closed third slice is
 `docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md`.
 It defines deterministic, read-only checks for required memory files, schema sections, active-work
 coherence, explicit lifecycle claims, handoff staleness, release-state labels, and active artifact
@@ -201,12 +200,12 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Commit the complete reviewed EB-005 implementation and governance evidence.
+Select the next Forge work item separately through the governed Product Owner workflow.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
 helper boundary. Keep status ownership and CLI-facing composition in `forge/status.py`.
 
-Use DAR-EB-0004 as the final implementation-review decision. Include only the bounded implementation,
-tests, documentation, handoff, and review record. Keep `v0.5.0` `Planned`; do not close EB-005, add
-JSON or persistence, create a Release Candidate, or begin another work item in the commit step.
+EB-005 and CS-002.3 are closed. Preserve Project Memory Health's nine-rule, read-only boundary and
+keep FCS-002 active. Keep `v0.5.0` `Planned`; do not infer release execution, create a Release
+Candidate, start Audio Recorder, or begin another capability without separate selection.

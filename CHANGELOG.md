@@ -39,8 +39,9 @@ Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking change
   implementation under the AI Implementation Protocol.
 - Added the read-only Project Memory Health category to `forge status`, with nine deterministic
   rules, exact active-section and reference boundaries, conservative failure states, and focused
-  regression/read-only tests. DAR-EB-0004 returned `PASS`; the implementation is reviewed and ready
-  to commit but remains open and unreleased.
+  regression/read-only tests. DAR-EB-0004 returned `PASS`, commit
+  `8d1ccb9854ec51c0235a06253c85019780309c32` records the reviewed implementation, and EB-005 and
+  CS-002.3 are closed; the change remains unreleased.
 
 ### Changed
 

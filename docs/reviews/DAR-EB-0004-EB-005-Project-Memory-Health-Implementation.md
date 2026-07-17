@@ -170,7 +170,15 @@ release transition is authorized.
 
 ## Commit, Closure, And Release Readiness
 
-- Implementation ready to commit: YES
-- Implementation ready to close: NO
+- Implementation commit: `8d1ccb9854ec51c0235a06253c85019780309c32`
+- Committed file set: the complete DAR-EB-0004-reviewed implementation and governance evidence
+- Implementation committed: YES
+- Closure eligibility: CONFIRMED after the reviewed commit was recorded with no unresolved findings
+  or conditions
+- Closed artifacts: `docs/engineering/EB-005-Implement-Project-Memory-Health.md` and
+  `docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md` on 2026-07-17
 - Release ready: NO
 - Release `v0.5.0`: remains `Planned`
+
+The closure record does not alter this review's `PASS` decision and does not authorize any release
+transition.
