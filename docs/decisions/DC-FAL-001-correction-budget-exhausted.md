@@ -1,6 +1,6 @@
 # DC-FAL-001 — Adaptive Loop V1 correction budget exhausted
 
-Status: `PENDING`
+Status: `RESOLVED` by human decision `HD-FAL-001`
 
 Decision owner: Human Product Owner / Forge Design Authority
 

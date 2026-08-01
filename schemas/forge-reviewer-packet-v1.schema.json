@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "mode", "criteria", "baseline", "truth_authority", "diff", "changed_files", "run_record", "evidence_references", "allowed_paths", "forbidden_operations", "prior_findings", "reviewer_identity", "artifacts", "reviewer_execution", "packet_hash"],
+  "properties": {
+    "schema_version": {"const": "forge-reviewer-packet/1.0"},
+    "mode": {"const": "read_only_adversarial"},
+    "criteria": {"type": "array"},
+    "baseline": {"type": "string"},
+    "truth_authority": {"type": "object"},
+    "diff": {"type": "string"},
+    "changed_files": {"type": "array", "items": {"type": "string"}},
+    "run_record": {"type": "object"},
+    "evidence_references": {},
+    "allowed_paths": {"type": "array", "items": {"type": "string"}},
+    "forbidden_operations": {"type": "array", "items": {"type": "string"}},
+    "prior_findings": {"type": "array"},
+    "reviewer_identity": {"type": "string"},
+    "artifacts": {"type": "object"},
+    "reviewer_execution": {"type": "object", "required": ["execution_id", "adapter", "adapter_version", "started_at", "finished_at", "repository", "baseline", "read_only", "source"], "additionalProperties": false, "properties": {"execution_id": {"type": "string"}, "adapter": {"type": "string"}, "adapter_version": {"type": "string"}, "started_at": {"type": "string"}, "finished_at": {"type": ["string", "null"]}, "repository": {"type": "string"}, "baseline": {"type": "string"}, "read_only": {"const": true}, "source": {"enum": ["collector", "orchestrator"]}}},
+    "packet_hash": {"type": "string"}
+  },
+  "additionalProperties": false
+}

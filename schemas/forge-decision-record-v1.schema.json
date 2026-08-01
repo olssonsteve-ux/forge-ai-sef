@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["decision_id", "decision", "owner", "provenance", "gate_id", "status"],
+  "properties": {"decision_id": {"type": "string", "minLength": 1}, "decision": {"enum": ["AUTHORIZE_CLOSE"]}, "owner": {"type": "string", "minLength": 1}, "provenance": {"type": "string", "minLength": 1}, "gate_id": {"type": "string", "minLength": 1}, "status": {"const": "accepted"}},
+  "additionalProperties": false
+}

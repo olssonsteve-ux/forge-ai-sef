@@ -95,7 +95,6 @@ FROZEN_FIELDS = (
     "process_level",
     "reviewer_identity",
     "next_allowed_gate",
-    "capability_status",
 )
 SECRET_PATTERN = re.compile(
     r"(?i)(bearer\s+\S+|(?:token|password|secret|api[_-]?key|aws_access_key_id)\s*[=:]\s*\S+)"
@@ -116,34 +115,83 @@ class ContractError(ValueError):
 
 
 class StateStore:
-    """Persist the authoritative predecessor so truncation and budget reset cannot be optional."""
+    """Append-only local snapshot ledger; current is a derived, recoverable cache."""
 
     def __init__(self, path: Path):
         self.path = path
+        self.ledger = path.with_suffix(path.suffix + ".ledger")
 
     def initialize(self, manifest: dict[str, Any]) -> None:
         validate_manifest(manifest)
-        if self.path.exists():
+        if self.path.exists() or self.ledger.exists():
             raise ContractError("authoritative state already exists")
-        self._write({"current": manifest, "heads": [manifest["run"]["history_head"]]})
+        self.ledger.mkdir(parents=True)
+        self._append(manifest, None)
+        self._write_cache(manifest, 0)
 
     def load(self) -> dict[str, Any]:
-        payload = json.loads(self.path.read_text(encoding="utf-8"))
-        validate_manifest(payload["current"])
-        return payload["current"]
+        records = self._records()
+        state = records[-1]["payload"]
+        if self.path.exists():
+            cache = json.loads(self.path.read_text(encoding="utf-8"))
+            if cache["sequence"] > records[-1]["sequence"]:
+                raise ContractError("derived cache is ahead of authoritative ledger")
+            if cache["sequence"] == records[-1]["sequence"] and cache["payload_hash"] != sha256(
+                state
+            ):
+                raise ContractError("derived cache contradicts authoritative ledger")
+        validate_manifest(state)
+        return state
 
-    def update(self, manifest: dict[str, Any]) -> None:
-        payload = json.loads(self.path.read_text(encoding="utf-8"))
-        previous = payload["current"]
+    def update(self, manifest: dict[str, Any], fail_after_append: bool = False) -> None:
+        records = self._records()
+        previous = records[-1]["payload"]
         validate_successor(previous, manifest)
-        payload["current"] = manifest
-        payload["heads"].append(manifest["run"]["history_head"])
-        self._write(payload)
+        self._append(manifest, records[-1])
+        if fail_after_append:
+            raise OSError("injected persistence interruption after authoritative append")
+        self._write_cache(manifest, records[-1]["sequence"] + 1)
 
-    def _write(self, payload: dict[str, Any]) -> None:
+    def _append(self, manifest: dict[str, Any], predecessor: dict[str, Any] | None) -> None:
+        sequence = 0 if predecessor is None else predecessor["sequence"] + 1
+        record = {
+            "series_id": manifest["run"]["series_id"],
+            "sequence": sequence,
+            "predecessor": None if predecessor is None else predecessor["record_hash"],
+            "payload_hash": sha256(manifest),
+            "payload": manifest,
+        }
+        record["record_hash"] = sha256(record)
+        target = self.ledger / f"{sequence:08d}.json"
+        with target.open("x", encoding="utf-8") as stream:
+            json.dump(record, stream, sort_keys=True, indent=2, ensure_ascii=False)
+            stream.write("\n")
+
+    def _records(self) -> list[dict[str, Any]]:
+        paths = sorted(self.ledger.glob("*.json"))
+        if not paths:
+            raise ContractError("authoritative ledger is empty")
+        records = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
+        previous_hash = None
+        for sequence, record in enumerate(records):
+            unsigned = {key: value for key, value in record.items() if key != "record_hash"}
+            if record.get("sequence") != sequence or record.get("predecessor") != previous_hash:
+                raise ContractError("ledger sequence or predecessor mismatch")
+            if record.get("payload_hash") != sha256(record.get("payload")):
+                raise ContractError("ledger payload hash mismatch")
+            if record.get("record_hash") != sha256(unsigned):
+                raise ContractError("ledger record hash mismatch")
+            if sequence and record.get("series_id") != records[0].get("series_id"):
+                raise ContractError("ledger series identity mismatch")
+            validate_manifest(record["payload"])
+            previous_hash = record["record_hash"]
+        return records
+
+    def _write_cache(self, manifest: dict[str, Any], sequence: int) -> None:
+        payload = {"sequence": sequence, "payload_hash": sha256(manifest)}
         temporary = self.path.with_suffix(self.path.suffix + ".tmp")
         temporary.write_text(
-            json.dumps(payload, sort_keys=True, indent=2, ensure_ascii=False) + "\n",
+            json.dumps(payload, sort_keys=True, indent=2) + "\n",
             encoding="utf-8",
         )
         temporary.replace(self.path)
@@ -170,6 +218,65 @@ def sha256(value: Any) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def validate_schema_boundary(value: Any, schema_name: str) -> None:
+    """Execute the repository-owned closed JSON schema subset at runtime boundaries."""
+    path = Path(__file__).parents[1] / "schemas" / schema_name
+    schema = json.loads(path.read_text(encoding="utf-8"))
+
+    def resolve(reference: str) -> dict[str, Any]:
+        node: Any = schema
+        for part in reference.removeprefix("#/").split("/"):
+            node = node[part]
+        return node
+
+    def check(data: Any, rule: dict[str, Any], location: str) -> None:
+        if "$ref" in rule:
+            check(data, resolve(rule["$ref"]), location)
+            return
+        if "const" in rule and data != rule["const"]:
+            raise ContractError(f"schema const mismatch at {location}")
+        if "enum" in rule and data not in rule["enum"]:
+            raise ContractError(f"schema enum mismatch at {location}")
+        expected = rule.get("type")
+        allowed = expected if isinstance(expected, list) else [expected] if expected else []
+        type_map = {
+            "object": dict,
+            "array": list,
+            "string": str,
+            "integer": int,
+            "number": (int, float),
+            "boolean": bool,
+            "null": type(None),
+        }
+        if allowed and not any(isinstance(data, type_map[item]) for item in allowed):
+            raise ContractError(f"schema type mismatch at {location}")
+        if isinstance(data, dict):
+            required = set(rule.get("required", []))
+            if missing := required - data.keys():
+                raise ContractError(
+                    f"schema required fields missing at {location}: {sorted(missing)}"
+                )
+            properties = rule.get("properties", {})
+            extra = set(data) - properties.keys()
+            if rule.get("additionalProperties") is False and extra:
+                raise ContractError(f"schema unknown fields at {location}: {sorted(extra)}")
+            for key, item in data.items():
+                if key in properties:
+                    check(item, properties[key], f"{location}/{key}")
+        if isinstance(data, list) and "items" in rule:
+            for index, item in enumerate(data):
+                check(item, rule["items"], f"{location}/{index}")
+        if isinstance(data, int):
+            if "minimum" in rule and data < rule["minimum"]:
+                raise ContractError(f"schema minimum violated at {location}")
+            if "maximum" in rule and data > rule["maximum"]:
+                raise ContractError(f"schema maximum violated at {location}")
+        if isinstance(data, str) and len(data) < rule.get("minLength", 0):
+            raise ContractError(f"schema minLength violated at {location}")
+
+    check(value, schema, "$")
+
+
 def redact(value: Any) -> Any:
     if isinstance(value, str):
         return SECRET_PATTERN.sub("[REDACTED]", value)
@@ -184,6 +291,7 @@ def redact(value: Any) -> Any:
 
 
 def validate_manifest(manifest: dict[str, Any]) -> None:
+    validate_schema_boundary(manifest, "forge-adaptive-loop-v1.schema.json")
     required = {
         "schema_version",
         "forge_version",
@@ -356,6 +464,53 @@ def transition(manifest: dict[str, Any], target: str, actor: str, reason: str) -
     return result
 
 
+def human_close(
+    store: StateStore,
+    decision: dict[str, Any],
+    actor_role: str = "human",
+    fail_after_append: bool = False,
+) -> dict[str, Any]:
+    """Atomically append an explicitly human-authorized closure snapshot."""
+    validate_schema_boundary(decision, "forge-decision-record-v1.schema.json")
+    required = {"decision_id", "decision", "owner", "provenance", "gate_id", "status"}
+    if set(decision) != required or not required <= decision.keys():
+        raise ContractError("malformed closure decision record")
+    if actor_role != "human" or decision["decision"] != "AUTHORIZE_CLOSE":
+        raise ContractError("closure requires explicit human authorization")
+    if decision["status"] != "accepted" or not decision["provenance"]:
+        raise ContractError("closure decision lacks accepted provenance")
+    current = store.load()
+    if current["state"] == "closed":
+        raise ContractError("gate is already closed")
+    if current["state"] != "accepted" or current["capability_status"] != "authorized":
+        raise ContractError("gate is not technically eligible for closure")
+    if decision["gate_id"] != current["gate_id"]:
+        raise ContractError("closure decision targets another gate")
+    if current["pending_decisions"]:
+        raise ContractError("pending human decisions block closure")
+    result = deepcopy(current)
+    result["previous_state"] = "accepted"
+    result["state"] = "closed"
+    result["capability_status"] = "closed"
+    event = {
+        "sequence": len(result["history"]) + 1,
+        "from": "accepted",
+        "to": "closed",
+        "actor": f"human:{decision['owner']}",
+        "reason": f"closure authorized by {decision['decision_id']}",
+        "at": utc_now(),
+        "decision_id": decision["decision_id"],
+        "decision_provenance": decision["provenance"],
+        "previous_event_hash": result["history"][-1]["event_hash"],
+    }
+    event["event_hash"] = sha256(event)
+    result["history"].append(event)
+    result["run"]["history_head"] = event["event_hash"]
+    validate_manifest(result)
+    store.update(result, fail_after_append=fail_after_append)
+    return result
+
+
 def compile_prompt(manifest: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     validate_manifest(manifest)
     source = deepcopy(manifest)
@@ -482,6 +637,7 @@ def collect_command(
 def create_run_record(
     manifest: dict[str, Any], commands: list[dict[str, Any]], executor_result: dict[str, Any]
 ) -> dict[str, Any]:
+    validate_schema_boundary(executor_result, "forge-executor-result-v1.schema.json")
     validate_changed_files(manifest, executor_result.get("changed_files", []))
     tests = executor_result.get("tests", "unknown")
     if isinstance(tests, dict) and tests.get("status") == "passed":
@@ -550,6 +706,7 @@ def create_run_record(
         }
     )
     record["record_hash"] = sha256(record)
+    validate_schema_boundary(record, "forge-run-record-v1.schema.json")
     return record
 
 
@@ -560,6 +717,19 @@ def reviewer_packet(
     prior_findings: list[dict[str, Any]],
 ) -> dict[str, Any]:
     assert_frozen(manifest)
+    history_artifact = {
+        "kind": "transition_history",
+        "content": manifest["history"],
+        "content_hash": sha256(manifest["history"]),
+        "provenance": "authoritative-state-ledger",
+    }
+    run_artifact = {
+        "kind": "run_record",
+        "content": run_record,
+        "content_hash": run_record["record_hash"],
+        "provenance": "deterministic-evidence-collector",
+    }
+    started = manifest["run"]["started_at"]
     packet = {
         "schema_version": "forge-reviewer-packet/1.0",
         "mode": "read_only_adversarial",
@@ -574,8 +744,21 @@ def reviewer_packet(
         "forbidden_operations": manifest["forbidden_operations"],
         "prior_findings": prior_findings,
         "reviewer_identity": manifest["reviewer_identity"],
+        "artifacts": {"state-history": history_artifact, "run-record": run_artifact},
+        "reviewer_execution": {
+            "execution_id": f"REV-{manifest['run']['id']}",
+            "adapter": "reviewer-adapter",
+            "adapter_version": "1.0",
+            "started_at": started,
+            "finished_at": None,
+            "repository": manifest["repository"],
+            "baseline": manifest["baseline_commit"],
+            "read_only": True,
+            "source": "orchestrator",
+        },
     }
     packet["packet_hash"] = sha256(packet)
+    validate_schema_boundary(packet, "forge-reviewer-packet-v1.schema.json")
     return packet
 
 
@@ -583,10 +766,48 @@ def bind_review_packet(manifest: dict[str, Any], packet: dict[str, Any]) -> dict
     result = deepcopy(manifest)
     result["run"]["review_packet_hash"] = packet["packet_hash"]
     result["run"]["review_record_hash"] = packet["run_record"]["record_hash"]
+    result["run"]["review_artifacts"] = packet["artifacts"]
+    result["run"]["reviewer_execution"] = packet["reviewer_execution"]
     return result
 
 
+def resolve_evidence(reference: dict[str, Any], manifest: dict[str, Any]) -> Any:
+    required = {
+        "criterion_id",
+        "evidence_kind",
+        "artifact_id",
+        "pointer",
+        "assertion",
+        "content_hash",
+        "provenance",
+    }
+    if set(reference) != required or not reference["pointer"].startswith("/"):
+        raise ContractError("malformed criterion evidence reference")
+    artifact = manifest["run"].get("review_artifacts", {}).get(reference["artifact_id"])
+    if not artifact or reference["content_hash"] != artifact["content_hash"]:
+        raise ContractError("evidence artifact is missing or hash mismatched")
+    if (
+        reference["evidence_kind"] != artifact["kind"]
+        or reference["provenance"] != artifact["provenance"]
+    ):
+        raise ContractError("evidence kind or provenance mismatch")
+    value: Any = artifact
+    for raw_part in reference["pointer"].lstrip("/").split("/"):
+        part = raw_part.replace("~1", "/").replace("~0", "~")
+        try:
+            value = value[int(part)] if isinstance(value, list) else value[part]
+        except (KeyError, IndexError, ValueError, TypeError) as exc:
+            raise ContractError("criterion evidence pointer cannot be resolved") from exc
+    if value in (None, [], {}, "") or not reference["assertion"].strip():
+        raise ContractError("criterion evidence is empty or has no assertion")
+    return value
+
+
 def validate_review(review: dict[str, Any], manifest: dict[str, Any]) -> None:
+    validate_schema_boundary(review, "forge-review-result-v1.schema.json")
+    unsigned_review = {key: value for key, value in review.items() if key != "review_result_hash"}
+    if review.get("review_result_hash") != sha256(unsigned_review):
+        raise ContractError("review result hash mismatch")
     if review.get("result") not in REVIEW_RESULTS:
         raise ContractError("invalid review result")
     if review.get("reviewer_identity") != manifest["reviewer_identity"]:
@@ -618,9 +839,20 @@ def validate_review(review: dict[str, Any], manifest: dict[str, Any]) -> None:
         evidence = review.get("criterion_evidence", {})
         if set(evidence) != criterion_ids or any(not refs for refs in evidence.values()):
             raise ContractError("PASS requires evidence references for every criterion")
-        expected = f"run-record:{manifest['run'].get('review_record_hash')}"
-        if any(any(reference != expected for reference in refs) for refs in evidence.values()):
-            raise ContractError("PASS evidence reference does not resolve to the sealed run record")
+        for criterion_id, references in evidence.items():
+            for reference in references:
+                if reference.get("criterion_id") != criterion_id:
+                    raise ContractError("evidence reference belongs to another criterion")
+                resolve_evidence(reference, manifest)
+        provenance = review.get("reviewer_execution", {})
+        expected_execution = manifest["run"].get("reviewer_execution", {})
+        if (
+            provenance.get("execution_id") != expected_execution.get("execution_id")
+            or provenance.get("read_only") is not True
+            or provenance.get("source") not in {"collector", "orchestrator"}
+            or provenance.get("adapter") == "self-declared"
+        ):
+            raise ContractError("reviewer independence lacks orchestrator provenance")
 
 
 def apply_review(manifest: dict[str, Any], review: dict[str, Any]) -> dict[str, Any]:
@@ -732,11 +964,28 @@ class FakeReviewer:
             raise ContractError("fake reviewer exhausted")
         result = deepcopy(self.results.pop(0))
         result["packet_hash"] = packet["packet_hash"]
+        result["reviewer_execution"] = deepcopy(packet["reviewer_execution"])
+        result["reviewer_execution"]["finished_at"] = utc_now()
         if result["result"] == "PASS":
-            reference = f"run-record:{packet['run_record']['record_hash']}"
-            result["criterion_evidence"] = {
-                criterion: [reference] for criterion in result["criterion_coverage"]
-            }
+            result["criterion_evidence"] = {}
+            for criterion in result["criterion_coverage"]:
+                artifact_id = "state-history" if criterion == "FAL-01" else "run-record"
+                artifact = packet["artifacts"][artifact_id]
+                pointer = "/content" if criterion == "FAL-01" else "/content/provenance/commands"
+                result["criterion_evidence"][criterion] = [
+                    {
+                        "criterion_id": criterion,
+                        "evidence_kind": artifact["kind"],
+                        "artifact_id": artifact_id,
+                        "pointer": pointer,
+                        "assertion": "Resolved evidence satisfies the criterion truth authority.",
+                        "content_hash": artifact["content_hash"],
+                        "provenance": artifact["provenance"],
+                    }
+                ]
+        result["review_result_hash"] = sha256(
+            {key: value for key, value in result.items() if key != "review_result_hash"}
+        )
         return result
 
 

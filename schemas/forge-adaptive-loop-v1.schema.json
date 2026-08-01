@@ -15,18 +15,18 @@
     "capability_status": {"enum": ["authorized", "closed"]},
     "process_level": {"enum": ["lite", "standard", "high_assurance"]},
     "risk": {"$ref": "#/$defs/risk"},
-    "decision_owners": {"type": "object", "minProperties": 1},
+    "decision_owners": {"type": "object", "required": ["product", "scope", "risk_acceptance", "technical_details", "policy"], "properties": {"product": {"type": "string"}, "scope": {"type": "string"}, "risk_acceptance": {"type": "string"}, "technical_details": {"type": "string"}, "policy": {"type": "string"}}, "additionalProperties": false},
     "scope": {"type": "array", "items": {"type": "string"}, "minItems": 1},
     "non_goals": {"type": "array", "items": {"type": "string"}},
     "criteria": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/criterion"}},
     "allowed_paths": {"type": "array", "items": {"type": "string"}, "minItems": 1},
     "forbidden_operations": {"type": "array", "items": {"type": "string"}, "minItems": 13},
     "evidence_requirements": {"type": "array", "items": {"type": "string"}},
-    "command_policy": {"type": "object", "required": ["allow", "deny_shell"]},
+    "command_policy": {"type": "object", "required": ["allow", "deny_shell"], "properties": {"allow": {"type": "array", "items": {"type": "string"}}, "deny_shell": {"type": "boolean"}}, "additionalProperties": false},
     "state": {"enum": ["draft", "awaiting_human", "ready", "executing", "evidence_ready", "reviewing", "correction_required", "blocked", "accepted", "closed"]},
     "previous_state": {"type": ["string", "null"]},
     "history": {"type": "array", "items": {"$ref": "#/$defs/transition"}},
-    "run": {"type": "object", "required": ["id", "series_id", "started_at", "executor_identity", "history_head"]},
+    "run": {"type": "object", "required": ["id", "series_id", "started_at", "executor_identity", "history_head", "frozen_hash", "prompt_hash"], "properties": {"id": {"type": "string"}, "series_id": {"type": "string"}, "started_at": {"type": "string"}, "working_directory": {"type": "string"}, "executor_identity": {"type": "string"}, "history_head": {"type": "string"}, "frozen_hash": {"type": ["string", "null"]}, "prompt_hash": {"type": ["string", "null"]}, "source_state_hash": {"type": "string"}, "last_finding_ids": {"type": "array", "items": {"type": "string"}}, "last_diff_hash": {"type": "string"}, "review_packet_hash": {"type": "string"}, "review_record_hash": {"type": "string"}, "review_artifacts": {"type": "object"}, "reviewer_execution": {"type": "object"}}, "additionalProperties": false},
     "baseline_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
     "correction_count": {"type": "integer", "minimum": 0, "maximum": 2},
     "max_corrections": {"type": "integer", "minimum": 0, "maximum": 2},
@@ -35,9 +35,25 @@
     "next_allowed_gate": {"type": "string", "minLength": 1}
   },
   "$defs": {
-    "risk": {"type": "object", "required": ["level", "rationale", "dimensions", "human_override", "override_rationale"], "properties": {"level": {"enum": ["lite", "standard", "high_assurance"]}, "rationale": {"type": "string"}, "dimensions": {"type": "object", "required": ["consequence", "uncertainty", "irreversibility", "evidence_difficulty", "external_impact", "security_data_integrity"}, "human_override": {"type": "boolean"}, "override_rationale": {"type": ["string", "null"]}}},
+    "risk": {
+      "type": "object",
+      "required": ["level", "rationale", "dimensions", "human_override", "override_rationale"],
+      "properties": {
+        "level": {"enum": ["lite", "standard", "high_assurance"]},
+        "rationale": {"type": "string"},
+        "dimensions": {
+          "type": "object",
+          "required": ["consequence", "uncertainty", "irreversibility", "evidence_difficulty", "external_impact", "security_data_integrity"],
+          "properties": {"consequence": {"type": "integer", "minimum": 1, "maximum": 5}, "uncertainty": {"type": "integer", "minimum": 1, "maximum": 5}, "irreversibility": {"type": "integer", "minimum": 1, "maximum": 5}, "evidence_difficulty": {"type": "integer", "minimum": 1, "maximum": 5}, "external_impact": {"type": "integer", "minimum": 1, "maximum": 5}, "security_data_integrity": {"type": "integer", "minimum": 1, "maximum": 5}},
+          "additionalProperties": false
+        },
+        "human_override": {"type": "boolean"},
+        "override_rationale": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
     "criterion": {"type": "object", "required": ["id", "text", "truth_authority", "risk"], "properties": {"id": {"type": "string"}, "text": {"type": "string"}, "truth_authority": {"type": "string"}, "risk": {"$ref": "#/$defs/risk"}}, "additionalProperties": false},
-    "transition": {"type": "object", "required": ["sequence", "from", "to", "actor", "reason", "at", "previous_event_hash", "event_hash"]}
+    "transition": {"type": "object", "required": ["sequence", "from", "to", "actor", "reason", "at", "previous_event_hash", "event_hash"], "properties": {"sequence": {"type": "integer"}, "from": {"type": "string"}, "to": {"type": "string"}, "actor": {"type": "string"}, "reason": {"type": "string"}, "at": {"type": "string"}, "previous_event_hash": {"type": "string"}, "event_hash": {"type": "string"}, "decision_id": {"type": "string"}, "decision_provenance": {"type": "string"}}, "additionalProperties": false}
   },
   "additionalProperties": false
 }

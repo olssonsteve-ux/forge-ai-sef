@@ -16,6 +16,7 @@ from forge.adaptive_loop import (
     compile_prompt,
     create_run_record,
     decision_card,
+    human_close,
     redact,
     request_human_decision,
     reviewer_packet,
@@ -26,6 +27,7 @@ from forge.adaptive_loop import (
     validate_changed_files,
     validate_manifest,
     validate_review,
+    validate_schema_boundary,
     validate_successor,
 )
 
@@ -51,10 +53,55 @@ def review(result, findings=None, coverage=None):
         "reviewer_identity": "fresh-read-only-reviewer-fixture",
         "execution_identity": "fake-executor",
         "packet_hash": "PACKET",
+        "reviewer_execution": {
+            "execution_id": "REV-RUN-FAL-DEMO-001",
+            "adapter": "fixture-reviewer",
+            "adapter_version": "1.0",
+            "started_at": "2026-08-01T12:00:00Z",
+            "finished_at": "2026-08-01T12:00:01Z",
+            "repository": "forge-ai-sef",
+            "baseline": "21d3802df3e0f5a51ea692327fda3995f8d73eb0",
+            "read_only": True,
+            "source": "orchestrator",
+        },
     }
     if result == "PASS" and coverage:
-        value["criterion_evidence"] = {item: ["run-record:RECORD"] for item in coverage}
+        value["criterion_evidence"] = {}
+        for item in coverage:
+            artifact_id = "state-history" if item == "FAL-01" else "run-record"
+            artifact = dummy_artifacts()[artifact_id]
+            value["criterion_evidence"][item] = [
+                {
+                    "criterion_id": item,
+                    "evidence_kind": artifact["kind"],
+                    "artifact_id": artifact_id,
+                    "pointer": "/content",
+                    "assertion": "fixture assertion",
+                    "content_hash": artifact["content_hash"],
+                    "provenance": artifact["provenance"],
+                }
+            ]
+    value["review_result_hash"] = sha256(value)
     return value
+
+
+def dummy_artifacts():
+    history = [{"event": "transition"}]
+    record = {"provenance": {"commands": "collector"}}
+    return {
+        "state-history": {
+            "kind": "transition_history",
+            "content": history,
+            "content_hash": sha256(history),
+            "provenance": "authoritative-state-ledger",
+        },
+        "run-record": {
+            "kind": "run_record",
+            "content": record,
+            "content_hash": sha256(record),
+            "provenance": "deterministic-evidence-collector",
+        },
+    }
 
 
 def finding(human=False):
@@ -77,6 +124,8 @@ def to_reviewing(manifest):
     value = transition(value, "reviewing", "forge", "packet ready")
     value["run"]["review_packet_hash"] = "PACKET"
     value["run"]["review_record_hash"] = "RECORD"
+    value["run"]["review_artifacts"] = dummy_artifacts()
+    value["run"]["reviewer_execution"] = review("BLOCKED")["reviewer_execution"]
     return value
 
 
@@ -84,6 +133,8 @@ def review_bound(manifest):
     value = deepcopy(manifest)
     value["run"]["review_packet_hash"] = "PACKET"
     value["run"]["review_record_hash"] = "RECORD"
+    value["run"]["review_artifacts"] = dummy_artifacts()
+    value["run"]["reviewer_execution"] = review("BLOCKED")["reviewer_execution"]
     return value
 
 
@@ -93,13 +144,13 @@ def test_fixture_schema_validates(manifest):
 
 def test_required_field_is_enforced(manifest):
     del manifest["scope"]
-    with pytest.raises(ContractError, match="missing required"):
+    with pytest.raises(ContractError, match="required fields missing"):
         validate_manifest(manifest)
 
 
 def test_process_level_is_enforced(manifest):
     manifest["process_level"] = "extreme"
-    with pytest.raises(ContractError, match="process level"):
+    with pytest.raises(ContractError, match="process_level"):
         validate_manifest(manifest)
 
 
@@ -239,6 +290,9 @@ def test_pass_needs_complete_criterion_coverage(manifest):
 def test_pass_needs_specific_evidence_links(manifest):
     value = review("PASS", coverage=["FAL-01", "FAL-02"])
     value["criterion_evidence"] = {}
+    value["review_result_hash"] = sha256(
+        {key: item for key, item in value.items() if key != "review_result_hash"}
+    )
     with pytest.raises(ContractError, match="evidence references"):
         validate_review(value, review_bound(manifest))
 
@@ -437,3 +491,140 @@ def test_end_to_end_fixture_corrects_then_passes(manifest, tmp_path):
     assert result["state"]["correction_count"] == 1
     assert len(result["records"]) == 2
     assert [item["result"] for item in result["reviews"]] == ["CORRECTION_REQUIRED", "PASS"]
+
+
+def accepted_manifest(manifest):
+    return apply_review(to_reviewing(manifest), review("PASS", coverage=["FAL-01", "FAL-02"]))
+
+
+def close_decision():
+    return {
+        "decision_id": "HD-CLOSE-001",
+        "decision": "AUTHORIZE_CLOSE",
+        "owner": "Human Product Owner",
+        "provenance": "signed task decision",
+        "gate_id": "GATE-FAL-001",
+        "status": "accepted",
+    }
+
+
+def test_human_close_is_atomic_and_coherent(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    eligible = accepted_manifest(manifest)
+    store.initialize(eligible)
+    closed = human_close(store, close_decision())
+    assert closed["state"] == closed["capability_status"] == "closed"
+    assert closed["history"][-1]["decision_id"] == "HD-CLOSE-001"
+    assert store.load() == closed
+
+
+@pytest.mark.parametrize("actor", ["executor", "reviewer", "forge"])
+def test_non_human_cannot_close(manifest, tmp_path, actor):
+    store = StateStore(tmp_path / f"{actor}.json")
+    store.initialize(accepted_manifest(manifest))
+    with pytest.raises(ContractError, match="human authorization"):
+        human_close(store, close_decision(), actor_role=actor)
+
+
+def test_close_interruption_reopens_authoritative_result(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(accepted_manifest(manifest))
+    with pytest.raises(OSError, match="injected"):
+        human_close(store, close_decision(), fail_after_append=True)
+    assert store.load()["state"] == "closed"
+
+
+def test_repeated_close_is_rejected(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(accepted_manifest(manifest))
+    human_close(store, close_decision())
+    with pytest.raises(ContractError, match="already closed"):
+        human_close(store, close_decision())
+
+
+def test_ledger_detects_old_snapshot_tamper(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(manifest)
+    store.update(transition(manifest, "executing", "executor", "begin"))
+    path = store.ledger / "00000000.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["payload"]["project"] = "tampered"
+    path.write_text(json.dumps(record), encoding="utf-8")
+    with pytest.raises(ContractError, match="payload hash"):
+        store.load()
+
+
+def test_ledger_detects_latest_snapshot_tamper(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(manifest)
+    path = store.ledger / "00000000.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["record_hash"] = "0" * 64
+    path.write_text(json.dumps(record), encoding="utf-8")
+    with pytest.raises(ContractError, match="record hash"):
+        store.load()
+
+
+def test_replaced_cache_cannot_replace_ledger_truth(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(manifest)
+    store.path.write_text(json.dumps({"sequence": 0, "payload_hash": "fake"}), encoding="utf-8")
+    with pytest.raises(ContractError, match="contradicts"):
+        store.load()
+
+
+def test_ledger_detects_gap_and_missing_predecessor(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(manifest)
+    store.update(transition(manifest, "executing", "executor", "begin"))
+    (store.ledger / "00000000.json").unlink()
+    with pytest.raises(ContractError, match="sequence or predecessor"):
+        store.load()
+
+
+def test_ledger_rejects_overwrite(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(manifest)
+    with pytest.raises(FileExistsError):
+        store._append(manifest, None)
+
+
+def test_ledger_detects_forked_series(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(manifest)
+    original = (store.ledger / "00000000.json").read_text(encoding="utf-8")
+    (store.ledger / "00000001-fork.json").write_text(original, encoding="utf-8")
+    with pytest.raises(ContractError, match="sequence or predecessor"):
+        store.load()
+
+
+def test_ledger_preserves_blocked_and_correction_history(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    correction = to_reviewing(manifest)
+    correction = apply_review(correction, review("CORRECTION_REQUIRED", [finding()]))
+    store.initialize(correction)
+    loaded = store.load()
+    assert any(event["to"] == "correction_required" for event in loaded["history"])
+
+
+def test_schema_rejects_unknown_nested_criterion_field(manifest):
+    manifest["criteria"][0]["unknown"] = True
+    with pytest.raises(ContractError, match="unknown fields"):
+        validate_manifest(manifest)
+
+
+def test_decision_schema_rejects_unknown_field():
+    value = close_decision()
+    value["unknown"] = True
+    with pytest.raises(ContractError, match="unknown fields"):
+        validate_schema_boundary(value, "forge-decision-record-v1.schema.json")
+
+
+def test_evidence_pointer_must_resolve(manifest):
+    value = review("PASS", coverage=["FAL-01", "FAL-02"])
+    value["criterion_evidence"]["FAL-01"][0]["pointer"] = "/content/missing"
+    value["review_result_hash"] = sha256(
+        {key: item for key, item in value.items() if key != "review_result_hash"}
+    )
+    with pytest.raises(ContractError, match="cannot be resolved"):
+        validate_review(value, review_bound(manifest))

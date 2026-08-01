@@ -129,3 +129,12 @@ The replay maps the historical Audio Recorder closure sequence without changing 
 The replay indicates that one generated run record and reviewer packet could have eliminated
 repeated copying of Git/build/test facts. It cannot quantify chat relays or claim that V1 evidence
 existed historically, and it does not replace either retained review.
+
+## Human-bounded correction integrity
+
+After the automatic 2/2 budget was exhausted, `HD-FAL-001` authorized one separate human correction
+without resetting that count. The runtime now validates repository-owned schemas at every material
+boundary, persists state through an append-only local snapshot ledger, resolves PASS evidence per
+criterion and exposes a dedicated human-only close operation. The close operation is implemented and
+tested but is not authorization to close a gate. The local ledger detects chain and cache tamper but
+does not claim resistance to wholesale filesystem/history replacement without an external anchor.

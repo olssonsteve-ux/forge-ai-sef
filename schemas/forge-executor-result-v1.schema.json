@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "changed_files": {"type": "array", "items": {"type": "string"}}, "tests": {}, "branch": {"type": "string"}, "final_head": {"type": "string"},
+    "staging_status": {"type": "string"}, "working_tree_status": {"type": "string"}, "diff": {}, "runtime_versions": {}, "build": {}, "warnings": {}, "errors": {}, "skipped": {},
+    "raw_logs": {}, "artifact_hashes": {"type": "object"}, "token_usage": {}, "api_usage": {}, "cost": {}, "git_provenance": {}
+  },
+  "additionalProperties": false
+}
