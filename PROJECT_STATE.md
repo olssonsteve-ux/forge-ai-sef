@@ -5,8 +5,9 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-Implementation Planning is complete in `EB-006`, which is `AWAITING HUMAN REVIEW`. Implementation
-is not authorized. No release or Audio Recorder product work was authorized.
+Implementation Planning is documented in revised `EB-006`, which remains `AWAITING HUMAN REVIEW`.
+Findings `EB006-R1`–`EB006-R3` are addressed under `HD-FAL-007` and await independent review; they
+are not self-closed. Implementation is not authorized. No release or Audio Recorder work was authorized.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -21,9 +22,9 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct human review of `EB-006`. Do not implement FAL-002 without a reviewed brief and a separate
-explicit Implementation Authorization decision. Manual Digital Album Authoring and Export remains
-the next product gate but is not started in this process-design gate.
+Conduct a fresh read-only Standard-Assurance review with adversarial instructions of revised
+`EB-006`. Do not implement FAL-002 without an accepted brief and a separate explicit Implementation
+Authorization decision. Manual Digital Album Authoring and Export remains unstarted.
 
 ## What Exists
 

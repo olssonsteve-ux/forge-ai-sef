@@ -79,6 +79,9 @@ Forge may eventually include:
 - Treat the FAL-002 specification as approved for Implementation Planning under `HD-FAL-006`; all
   four specification findings are closed. `EB-006` is the bounded implementation plan and must pass
   human review before a separate decision may authorize implementation.
+- Treat `EB006-R1`–`EB006-R3` as addressed under `HD-FAL-007` but not closed. The revised brief freezes
+  storage, collector/parser, adapter, schema/fixture, recovery and criterion-evidence contracts and
+  must receive a new independent review before Implementation Authorization can be considered.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

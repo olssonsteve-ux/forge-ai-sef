@@ -12,7 +12,8 @@ Forge's motto is: Build software with intention.
 
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. Never correct, accept, close or
 restart it. The FAL-002 specification is approved for Implementation Planning under `HD-FAL-006`;
-all four specification findings are closed. `EB-006` is `AWAITING HUMAN REVIEW`. Do not implement
+all four specification findings are closed. Revised `EB-006` is `AWAITING HUMAN REVIEW`;
+`EB006-R1`–`EB006-R3` are addressed under `HD-FAL-007` but await independent review. Do not implement
 FAL-002 without accepted brief review and a separate explicit Implementation Authorization decision.
 The album capability remains unstarted.
 
@@ -206,9 +207,10 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Conduct human review of `EB-006` (`docs/engineering/EB-006-Implement-FAL-002-Standard-Assurance-Loop.md`).
-A review result is decision input only: do not start implementation until a separate human decision
-explicitly authorizes it and names the accepted brief and baseline.
+Conduct a fresh read-only Standard-Assurance review with adversarial instructions of revised
+`EB-006` (`docs/engineering/EB-006-Implement-FAL-002-Standard-Assurance-Loop.md`). A review result is
+decision input only: do not start implementation until a separate human decision explicitly
+authorizes it and names the accepted brief and baseline.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
