@@ -1,10 +1,10 @@
 # FAL-002 — Standard Assurance Bounded Engineering Loop
 
-Status: `Specified — ready for human review; implementation not authorized`
+Status: `AWAITING TARGETED HUMAN REVIEW — specification-only; implementation not authorized`
 
 Owner: Forge Design Authority
 
-Decision basis: `HD-FAL-002`
+Decision basis: `HD-FAL-002`, revised under `HD-FAL-003`
 
 Predecessor disposition: `DISP-FAL-001` (`TERMINATED BLOCKED`)
 
@@ -12,7 +12,8 @@ Predecessor disposition: `DISP-FAL-001` (`TERMINATED BLOCKED`)
 
 FAL-002 is a small engineering core for ordinary product capabilities. It replaces repeated manual
 transfer of deterministic repository facts while preserving frozen contracts, bounded corrections,
-adversarial review and human decisions. It deliberately targets Standard Assurance; it does not
+fresh read-only Standard-Assurance review with adversarial instructions and human decisions. It
+deliberately targets Standard Assurance; it does not
 claim High-Assurance reviewer independence or semantic proof by hashing.
 
 ## 2. Users and outcome
@@ -73,6 +74,28 @@ owns state/policy/evidence collection. The reviewer may only evaluate and report
 
 Every unresolved human question becomes a decision card. No default may resolve it. Pending cards
 block acceptance and closure.
+
+### 6.1 Normative authority map
+
+| Domain | Authority |
+| --- | --- |
+| Product value, scope, criteria, risk, budget and closure decisions | Human decision record |
+| Gate state and transition history | Append-only state series |
+| Deterministic Git, build, test and diff facts | Collector and bound run record |
+| Structural validity of boundary data | Canonical boundary model |
+| Semantic evidence relevance, findings and review assessment | Reviewer |
+| Durable commit and document provenance | Repository history |
+
+Each authority is authoritative only within its domain. Human authority may decide but may not
+fabricate or rewrite deterministic execution facts. A reviewer may assess meaning and relevance but
+may not change collector facts, state or human decisions. The canonical model determines structural
+validity, not whether an assertion is true. A derived current, head or index file never overrides the
+append-only series.
+
+No local precedence or default may resolve a conflict between authorities. A conflict stops
+progression as `blocked` or `awaiting_human`, preserves the raw evidence and creates a decision card.
+A resolving human decision must name the domain over which it decides and must not rewrite prior
+history.
 
 ## 7. Canonical model and boundary schemas
 
@@ -150,7 +173,7 @@ future gate explicitly authorizes a specific operation. Model text cannot overri
 The first implementation must remain within all limits:
 
 - one repository and one active gate per invocation;
-- at most 8 production modules and 1,200 non-test logical lines for FAL-002-specific runtime;
+- at most 8 attributed production modules and 1,200 counted production lines;
 - at most one executor adapter and one reviewer adapter;
 - at most 6 external/persisted schema surfaces listed in section 7;
 - sequential execution only; no agent pools, scheduler, plugin system, network or database;
@@ -159,6 +182,28 @@ The first implementation must remain within all limits:
 
 Exceeding any limit requires a decision card and new scope authorization; it cannot be hidden as a
 technical detail.
+
+Size attribution starts at the FAL-002 entrypoint and includes every first-party executable source
+file directly or transitively reachable at runtime, regardless of directory, name, or labels such as
+shared, common, internal or reusable. Each such file is one production module. Existing FAL-001
+modules executed by FAL-002 count. An adapter wrapper counts as an adapter even if it only delegates.
+An unchanged general repository tool may be excluded only when the inventory records its independent
+use and shows that it was not materially changed for FAL-002. Every new or materially changed runtime
+path primarily serving FAL-002 counts in full. Splitting, moving or wrapping code does not change
+attribution or the total.
+
+A counted production line is a physical line in an attributed production source file that is neither
+empty nor solely a comment. Docstrings and multiline literals count. Tests and documentation do not.
+For generated behavior, the generator, template and canonical model count as production code, and
+generated runtime behavior counts toward the line limit. Purely derivative schemas may be excluded
+from the line count but count toward schema surfaces. One schema surface is one authoritative
+persisted or external boundary root; splitting it among files or nested definitions does not create
+an exclusion or change the surface count.
+
+The future Engineering Brief must specify a dependency-free, reproducible inventory command that
+walks the transitive runtime path and reports included/excluded files with reasons, module and line
+totals, adapters, schema roots, generated inputs/outputs and the counting method. A limit breach must
+stop in `awaiting_human`; reclassification, file movement or abstraction cannot cure it.
 
 ## 14. Failure behavior
 
@@ -178,7 +223,8 @@ FAL-002 becomes technically eligible for human closure only when:
 5. no-progress and the two-correction ceiling pass positive and negative fixtures;
 6. open CRITICAL/blocking findings make PASS and eligibility impossible;
 7. criterion references resolve precisely and reviewer semantic rationale is explicit;
-8. reviewer execution is fresh/read-only and described truthfully as Standard Assurance;
+8. reviewer execution is fresh/read-only, uses adversarial instructions and is described truthfully
+   as Standard Assurance;
 9. the append-only history retains adverse reviews and corrections;
 10. human decision cards block without defaults;
 11. human-only closure passes role, eligibility, pending-decision, atomicity, interruption and repeat tests;
@@ -194,8 +240,8 @@ An implementation PASS is not release authorization and cannot start an adjacent
 
 A future Engineering Brief must define the canonical model technology, generated-schema check,
 storage layout, exact collector commands/parsers, adapter interface, schema fixtures, interruption
-fixtures, criterion coverage table, size accounting and rollback. No implementation is authorized by
-this specification.
+fixtures, criterion coverage table, the reproducible size inventory required by section 13 and
+rollback. No implementation is authorized by this specification.
 
 ## 17. First real measurement trial
 
