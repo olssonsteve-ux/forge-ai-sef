@@ -4,7 +4,7 @@ Status: `AWAITING TARGETED HUMAN REVIEW — specification-only; implementation n
 
 Owner: Forge Design Authority
 
-Decision basis: `HD-FAL-002`, revised under `HD-FAL-003`
+Decision basis: `HD-FAL-002`, revised under `HD-FAL-003` and `HD-FAL-004`
 
 Predecessor disposition: `DISP-FAL-001` (`TERMINATED BLOCKED`)
 
@@ -56,9 +56,10 @@ block FAL-002 or ordinary album development.
 ## 5. Assurance model
 
 FAL-002 is Standard Assurance. A reviewer must start in a fresh context, receive a read-only packet
-and have no correction or closure authority. The review may be called “fresh read-only Standard
-Assurance review.” It must not be called independent High Assurance unless separate execution and
-provenance are actually established by a future accepted profile.
+and have no correction or closure authority. The normative review is named “fresh read-only
+Standard-Assurance review with adversarial instructions.” It must not be called independent High
+Assurance unless separate execution and provenance are actually established by a future accepted
+profile.
 
 Machine checks prove syntax, identity, hashes, locators, recorded command outcomes and policy
 invariants. The reviewer owns a reasoned semantic-relevance assessment for criterion evidence and
@@ -200,10 +201,112 @@ from the line count but count toward schema surfaces. One schema surface is one 
 persisted or external boundary root; splitting it among files or nested definitions does not create
 an exclusion or change the surface count.
 
-The future Engineering Brief must specify a dependency-free, reproducible inventory command that
-walks the transitive runtime path and reports included/excluded files with reasons, module and line
-totals, adapters, schema roots, generated inputs/outputs and the counting method. A limit breach must
-stop in `awaiting_human`; reclassification, file movement or abstraction cannot cure it.
+### 13.1 Frozen inventory inputs
+
+Before implementation, an Engineering Brief may only freeze the concrete inputs to this algorithm:
+
+- exactly one repository-relative canonical FAL-002 entrypoint;
+- baseline commit and first-party source roots;
+- the executor adapter and reviewer adapter, if present;
+- persisted and external boundary roots;
+- proposed general repository-tool exemptions, each with path and baseline hash; and
+- expected generated runtime artifacts; and
+- exact Python major/minor version used for standard-library parsing and import resolution.
+
+Paths use `/` separators, contain no `.` or `..` segments and are relative to the repository root.
+Content hashes are lowercase SHA-256 of the file bytes. A missing, ambiguous or multiple canonical
+entrypoint stops as `awaiting_human`; no local default is permitted. The Engineering Brief may not
+define or change traversal, import resolution, exclusions, stop conditions, attribution, module or
+line counting, adapter classification or schema-surface semantics.
+
+### 13.2 Deterministic traversal and attribution
+
+The inventory shall execute this algorithm without a new dependency:
+
+1. Initialize a queue with the frozen canonical entrypoint file.
+2. Normalize every candidate to its unique repository-relative canonical path. Reject a candidate
+   outside the repository or the frozen first-party source roots.
+3. Process the queue in stable lexicographic canonical-path order.
+4. Parse every reached first-party Python production source file with the Python standard library
+   AST and inspect every syntactic import and executable first-party reference.
+5. Resolve relative imports from the importing package and absolute first-party imports against the
+   frozen source roots, using source-root order only when exactly one file resolves. Include package
+   `__init__.py` files executed along the resolved import chain.
+6. Include every uniquely resolved module file and executable reference, add it to the queue and
+   continue until no new first-party production file remains.
+7. Count each unique canonical file path exactly once. Imports in conditional, platform and
+   `TYPE_CHECKING` branches count unless the frozen runtime variant proves them non-executable.
+8. If resolution has zero or multiple plausible first-party targets, preserve the edge and stop as
+   `awaiting_human`; do not select or exclude a target locally.
+
+For every included file, output its canonical path, SHA-256 content hash, first lexicographic parent
+edge, all additional inbound edges, attribution reason, classification and counted LOC. All
+transitively reachable first-party production files count regardless of directory, name, package,
+shared/common/internal/reusable label or FAL-001 origin. A thin wrapper counts as a production module
+and, when it performs an adapter role, as that adapter; traversal continues through its delegated
+runtime path.
+
+An executor adapter is an attributed first-party file that translates between the canonical
+executor request/result boundary and an executor implementation. A reviewer adapter is an attributed
+first-party file that translates between the canonical reviewer packet/result boundary and a
+reviewer implementation. Count each unique file satisfying a role once for that role, including a
+delegating wrapper. A file satisfying both roles counts once as a production module and once against
+each adapter limit. Unclear role classification stops as `awaiting_human`; the Engineering Brief
+cannot relabel it.
+
+### 13.3 Dynamic execution and subprocesses
+
+The inventory must inspect `importlib.import_module`, `__import__`, `runpy`, import hooks, `exec`,
+`eval`, path-based module loading, reflection or registries selecting runtime code, and first-party
+scripts started by subprocess. A literal, statically resolvable first-party target is included and
+traversed. A computed, configuration-selected or otherwise incompletely enumerable target is
+recorded with its source edge and stops as `awaiting_human`. It may never be ignored, exempted or
+counted as zero. Syntax or analysis failure also stops as `awaiting_human`.
+
+### 13.4 General repository-tool exemption
+
+A reached general repository tool is exempt only when all conditions are verified: its exact path
+and baseline SHA-256 are frozen; it had a documented independent use before FAL-002; its bytes equal
+the baseline; neither behavior nor configuration was specialized for FAL-002; any new FAL-002
+wrapper is counted; and the exemption and evidence appear in the inventory. If any condition is not
+verified, the tool counts or the inventory stops as `awaiting_human`. No other reached-file exclusion
+exists.
+
+### 13.5 Generated code and line counting
+
+Generators, templates and the canonical model count as production code. Materialized generated
+runtime code counts under the same module and LOC rules. If generated runtime behavior cannot be
+materialized deterministically from frozen inputs, inventory stops as `awaiting_human`. Generation
+cannot move runtime scope outside the limits. Purely derivative schemas may be excluded from LOC but
+remain subject to schema-surface counting.
+
+For each attributed production source file, LOC is the number of physical non-empty lines except
+lines whose non-whitespace content is solely a comment. Code with a trailing comment, docstrings,
+multiline string literals, generators, templates and materialized generated runtime code count. The
+inventory reports LOC per file and the summed total.
+
+### 13.6 Schema surfaces and dependencies
+
+A schema surface is one independently persisted or externally exchanged top-level payload or
+boundary versioned or validated as a unit. File splitting does not alter the count. Nested
+definitions under the same real boundary root do not automatically add surfaces. Independent
+payload types in one file are separate surfaces, and placing independent boundaries beneath a
+synthetic wrapper does not reduce the count. Each surface has a stable identifier and canonical-model
+reference in the inventory.
+
+The inventory reports standard-library imports, existing third-party dependencies, dependency
+manifest or lockfile changes and new direct or transitive dependency surfaces. A new dependency
+without a human decision stops as `awaiting_human`.
+
+### 13.7 Deterministic output and stop result
+
+Output is sorted by canonical path and stable identifier and contains the frozen inputs and baseline
+commit; entrypoint; every attributed file with hashes and edges; every inclusion or exemption reason;
+module count; per-file and total LOC; executor- and reviewer-adapter counts; schema surfaces;
+dependency changes; unresolved dynamic targets; and final `PASS` or `AWAITING_HUMAN` against every
+hard limit. An unclassified or unresolved runtime edge, a limit breach or a prohibited complexity
+feature stops as `awaiting_human`, never implicit exclusion. Reclassification, movement, splitting,
+wrapping or abstraction cannot cure a breach.
 
 ## 14. Failure behavior
 
@@ -223,15 +326,16 @@ FAL-002 becomes technically eligible for human closure only when:
 5. no-progress and the two-correction ceiling pass positive and negative fixtures;
 6. open CRITICAL/blocking findings make PASS and eligibility impossible;
 7. criterion references resolve precisely and reviewer semantic rationale is explicit;
-8. reviewer execution is fresh/read-only, uses adversarial instructions and is described truthfully
-   as Standard Assurance;
+8. reviewer execution satisfies the fresh read-only Standard-Assurance review with adversarial
+   instructions contract;
 9. the append-only history retains adverse reviews and corrections;
 10. human decision cards block without defaults;
 11. human-only closure passes role, eligibility, pending-decision, atomicity, interruption and repeat tests;
 12. forbidden operations and allowed file/command boundaries pass adversarial fixtures;
 13. the hard size/complexity limits are satisfied;
 14. full Forge tests, lint, format, diff check and Project Memory Health pass;
-15. a separate fresh read-only Standard-Assurance implementation review returns PASS;
+15. a fresh read-only Standard-Assurance review with adversarial instructions of the implementation
+    has been completed and returns PASS;
 16. a human separately authorizes closure.
 
 An implementation PASS is not release authorization and cannot start an adjacent product gate.
@@ -240,8 +344,10 @@ An implementation PASS is not release authorization and cannot start an adjacent
 
 A future Engineering Brief must define the canonical model technology, generated-schema check,
 storage layout, exact collector commands/parsers, adapter interface, schema fixtures, interruption
-fixtures, criterion coverage table, the reproducible size inventory required by section 13 and
-rollback. No implementation is authorized by this specification.
+fixtures, criterion coverage table and rollback. For the section 13 inventory it may freeze only the
+inputs listed in section 13.1 and select an implementation of the already normative algorithm; it
+may not alter that algorithm or its semantics. No implementation is authorized by this
+specification.
 
 ## 17. First real measurement trial
 
