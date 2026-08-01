@@ -2,6 +2,10 @@
 
 ## Status
 
+Forge Adaptive Loop V1 is `Blocked` after independent High-Assurance review and two consumed
+correction rounds. `IR-FAL-001` retains four material findings. `DC-FAL-001` awaits a human decision
+before any further correction work. No release or Audio Recorder product work was authorized.
+
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
 
@@ -15,7 +19,8 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Select the next Product Owner work item separately. No release work or new capability work is active.
+Resolve `DC-FAL-001` separately. No further Adaptive Loop correction, release work, or Audio Recorder
+product work is active.
 
 ## What Exists
 

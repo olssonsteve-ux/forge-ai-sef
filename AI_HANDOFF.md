@@ -10,6 +10,11 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
+Forge Adaptive Loop V1 is blocked by `docs/reviews/IR-FAL-001-adaptive-loop-v1.md` after both allowed
+correction rounds. Do not continue correcting it without a separate human decision on
+`docs/decisions/DC-FAL-001-correction-budget-exhausted.md`. The retrospective is retained; V1 is not
+accepted and must not be used to claim independent High-Assurance closure.
+
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
 `docs/standards/ai-implementation-protocol.md` is now the default implementation protocol for AI agents implementing Engineering Briefs. ADR 0015 records this decision.

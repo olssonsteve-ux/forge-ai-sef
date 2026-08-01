@@ -61,8 +61,13 @@ Forge may eventually include:
 - Forge should not require a specific AI vendor.
 - Forge should not hide architectural decisions in generated output.
 - Forge should not generate production code before project intent is captured.
+- Adaptive automation must not claim append-only state, independent review or criterion coverage
+  without executable integrity and provenance boundaries.
 
 ## Current Decisions
+
+- Keep Forge Adaptive Loop V1 blocked after `IR-FAL-001`; two correction rounds are exhausted and
+  any further work requires explicit resolution of `DC-FAL-001`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.
