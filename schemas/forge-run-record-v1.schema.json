@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "run_id", "started_at", "finished_at", "repository", "baseline_head", "commands", "changed_files", "tests", "provenance", "record_hash"],
+  "properties": {
+    "schema_version": {"const": "forge-run-record/1.0"},
+    "run_id": {"type": "string"},
+    "started_at": {"type": "string"},
+    "finished_at": {"type": "string"},
+    "repository": {"type": "string"},
+    "baseline_head": {"type": "string"},
+    "commands": {"type": "array"},
+    "changed_files": {"type": "array"},
+    "tests": {},
+    "provenance": {"type": "object"},
+    "record_hash": {"type": "string"}
+  }
+}

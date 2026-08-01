@@ -1,6 +1,6 @@
 # RETRO-0001 — Audio Recorder Forge Dogfooding
 
-Status: Accepted process baseline
+Status: Reviewed process baseline; acceptance pending Adaptive Loop V1 closure
 
 Evidence cutoff: 2026-08-01
 

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "result", "findings", "criterion_coverage", "reviewer_identity", "execution_identity", "packet_hash"],
+  "properties": {
+    "schema_version": {"const": "forge-review-result/1.0"},
+    "result": {"enum": ["PASS", "CORRECTION_REQUIRED", "BLOCKED", "INCONCLUSIVE"]},
+    "findings": {"type": "array"},
+    "criterion_coverage": {"type": "array", "items": {"type": "string"}},
+    "criterion_evidence": {"type": "object"}
+    ,"reviewer_identity": {"type": "string", "minLength": 1}
+    ,"execution_identity": {"type": "string", "minLength": 1}
+    ,"packet_hash": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

@@ -6,13 +6,38 @@
   "required": ["schema_version", "forge_version", "project", "repository", "capability_id", "gate", "gate_id", "capability_status", "process_level", "risk", "decision_owners", "scope", "non_goals", "criteria", "allowed_paths", "forbidden_operations", "evidence_requirements", "command_policy", "state", "previous_state", "history", "run", "baseline_commit", "correction_count", "max_corrections", "pending_decisions", "reviewer_identity", "next_allowed_gate"],
   "properties": {
     "schema_version": {"const": "forge-adaptive-loop/1.0"},
+    "forge_version": {"type": "string"},
+    "project": {"type": "string", "minLength": 1},
+    "repository": {"type": "string", "minLength": 1},
+    "capability_id": {"type": "string", "minLength": 1},
+    "gate": {"type": "string", "minLength": 1},
+    "gate_id": {"type": "string", "minLength": 1},
+    "capability_status": {"enum": ["authorized", "closed"]},
     "process_level": {"enum": ["lite", "standard", "high_assurance"]},
+    "risk": {"$ref": "#/$defs/risk"},
+    "decision_owners": {"type": "object", "minProperties": 1},
+    "scope": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "non_goals": {"type": "array", "items": {"type": "string"}},
+    "criteria": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/criterion"}},
+    "allowed_paths": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "forbidden_operations": {"type": "array", "items": {"type": "string"}, "minItems": 13},
+    "evidence_requirements": {"type": "array", "items": {"type": "string"}},
+    "command_policy": {"type": "object", "required": ["allow", "deny_shell"]},
     "state": {"enum": ["draft", "awaiting_human", "ready", "executing", "evidence_ready", "reviewing", "correction_required", "blocked", "accepted", "closed"]},
+    "previous_state": {"type": ["string", "null"]},
+    "history": {"type": "array", "items": {"$ref": "#/$defs/transition"}},
+    "run": {"type": "object", "required": ["id", "series_id", "started_at", "executor_identity", "history_head"]},
+    "baseline_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
     "correction_count": {"type": "integer", "minimum": 0, "maximum": 2},
     "max_corrections": {"type": "integer", "minimum": 0, "maximum": 2},
-    "history": {"type": "array"},
-    "criteria": {"type": "array", "minItems": 1},
-    "pending_decisions": {"type": "array"}
+    "pending_decisions": {"type": "array"},
+    "reviewer_identity": {"type": "string", "minLength": 1},
+    "next_allowed_gate": {"type": "string", "minLength": 1}
   },
-  "additionalProperties": true
+  "$defs": {
+    "risk": {"type": "object", "required": ["level", "rationale", "dimensions", "human_override", "override_rationale"], "properties": {"level": {"enum": ["lite", "standard", "high_assurance"]}, "rationale": {"type": "string"}, "dimensions": {"type": "object", "required": ["consequence", "uncertainty", "irreversibility", "evidence_difficulty", "external_impact", "security_data_integrity"}, "human_override": {"type": "boolean"}, "override_rationale": {"type": ["string", "null"]}}},
+    "criterion": {"type": "object", "required": ["id", "text", "truth_authority", "risk"], "properties": {"id": {"type": "string"}, "text": {"type": "string"}, "truth_authority": {"type": "string"}, "risk": {"$ref": "#/$defs/risk"}}, "additionalProperties": false},
+    "transition": {"type": "object", "required": ["sequence", "from", "to", "actor", "reason", "at", "previous_event_hash", "event_hash"]}
+  },
+  "additionalProperties": false
 }

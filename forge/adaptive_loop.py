@@ -7,6 +7,7 @@ accept a gate or mutate its frozen contract.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import re
 import subprocess
@@ -15,7 +16,7 @@ import uuid
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Protocol
 
 SCHEMA_VERSION = "forge-adaptive-loop/1.0"
@@ -38,7 +39,7 @@ STATES = {
 TRANSITIONS = {
     "draft": {"awaiting_human", "ready", "blocked"},
     "awaiting_human": {"ready", "blocked"},
-    "ready": {"executing", "blocked"},
+    "ready": {"executing", "awaiting_human", "blocked"},
     "executing": {"evidence_ready", "awaiting_human", "blocked"},
     "evidence_ready": {"reviewing", "blocked"},
     "reviewing": {"correction_required", "awaiting_human", "blocked", "accepted"},
@@ -87,14 +88,65 @@ FROZEN_FIELDS = (
     "baseline_commit",
     "evidence_requirements",
     "max_corrections",
+    "decision_owners",
+    "forbidden_operations",
+    "command_policy",
+    "risk",
+    "process_level",
+    "reviewer_identity",
+    "next_allowed_gate",
+    "capability_status",
 )
 SECRET_PATTERN = re.compile(
-    r"(?i)(bearer\s+\S+|(?:token|password|secret|api[_-]?key)\s*[=:]\s*\S+)"
+    r"(?i)(bearer\s+\S+|(?:token|password|secret|api[_-]?key|aws_access_key_id)\s*[=:]\s*\S+)"
 )
+SECRET_KEYS = re.compile(r"(?i)(authorization|password|secret|token|api[_-]?key|aws_access_key_id)")
+_COLLECTOR_KEY = uuid.uuid4().bytes
+ACTOR_TARGETS = {
+    "executor": {"executing", "evidence_ready", "awaiting_human", "blocked"},
+    "collector": {"evidence_ready", "blocked"},
+    "reviewer": {"correction_required", "awaiting_human", "blocked", "accepted"},
+    "forge": STATES - {"closed", "accepted"},
+    "human": {"ready", "blocked", "closed"},
+}
 
 
 class ContractError(ValueError):
     """The manifest or a requested transition violates Forge policy."""
+
+
+class StateStore:
+    """Persist the authoritative predecessor so truncation and budget reset cannot be optional."""
+
+    def __init__(self, path: Path):
+        self.path = path
+
+    def initialize(self, manifest: dict[str, Any]) -> None:
+        validate_manifest(manifest)
+        if self.path.exists():
+            raise ContractError("authoritative state already exists")
+        self._write({"current": manifest, "heads": [manifest["run"]["history_head"]]})
+
+    def load(self) -> dict[str, Any]:
+        payload = json.loads(self.path.read_text(encoding="utf-8"))
+        validate_manifest(payload["current"])
+        return payload["current"]
+
+    def update(self, manifest: dict[str, Any]) -> None:
+        payload = json.loads(self.path.read_text(encoding="utf-8"))
+        previous = payload["current"]
+        validate_successor(previous, manifest)
+        payload["current"] = manifest
+        payload["heads"].append(manifest["run"]["history_head"])
+        self._write(payload)
+
+    def _write(self, payload: dict[str, Any]) -> None:
+        temporary = self.path.with_suffix(self.path.suffix + ".tmp")
+        temporary.write_text(
+            json.dumps(payload, sort_keys=True, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        temporary.replace(self.path)
 
 
 class ExecutorAdapter(Protocol):
@@ -124,7 +176,10 @@ def redact(value: Any) -> Any:
     if isinstance(value, list):
         return [redact(item) for item in value]
     if isinstance(value, dict):
-        return {key: redact(item) for key, item in value.items()}
+        return {
+            key: "[REDACTED]" if SECRET_KEYS.search(str(key)) else redact(item)
+            for key, item in value.items()
+        }
     return value
 
 
@@ -168,6 +223,17 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         raise ContractError("unknown state")
     if manifest["process_level"] not in {"lite", "standard", "high_assurance"}:
         raise ContractError("unknown process level")
+    if manifest["capability_status"] not in {"authorized", "closed"}:
+        raise ContractError("invalid capability status")
+    if (manifest["capability_status"] == "closed") != (manifest["state"] == "closed"):
+        raise ContractError("capability closure must match closed state")
+    if (
+        manifest["gate_id"] == "GATE-FAL-001"
+        and manifest["next_allowed_gate"] != "human-acceptance"
+    ):
+        raise ContractError("unexpected next gate for Adaptive Loop V1")
+    if manifest["run"].get("executor_identity") == manifest["reviewer_identity"]:
+        raise ContractError("reviewer identity must be distinct from executor identity")
     if not 0 <= manifest["correction_count"] <= manifest["max_corrections"] <= 2:
         raise ContractError("invalid correction budget")
     if not manifest["criteria"] or any(
@@ -181,6 +247,8 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
     if not set(manifest["forbidden_operations"]) >= FORBIDDEN_OPERATIONS:
         raise ContractError("mandatory forbidden operations are missing")
     validate_risk(manifest["risk"])
+    for criterion in manifest["criteria"]:
+        validate_risk(criterion["risk"])
     validate_history(manifest)
     if manifest["run"].get("frozen_hash"):
         assert_frozen(manifest)
@@ -201,12 +269,19 @@ def validate_risk(risk: dict[str, Any]) -> None:
         raise ContractError("risk dimensions must be integers from 1 to 5")
     if risk.get("level") not in {"lite", "standard", "high_assurance"}:
         raise ContractError("invalid risk level")
+    score = sum(risk["dimensions"].values()) / len(risk["dimensions"])
+    derived = "high_assurance" if score >= 3.5 else "standard" if score >= 2 else "lite"
+    if not risk.get("human_override") and risk.get("level") != derived:
+        raise ContractError(f"risk level must match deterministic classification: {derived}")
     if risk.get("human_override") and not risk.get("override_rationale"):
         raise ContractError("human risk override requires rationale")
 
 
 def validate_history(manifest: dict[str, Any]) -> None:
     history = manifest["history"]
+    if manifest["state"] not in {"draft", "ready", "awaiting_human"} and not history:
+        raise ContractError("non-initial state requires append-only history")
+    previous_hash = "GENESIS"
     for index, event in enumerate(history):
         if event.get("sequence") != index + 1:
             raise ContractError("history sequence is not append-only")
@@ -214,13 +289,36 @@ def validate_history(manifest: dict[str, Any]) -> None:
             raise ContractError("history chain is broken")
         if event.get("to") not in TRANSITIONS.get(event.get("from"), set()):
             raise ContractError("history contains invalid transition")
+        if event.get("previous_event_hash") != previous_hash:
+            raise ContractError("history hash chain is broken")
+        unsigned = {key: value for key, value in event.items() if key != "event_hash"}
+        if event.get("event_hash") != sha256(unsigned):
+            raise ContractError("history event hash is invalid")
+        previous_hash = event["event_hash"]
     if history and history[-1]["to"] != manifest["state"]:
         raise ContractError("history does not reach current state")
+    expected_head = history[-1]["event_hash"] if history else "GENESIS"
+    if manifest["run"].get("history_head", "GENESIS") != expected_head:
+        raise ContractError("history head does not match append-only ledger")
+
+
+def validate_successor(previous: dict[str, Any], current: dict[str, Any]) -> None:
+    """Validate a new authoritative record against its retained predecessor."""
+    validate_manifest(previous)
+    validate_manifest(current)
+    if previous["run"]["series_id"] != current["run"]["series_id"]:
+        raise ContractError("correction series identity changed")
+    if current["correction_count"] < previous["correction_count"]:
+        raise ContractError("correction budget cannot reset")
+    prefix = current["history"][: len(previous["history"])]
+    if prefix != previous["history"]:
+        raise ContractError("append-only history was truncated or replaced")
 
 
 def frozen_payload(manifest: dict[str, Any], prompt_hash: str | None = None) -> dict[str, Any]:
     payload = {field: manifest[field] for field in FROZEN_FIELDS}
     payload["prompt_hash"] = prompt_hash or manifest["run"].get("prompt_hash")
+    payload["series_id"] = manifest["run"].get("series_id")
     return payload
 
 
@@ -234,19 +332,26 @@ def transition(manifest: dict[str, Any], target: str, actor: str, reason: str) -
     source = manifest["state"]
     if target not in TRANSITIONS[source]:
         raise ContractError(f"invalid transition: {source} -> {target}")
+    actor_role = actor.split(":", 1)[0]
+    if target not in ACTOR_TARGETS.get(actor_role, set()):
+        raise ContractError(f"actor {actor_role} cannot authorize state {target}")
     result = deepcopy(manifest)
     result["previous_state"] = source
     result["state"] = target
-    result["history"].append(
-        {
-            "sequence": len(result["history"]) + 1,
-            "from": source,
-            "to": target,
-            "actor": actor,
-            "reason": reason,
-            "at": utc_now(),
-        }
-    )
+    event = {
+        "sequence": len(result["history"]) + 1,
+        "from": source,
+        "to": target,
+        "actor": actor,
+        "reason": reason,
+        "at": utc_now(),
+        "previous_event_hash": result["history"][-1]["event_hash"]
+        if result["history"]
+        else "GENESIS",
+    }
+    event["event_hash"] = sha256(event)
+    result["history"].append(event)
+    result["run"]["history_head"] = event["event_hash"]
     validate_manifest(result)
     return result
 
@@ -298,15 +403,39 @@ def begin_run(manifest: dict[str, Any], prompt_metadata: dict[str, Any]) -> dict
 
 def validate_changed_files(manifest: dict[str, Any], changed_files: list[str]) -> None:
     allowed = tuple(path.rstrip("/") + "/" for path in manifest["allowed_paths"])
+    repository_root = Path(manifest["run"].get("working_directory", ".")).resolve()
     for path in changed_files:
-        normalized = path.replace("\\", "/").lstrip("./")
+        pure = PurePosixPath(path.replace("\\", "/"))
+        if pure.is_absolute() or ".." in pure.parts:
+            raise ContractError(f"forbidden file changed: {path}")
+        normalized = pure.as_posix().removeprefix("./")
+        candidate = (repository_root / Path(*pure.parts)).resolve()
+        try:
+            candidate.relative_to(repository_root)
+        except ValueError as exc:
+            raise ContractError(f"forbidden file changed: {path}") from exc
         if not any(
             normalized == prefix[:-1] or normalized.startswith(prefix) for prefix in allowed
         ):
             raise ContractError(f"forbidden file changed: {path}")
 
 
-def collect_command(command: list[str], cwd: Path, timeout: float = 60) -> dict[str, Any]:
+def collect_command(
+    command: list[str],
+    cwd: Path,
+    timeout: float = 60,
+    command_policy: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    if command_policy is not None:
+        rendered = " ".join(command)
+        if not any(
+            rendered == item or rendered.startswith(item + " ")
+            for item in command_policy.get("allow", [])
+        ):
+            raise ContractError(f"command is not allowed: {rendered}")
+    forbidden_tokens = {"push", "tag", "merge", "release", "shutdown", "restart"}
+    if any(token.lower() in forbidden_tokens for token in command):
+        raise ContractError("command contains a forbidden operation")
     started = utc_now()
     monotonic_start = time.monotonic()
     try:
@@ -320,7 +449,7 @@ def collect_command(command: list[str], cwd: Path, timeout: float = 60) -> dict[
         status, exit_code = "timeout", "not available"
         stdout = exc.stdout.decode() if isinstance(exc.stdout, bytes) else (exc.stdout or "")
         stderr = exc.stderr.decode() if isinstance(exc.stderr, bytes) else (exc.stderr or "")
-    return redact(
+    result = redact(
         {
             "command": command,
             "started_at": started,
@@ -333,6 +462,21 @@ def collect_command(command: list[str], cwd: Path, timeout: float = 60) -> dict[
             "provenance": "subprocess.run",
         }
     )
+    rendered = " ".join(command).lower()
+    if "pytest" in rendered and "--version" not in rendered and "--help" not in rendered:
+        match = re.search(r"(\d+) passed(?:, (\d+) skipped)?", result["stdout"])
+        if result["exit_code"] == 0 and match:
+            result["derived_tests"] = {
+                "status": "passed",
+                "passed": int(match.group(1)),
+                "failed": 0,
+                "skipped": int(match.group(2) or 0),
+                "evidence": "command_record_hash",
+            }
+    result["command_record_hash"] = hmac.new(
+        _COLLECTOR_KEY, canonical_bytes(result), hashlib.sha256
+    ).hexdigest()
+    return result
 
 
 def create_run_record(
@@ -342,16 +486,35 @@ def create_run_record(
     tests = executor_result.get("tests", "unknown")
     if isinstance(tests, dict) and tests.get("status") == "passed":
         if not any(
-            c.get("exit_code") == 0 and "test" in " ".join(c["command"]).lower() for c in commands
+            c.get("exit_code") == 0
+            and "test" in " ".join(c["command"]).lower()
+            and c.get("provenance") == "subprocess.run"
+            and c.get("command_record_hash")
+            == hmac.new(
+                _COLLECTOR_KEY,
+                canonical_bytes(
+                    {key: value for key, value in c.items() if key != "command_record_hash"}
+                ),
+                hashlib.sha256,
+            ).hexdigest()
+            and c.get("derived_tests") == tests
+            for c in commands
         ):
             raise ContractError("green test claim lacks command evidence")
+    finished_at = utc_now()
+    try:
+        started_dt = datetime.fromisoformat(manifest["run"]["started_at"].replace("Z", "+00:00"))
+        finished_dt = datetime.fromisoformat(finished_at.replace("Z", "+00:00"))
+        elapsed: float | str = max(0.0, (finished_dt - started_dt).total_seconds())
+    except (TypeError, ValueError):
+        elapsed = "not available"
     record = redact(
         {
             "schema_version": "forge-run-record/1.0",
             "run_id": manifest["run"]["id"],
             "started_at": manifest["run"]["started_at"],
-            "finished_at": utc_now(),
-            "elapsed_seconds": "not available",
+            "finished_at": finished_at,
+            "elapsed_seconds": elapsed,
             "active_execution_seconds": sum(float(c.get("elapsed_seconds", 0)) for c in commands),
             "human_wait_seconds": "unknown",
             "repository": manifest["repository"],
@@ -367,6 +530,9 @@ def create_run_record(
             "runtime_versions": executor_result.get("runtime_versions", "not available"),
             "build": executor_result.get("build", "unknown"),
             "tests": tests,
+            "warnings": executor_result.get("warnings", "unknown"),
+            "errors": executor_result.get("errors", "unknown"),
+            "skipped": executor_result.get("skipped", "unknown"),
             "raw_logs": executor_result.get("raw_logs", "not available"),
             "artifact_hashes": executor_result.get("artifact_hashes", {}),
             "review_results": [],
@@ -413,9 +579,24 @@ def reviewer_packet(
     return packet
 
 
+def bind_review_packet(manifest: dict[str, Any], packet: dict[str, Any]) -> dict[str, Any]:
+    result = deepcopy(manifest)
+    result["run"]["review_packet_hash"] = packet["packet_hash"]
+    result["run"]["review_record_hash"] = packet["run_record"]["record_hash"]
+    return result
+
+
 def validate_review(review: dict[str, Any], manifest: dict[str, Any]) -> None:
     if review.get("result") not in REVIEW_RESULTS:
         raise ContractError("invalid review result")
+    if review.get("reviewer_identity") != manifest["reviewer_identity"]:
+        raise ContractError("review identity does not match packet authority")
+    if review.get("execution_identity") != manifest["run"].get("executor_identity"):
+        raise ContractError("review execution identity is missing or incorrect")
+    if review["reviewer_identity"] == review["execution_identity"]:
+        raise ContractError("reviewer is not independent from executor")
+    if review.get("packet_hash") != manifest["run"].get("review_packet_hash"):
+        raise ContractError("review is not bound to the reviewer packet")
     criterion_ids = {c["id"] for c in manifest["criteria"]}
     for finding in review.get("findings", []):
         required = {
@@ -434,6 +615,12 @@ def validate_review(review: dict[str, Any], manifest: dict[str, Any]) -> None:
         coverage = set(review.get("criterion_coverage", []))
         if coverage != criterion_ids:
             raise ContractError("PASS requires complete criterion-to-evidence coverage")
+        evidence = review.get("criterion_evidence", {})
+        if set(evidence) != criterion_ids or any(not refs for refs in evidence.values()):
+            raise ContractError("PASS requires evidence references for every criterion")
+        expected = f"run-record:{manifest['run'].get('review_record_hash')}"
+        if any(any(reference != expected for reference in refs) for refs in evidence.values()):
+            raise ContractError("PASS evidence reference does not resolve to the sealed run record")
 
 
 def apply_review(manifest: dict[str, Any], review: dict[str, Any]) -> dict[str, Any]:
@@ -481,7 +668,14 @@ def decision_card(
     blocked: str,
     needed_by: str,
 ) -> dict[str, Any]:
-    if decision_type not in HUMAN_DECISIONS or len(options) < 2:
+    option_ids = {option.get("id") for option in options}
+    if (
+        decision_type not in HUMAN_DECISIONS
+        or len(options) < 2
+        or recommendation not in option_ids
+        or any(not {"id", "consequence", "reversibility"} <= option.keys() for option in options)
+        or not owner.strip()
+    ):
         raise ContractError("decision card requires a human-owned type and realistic alternatives")
     return {
         "decision_id": decision_id,
@@ -495,6 +689,29 @@ def decision_card(
         "needed_by": needed_by,
         "status": "pending",
     }
+
+
+def request_human_decision(manifest: dict[str, Any], card: dict[str, Any]) -> dict[str, Any]:
+    """Atomically persist a pending card and move an active run to awaiting human."""
+    if card.get("status") != "pending":
+        raise ContractError("only pending decision cards may be requested")
+    result = deepcopy(manifest)
+    result["pending_decisions"].append(card)
+    return transition(
+        result, "awaiting_human", "forge", f"decision required: {card['decision_id']}"
+    )
+
+
+def resolve_human_decision(
+    manifest: dict[str, Any], decision_id: str, selected_option: str, actor: str = "human"
+) -> dict[str, Any]:
+    result = deepcopy(manifest)
+    cards = [card for card in result["pending_decisions"] if card["decision_id"] == decision_id]
+    if len(cards) != 1 or selected_option not in {o["id"] for o in cards[0]["options"]}:
+        raise ContractError("invalid human decision resolution")
+    cards[0]["status"] = "resolved"
+    cards[0]["selected_option"] = selected_option
+    return transition(result, "ready", actor, f"decision resolved: {decision_id}")
 
 
 @dataclass
@@ -511,11 +728,79 @@ class FakeReviewer:
     results: list[dict[str, Any]]
 
     def review(self, packet: dict[str, Any]) -> dict[str, Any]:
-        del packet
         if not self.results:
             raise ContractError("fake reviewer exhausted")
-        return deepcopy(self.results.pop(0))
+        result = deepcopy(self.results.pop(0))
+        result["packet_hash"] = packet["packet_hash"]
+        if result["result"] == "PASS":
+            reference = f"run-record:{packet['run_record']['record_hash']}"
+            result["criterion_evidence"] = {
+                criterion: [reference] for criterion in result["criterion_coverage"]
+            }
+        return result
+
+
+def run_controlled_fixture(
+    manifest: dict[str, Any],
+    executor: ExecutorAdapter,
+    reviewer: ReviewerAdapter,
+    cwd: Path,
+) -> dict[str, Any]:
+    """Run the bounded fake-adapter journey used by the executable V1 demonstration."""
+    prompt, metadata = compile_prompt(manifest)
+    store = StateStore(cwd / "forge-adaptive-loop-state.json")
+    store.initialize(manifest)
+    state = begin_run(manifest, metadata)
+    store.update(state)
+    records: list[dict[str, Any]] = []
+    reviews: list[dict[str, Any]] = []
+    prior_diff_hash = manifest["baseline_commit"]
+    prior_findings: list[dict[str, Any]] = []
+    while True:
+        if state["state"] == "ready":
+            state = transition(state, "executing", "executor", "fixture execution")
+            store.update(state)
+        execution = executor.execute(prompt, {"manifest_hash": state["run"]["frozen_hash"]})
+        command = collect_command(
+            ["python", "-m", "pytest", str(ROOT_FIXTURE), "-q"],
+            cwd,
+            command_policy=state["command_policy"],
+        )
+        execution["tests"] = command.get("derived_tests", "unknown")
+        record = create_run_record(state, [command], execution)
+        records.append(record)
+        state = transition(state, "evidence_ready", "collector", "run record sealed")
+        store.update(state)
+        state = transition(state, "reviewing", "forge", "review packet sealed")
+        store.update(state)
+        packet = reviewer_packet(
+            state, record, execution.get("diff", {}).get("text", ""), prior_findings
+        )
+        state = bind_review_packet(state, packet)
+        store.update(state)
+        review_result = reviewer.review(packet)
+        reviews.append(review_result)
+        state = apply_review(state, review_result)
+        store.update(state)
+        if state["state"] != "correction_required":
+            break
+        new_diff_hash = sha256(execution.get("diff", {}))
+        state = start_correction(
+            state,
+            [item["id"] for item in review_result.get("findings", [])],
+            prior_diff_hash,
+            new_diff_hash,
+        )
+        store.update(state)
+        prior_diff_hash = new_diff_hash
+        prior_findings.extend(review_result.get("findings", []))
+        if state["state"] == "blocked":
+            break
+    return {"state": state, "records": records, "reviews": reviews, "prompt": metadata}
 
 
 def new_run_id() -> str:
     return str(uuid.uuid4())
+
+
+ROOT_FIXTURE = Path(__file__).parents[1] / "fixtures" / "adaptive-loop-v1" / "demo_check.py"

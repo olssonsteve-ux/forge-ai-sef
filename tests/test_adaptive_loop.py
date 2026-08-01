@@ -6,6 +6,9 @@ import pytest
 
 from forge.adaptive_loop import (
     ContractError,
+    FakeExecutor,
+    FakeReviewer,
+    StateStore,
     apply_review,
     assert_frozen,
     begin_run,
@@ -14,13 +17,16 @@ from forge.adaptive_loop import (
     create_run_record,
     decision_card,
     redact,
+    request_human_decision,
     reviewer_packet,
+    run_controlled_fixture,
     sha256,
     start_correction,
     transition,
     validate_changed_files,
     validate_manifest,
     validate_review,
+    validate_successor,
 )
 
 ROOT = Path(__file__).parents[1]
@@ -37,12 +43,18 @@ def frozen(manifest):
 
 
 def review(result, findings=None, coverage=None):
-    return {
+    value = {
         "schema_version": "forge-review-result/1.0",
         "result": result,
         "findings": findings or [],
         "criterion_coverage": coverage or [],
+        "reviewer_identity": "fresh-read-only-reviewer-fixture",
+        "execution_identity": "fake-executor",
+        "packet_hash": "PACKET",
     }
+    if result == "PASS" and coverage:
+        value["criterion_evidence"] = {item: ["run-record:RECORD"] for item in coverage}
+    return value
 
 
 def finding(human=False):
@@ -62,7 +74,17 @@ def to_reviewing(manifest):
     value, _, _ = frozen(manifest)
     value = transition(value, "executing", "executor", "begin")
     value = transition(value, "evidence_ready", "collector", "collected")
-    return transition(value, "reviewing", "forge", "packet ready")
+    value = transition(value, "reviewing", "forge", "packet ready")
+    value["run"]["review_packet_hash"] = "PACKET"
+    value["run"]["review_record_hash"] = "RECORD"
+    return value
+
+
+def review_bound(manifest):
+    value = deepcopy(manifest)
+    value["run"]["review_packet_hash"] = "PACKET"
+    value["run"]["review_record_hash"] = "RECORD"
+    return value
 
 
 def test_fixture_schema_validates(manifest):
@@ -133,6 +155,17 @@ def test_frozen_scope_cannot_change(manifest):
         assert_frozen(value)
 
 
+@pytest.mark.parametrize("field", ["forbidden_operations", "command_policy", "decision_owners"])
+def test_all_policy_inputs_are_frozen(manifest, field):
+    value, _, _ = frozen(manifest)
+    if isinstance(value[field], list):
+        value[field].append("changed")
+    else:
+        value[field]["changed"] = True
+    with pytest.raises(ContractError, match="frozen contract"):
+        assert_frozen(value)
+
+
 def test_allowed_file_is_accepted(manifest):
     validate_changed_files(manifest, ["forge/adaptive_loop.py"])
 
@@ -142,10 +175,18 @@ def test_forbidden_file_blocks_progression(manifest):
         validate_changed_files(manifest, ["src/AudioRecorder/App.cs"])
 
 
-def test_evidence_provenance_is_present(manifest):
-    command = {"command": ["pytest"], "exit_code": 0, "elapsed_seconds": 1, "provenance": "fixture"}
+def test_parent_traversal_cannot_bypass_allowed_paths(manifest):
+    with pytest.raises(ContractError, match="forbidden file"):
+        validate_changed_files(manifest, ["forge/../src/AudioRecorder/App.cs"])
+
+
+def test_evidence_provenance_is_present(manifest, tmp_path):
+    command = collect_command(
+        ["python", "-m", "pytest", str(ROOT / "fixtures/adaptive-loop-v1/demo_check.py"), "-q"],
+        tmp_path,
+    )
     record = create_run_record(
-        manifest, [command], {"changed_files": [], "tests": {"status": "passed"}}
+        manifest, [command], {"changed_files": [], "tests": command["derived_tests"]}
     )
     assert record["provenance"]["commands"] == "raw command result and exit code"
     assert record["record_hash"]
@@ -162,9 +203,18 @@ def test_false_green_test_claim_is_rejected(manifest):
         create_run_record(manifest, [], {"changed_files": [], "tests": {"status": "passed"}})
 
 
+def test_fabricated_command_record_is_rejected(manifest):
+    fake = {"command": ["echo", "test"], "exit_code": 0, "provenance": "subprocess.run"}
+    fake["command_record_hash"] = sha256(fake)
+    with pytest.raises(ContractError, match="lacks command evidence"):
+        create_run_record(manifest, [fake], {"changed_files": [], "tests": {"status": "passed"}})
+
+
 def test_secret_redaction():
     assert redact("token=abc123") == "[REDACTED]"
     assert "secret" not in redact({"x": "Bearer secret"})["x"].lower()
+    assert redact({"password": "hunter2"})["password"] == "[REDACTED]"
+    assert redact({"Authorization": "Basic abc"})["Authorization"] == "[REDACTED]"
 
 
 def test_reviewer_packet_is_reproducible(manifest):
@@ -178,12 +228,53 @@ def test_reviewer_packet_is_reproducible(manifest):
 
 @pytest.mark.parametrize("result", ["CORRECTION_REQUIRED", "BLOCKED", "INCONCLUSIVE"])
 def test_review_results_validate(manifest, result):
-    validate_review(review(result, [finding()]), manifest)
+    validate_review(review(result, [finding()]), review_bound(manifest))
 
 
 def test_pass_needs_complete_criterion_coverage(manifest):
     with pytest.raises(ContractError, match="complete criterion"):
-        validate_review(review("PASS", coverage=["FAL-01"]), manifest)
+        validate_review(review("PASS", coverage=["FAL-01"]), review_bound(manifest))
+
+
+def test_pass_needs_specific_evidence_links(manifest):
+    value = review("PASS", coverage=["FAL-01", "FAL-02"])
+    value["criterion_evidence"] = {}
+    with pytest.raises(ContractError, match="evidence references"):
+        validate_review(value, review_bound(manifest))
+
+
+def test_executor_cannot_accept(manifest):
+    value = to_reviewing(manifest)
+    with pytest.raises(ContractError, match="actor executor"):
+        transition(value, "accepted", "executor", "self approval")
+
+
+def test_history_content_mutation_breaks_hash_chain(manifest):
+    value = transition(manifest, "executing", "executor", "begin")
+    value["history"][0]["reason"] = "rewritten"
+    with pytest.raises(ContractError, match="event hash"):
+        validate_manifest(value)
+
+
+def test_retained_predecessor_rejects_history_truncation(manifest):
+    previous = transition(manifest, "executing", "executor", "begin")
+    current = deepcopy(previous)
+    current["history"] = []
+    current["state"] = "ready"
+    current["previous_state"] = None
+    current["run"]["history_head"] = "GENESIS"
+    with pytest.raises(ContractError, match="truncated or replaced"):
+        validate_successor(previous, current)
+
+
+def test_retained_predecessor_rejects_correction_reset(manifest):
+    previous = to_reviewing(manifest)
+    previous = apply_review(previous, review("CORRECTION_REQUIRED", [finding()]))
+    previous = start_correction(previous, ["F-001"], "old", "new")
+    current = deepcopy(previous)
+    current["correction_count"] = 0
+    with pytest.raises(ContractError, match="cannot reset"):
+        validate_successor(previous, current)
 
 
 def test_pass_makes_gate_eligible_but_not_closed(manifest):
@@ -257,6 +348,40 @@ def test_decision_card_has_no_silent_default():
     assert "selected" not in card
 
 
+def test_ready_gate_persists_decision_and_awaits_human(manifest):
+    card = decision_card(
+        "DC-002",
+        "Choose scope?",
+        "scope",
+        "Product Owner",
+        [
+            {"id": "a", "consequence": "narrow", "reversibility": "high"},
+            {"id": "b", "consequence": "broad", "reversibility": "low"},
+        ],
+        "a",
+        "execution",
+        "before execution",
+    )
+    result = request_human_decision(manifest, card)
+    assert result["state"] == "awaiting_human"
+    assert result["pending_decisions"][0]["decision_id"] == "DC-002"
+
+
+def test_state_store_makes_successor_validation_mandatory(manifest, tmp_path):
+    store = StateStore(tmp_path / "state.json")
+    store.initialize(manifest)
+    progressed = transition(manifest, "executing", "executor", "begin")
+    store.update(progressed)
+    reset = deepcopy(progressed)
+    reset["correction_count"] = 0
+    reset["history"] = []
+    reset["state"] = "ready"
+    reset["previous_state"] = None
+    reset["run"]["history_head"] = "GENESIS"
+    with pytest.raises(ContractError):
+        store.update(reset)
+
+
 def test_non_human_decision_type_is_rejected():
     with pytest.raises(ContractError):
         decision_card("D", "Q", "formatting", "Codex", [{"id": "a"}, {"id": "b"}], "a", "x", "now")
@@ -277,6 +402,11 @@ def test_command_timeout_is_explicit(tmp_path):
     assert result["exit_code"] == "not available"
 
 
+def test_command_allowlist_is_enforced(manifest, tmp_path):
+    with pytest.raises(ContractError, match="not allowed"):
+        collect_command(["git", "push"], tmp_path, command_policy=manifest["command_policy"])
+
+
 def test_interrupted_run_can_be_reopened_only_through_policy(manifest):
     manifest["state"] = "awaiting_human"
     assert transition(manifest, "ready", "human", "resume approved")["state"] == "ready"
@@ -292,3 +422,18 @@ def test_audio_recorder_baseline_fixture_is_unchanged():
     status = subprocess.check_output(["git", "-C", str(repo), "status", "--porcelain"], text=True)
     assert head == "ae09df414060664de85daf8d5b394bb7d7744f9f"
     assert status == ""
+
+
+def test_end_to_end_fixture_corrects_then_passes(manifest, tmp_path):
+    correction = review("CORRECTION_REQUIRED", [finding()])
+    passed = review("PASS", coverage=["FAL-01", "FAL-02"])
+    executor = FakeExecutor(
+        {"changed_files": [], "diff": {"text": "bounded material change", "hash": "fixture"}}
+    )
+    result = run_controlled_fixture(
+        manifest, executor, FakeReviewer([correction, passed]), tmp_path
+    )
+    assert result["state"]["state"] == "accepted"
+    assert result["state"]["correction_count"] == 1
+    assert len(result["records"]) == 2
+    assert [item["result"] for item in result["reviews"]] == ["CORRECTION_REQUIRED", "PASS"]

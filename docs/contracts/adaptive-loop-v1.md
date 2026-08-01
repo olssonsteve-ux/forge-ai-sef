@@ -107,7 +107,8 @@ fixture command policy is an allowlist and denies arbitrary shell interpretation
 
 ## Controlled demonstration
 
-The 37 focused tests exercise the complete requested journey: ready/executing; deterministic prompt
+The focused tests exercise the complete requested journey, including one executable fake-adapter
+orchestrator path: ready/executing; deterministic prompt
 and hashes; structured executor/evidence; bounded correction then PASS eligibility; third correction
 rejection; frozen-criterion and forbidden-file rejection; false-green-test rejection; decision-card
 escalation; no-progress stop; adverse-result preservation; append-only history; timeout, partial and

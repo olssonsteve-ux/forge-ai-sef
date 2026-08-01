@@ -11,7 +11,7 @@
   "risk": {
     "level": "high_assurance",
     "rationale": "State authority and correction policy affect governance integrity.",
-    "dimensions": {"consequence": 4, "uncertainty": 3, "irreversibility": 2, "evidence_difficulty": 4, "external_impact": 1, "security_data_integrity": 4},
+    "dimensions": {"consequence": 4, "uncertainty": 4, "irreversibility": 3, "evidence_difficulty": 4, "external_impact": 2, "security_data_integrity": 5},
     "human_override": false,
     "override_rationale": null
   },
@@ -19,8 +19,8 @@
   "scope": ["forge/adaptive_loop.py", "schemas/", "fixtures/adaptive-loop-v1/", "tests/test_adaptive_loop.py", "docs/"],
   "non_goals": ["Audio Recorder changes", "album capability", "release automation", "general multi-agent platform"],
   "criteria": [
-    {"id": "FAL-01", "text": "State transitions are deterministic", "truth_authority": "tests and transition table", "risk": "high_assurance"},
-    {"id": "FAL-02", "text": "Evidence retains provenance", "truth_authority": "validated run record", "risk": "high_assurance"}
+    {"id": "FAL-01", "text": "State transitions are deterministic", "truth_authority": "tests and transition table", "risk": {"level": "high_assurance", "rationale": "Governance integrity", "dimensions": {"consequence": 4, "uncertainty": 3, "irreversibility": 3, "evidence_difficulty": 4, "external_impact": 3, "security_data_integrity": 5}, "human_override": false, "override_rationale": null}},
+    {"id": "FAL-02", "text": "Evidence retains provenance", "truth_authority": "validated run record", "risk": {"level": "high_assurance", "rationale": "Evidence integrity", "dimensions": {"consequence": 5, "uncertainty": 3, "irreversibility": 3, "evidence_difficulty": 4, "external_impact": 2, "security_data_integrity": 5}, "human_override": false, "override_rationale": null}}
   ],
   "allowed_paths": ["forge", "schemas", "fixtures/adaptive-loop-v1", "tests", "docs"],
   "forbidden_operations": ["push", "tag", "merge", "release", "packaging", "distribution", "version_change", "history_rewrite", "destructive_git", "os_restart", "os_shutdown", "external_message", "credential_reuse"],
@@ -29,7 +29,7 @@
   "state": "ready",
   "previous_state": null,
   "history": [],
-  "run": {"id": "RUN-FAL-DEMO-001", "started_at": "2026-08-01T12:00:00Z", "working_directory": ".", "executor_identity": "fake-executor", "frozen_hash": null, "prompt_hash": null},
+  "run": {"id": "RUN-FAL-DEMO-001", "series_id": "SERIES-FAL-001", "started_at": "2026-08-01T12:00:00Z", "working_directory": ".", "executor_identity": "fake-executor", "history_head": "GENESIS", "frozen_hash": null, "prompt_hash": null},
   "baseline_commit": "21d3802df3e0f5a51ea692327fda3995f8d73eb0",
   "correction_count": 0,
   "max_corrections": 2,
