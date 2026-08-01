@@ -70,7 +70,12 @@ Forge may eventually include:
   `DC-FAL-001`/`HD-FAL-001` authorization as immutable correction-series history.
 - Preserve `IR-FAL-002` as the result of the consumed `HD-FAL-001` human-bounded correction. The
   local append-only ledger finding closed, but closure authority, nested schema semantics and
-  criterion/reviewer proof remain blocking; further work requires `DC-FAL-002`.
+  criterion/reviewer proof remained blocking and led to resolved `DC-FAL-002`/`HD-FAL-002`.
+- Treat FAL-001 as permanently `TERMINATED BLOCKED` under `HD-FAL-002`; never reuse a run identity or
+  correction to imply acceptance or closure.
+- Treat FAL-002 as a new Standard-Assurance design: small bounded engineering core, canonical
+  boundary model, criterion-bound evidence with reviewer semantic rationale, honest fresh read-only
+  review, and High Assurance deferred to a separate future profile.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

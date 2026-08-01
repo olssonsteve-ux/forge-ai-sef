@@ -1,6 +1,6 @@
 # DC-FAL-002 — Decide disposition after failed bounded correction
 
-Status: `PENDING`
+Status: `RESOLVED` by `HD-FAL-002` — abandon further FAL-001 remediation and design FAL-002
 
 Decision owner: Human Product Owner / Forge Design Authority
 

@@ -2,11 +2,10 @@
 
 ## Status
 
-Forge Adaptive Loop V1 remains `Blocked`. `HD-FAL-001` authorized and consumed one separate human
-bounded correction after two automatic rounds. Final read-only review `IR-FAL-002` closed
-`FINAL-F-03` but returned `CORRECTION_REQUIRED` for three findings. `DC-FAL-002` awaits a human
-disposition. FAL-001 is not closure-eligible or closed. No release or Audio Recorder product work
-was authorized.
+FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
+blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
+FAL-002 Standard Assurance Bounded Engineering Loop is `Specified — ready for human review`.
+Implementation is not authorized. No release or Audio Recorder product work was authorized.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -21,8 +20,9 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Resolve `DC-FAL-002` separately. No further Adaptive Loop correction, release work, or Audio Recorder
-product work is active.
+Conduct a separate human/design review of FAL-002. Do not implement it before acceptance and a
+bounded Engineering Brief. Manual Digital Album Authoring and Export remains the next product gate
+but is not started in this process-design gate.
 
 ## What Exists
 

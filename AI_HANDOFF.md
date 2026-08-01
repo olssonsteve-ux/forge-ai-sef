@@ -10,11 +10,11 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
-Forge Adaptive Loop V1 is blocked by final review
-`docs/reviews/IR-FAL-002-human-bounded-correction-final-review.md`. `HD-FAL-001` was consumed and
-authorizes no post-review correction. Do not continue without a human decision on
-`docs/decisions/DC-FAL-002-final-review-remediation-decision.md`. V1 is not closure-eligible, accepted
-or closed and must not be used to claim independent High-Assurance closure.
+FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. Never correct, accept, close or
+restart it. FAL-002 is specification-only and ready for separate human review; do not implement it
+without accepted review and a bounded Engineering Brief. Its authority is
+`docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md` with the explicit reuse
+matrix and first-trial measurement plan. The album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
