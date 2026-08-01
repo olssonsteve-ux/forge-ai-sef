@@ -4,7 +4,7 @@ Status: `AWAITING TARGETED HUMAN REVIEW — specification-only; implementation n
 
 Owner: Forge Design Authority
 
-Decision basis: `HD-FAL-002`, revised under `HD-FAL-003` and `HD-FAL-004`
+Decision basis: `HD-FAL-002`, revised under `HD-FAL-003`, `HD-FAL-004` and `HD-FAL-005`
 
 Predecessor disposition: `DISP-FAL-001` (`TERMINATED BLOCKED`)
 
@@ -189,9 +189,9 @@ file directly or transitively reachable at runtime, regardless of directory, nam
 shared, common, internal or reusable. Each such file is one production module. Existing FAL-001
 modules executed by FAL-002 count. An adapter wrapper counts as an adapter even if it only delegates.
 An unchanged general repository tool may be excluded only when the inventory records its independent
-use and shows that it was not materially changed for FAL-002. Every new or materially changed runtime
-path primarily serving FAL-002 counts in full. Splitting, moving or wrapping code does not change
-attribution or the total.
+use and the complete exemption decision in section 13.4 returns `EXEMPT`. Every other reached path
+counts unless this section explicitly requires `awaiting_human`. Splitting, moving or wrapping code
+does not change attribution or the total.
 
 A counted production line is a physical line in an attributed production source file that is neither
 empty nor solely a comment. Docstrings and multiline literals count. Tests and documentation do not.
@@ -234,8 +234,12 @@ The inventory shall execute this algorithm without a new dependency:
    `__init__.py` files executed along the resolved import chain.
 6. Include every uniquely resolved module file and executable reference, add it to the queue and
    continue until no new first-party production file remains.
-7. Count each unique canonical file path exactly once. Imports in conditional, platform and
-   `TYPE_CHECKING` branches count unless the frozen runtime variant proves them non-executable.
+7. Count each unique canonical file path exactly once. Every syntactically present first-party
+   import or first-party executable reference is included and traversed regardless of whether it
+   occurs inside a conditional, platform-specific, version-specific, exception-handling or
+   `TYPE_CHECKING` branch. FAL-002 inventory performs no branch-feasibility analysis and never
+   excludes an edge based on a frozen runtime variant. A statically resolved target counts; a
+   computed or incompletely enumerable target stops as `awaiting_human` under section 13.3.
 8. If resolution has zero or multiple plausible first-party targets, preserve the edge and stop as
    `awaiting_human`; do not select or exclude a target locally.
 
@@ -265,12 +269,45 @@ counted as zero. Syntax or analysis failure also stops as `awaiting_human`.
 
 ### 13.4 General repository-tool exemption
 
-A reached general repository tool is exempt only when all conditions are verified: its exact path
-and baseline SHA-256 are frozen; it had a documented independent use before FAL-002; its bytes equal
-the baseline; neither behavior nor configuration was specialized for FAL-002; any new FAL-002
-wrapper is counted; and the exemption and evidence appear in the inventory. If any condition is not
-verified, the tool counts or the inventory stops as `awaiting_human`. No other reached-file exclusion
-exists.
+For every transitively reached tool proposed for exemption, the inventory evaluates these mandatory
+predicates in order:
+
+1. exact repository-relative path and baseline identity are frozen;
+2. acceptable repository provenance proves an independent use before FAL-002;
+3. current content SHA-256 equals the content SHA-256 at the frozen baseline;
+4. tool-owned configuration and every file in its frozen exemption closure are unchanged from the
+   baseline;
+5. no new or changed FAL-002 specialization exists in the proposed exemption closure;
+6. new wrappers, adapters and FAL-002-specific runtime artifacts are outside the exemption and count
+   normally; and
+7. the exemption and its evidence are explicit in inventory output.
+
+Each predicate status is exactly `VERIFIED_TRUE`, `VERIFIED_FALSE`, `UNKNOWN` or `NOT_EVALUATED`.
+`NOT_EVALUATED` is permitted only after an earlier predicate is `VERIFIED_FALSE`. Acceptable
+provenance for predicate 2 is mechanically verified by at least one statically resolved first-party
+caller or entrypoint outside FAL-001 and FAL-002 at the baseline commit, or by a human decision record
+that existed no later than that commit and explicitly names the tool path and independent use.
+Absence of positive evidence is `UNKNOWN`, not `VERIFIED_FALSE`.
+
+The only permitted decision tree is:
+
+1. The tool must first be transitively reachable from the frozen FAL-002 entrypoint. Unresolved
+   reachability follows the ordinary rule and returns `AWAITING_HUMAN`.
+2. If every mandatory predicate is `VERIFIED_TRUE`, classify the tool `EXEMPT`.
+3. If any mandatory predicate is `VERIFIED_FALSE`, classify the tool `COUNT`; remaining predicates
+   may be `NOT_EVALUATED`.
+4. If no predicate is `VERIFIED_FALSE` and at least one is `UNKNOWN`, return `AWAITING_HUMAN`.
+5. No other classification or disposition is permitted.
+
+A changed baseline content hash or verified FAL-002 specialization is `VERIFIED_FALSE` and therefore
+`COUNT`. A missing or unverifiable baseline, provenance item or exemption closure is `UNKNOWN` and
+therefore `AWAITING_HUMAN` unless another predicate is already `VERIFIED_FALSE`. A counted wrapper
+does not disqualify an otherwise qualifying unchanged tool. No local choice between `COUNT` and
+`AWAITING_HUMAN` is permitted, and no other reached-file exemption exists.
+
+For each exemption candidate, inventory output contains its path, baseline commit, baseline and
+current hashes, provenance reference, frozen exemption closure, every predicate status and its
+evidence, and final classification.
 
 ### 13.5 Generated code and line counting
 
@@ -351,7 +388,9 @@ specification.
 
 ## 17. First real measurement trial
 
-After separate specification review, implementation review and human closure, Manual Digital Album
-Authoring and Export is intended as the first real before/after trial. Its capability specification is
-not created here. The trial follows the separate measurement plan and must not claim improvement
-before measured evidence exists.
+FAL-002 requires two separate review events: a fresh read-only Standard-Assurance review with
+adversarial instructions whose review object is the specification, and a separate fresh read-only
+Standard-Assurance review with adversarial instructions whose review object is the implementation.
+After both events and human closure, Manual Digital Album Authoring and Export is intended as the
+first real before/after trial. Its capability specification is not created here. The trial follows
+the separate measurement plan and must not claim improvement before measured evidence exists.
