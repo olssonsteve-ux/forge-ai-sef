@@ -1,0 +1,294 @@
+import json
+from copy import deepcopy
+from pathlib import Path
+
+import pytest
+
+from forge.adaptive_loop import (
+    ContractError,
+    apply_review,
+    assert_frozen,
+    begin_run,
+    collect_command,
+    compile_prompt,
+    create_run_record,
+    decision_card,
+    redact,
+    reviewer_packet,
+    sha256,
+    start_correction,
+    transition,
+    validate_changed_files,
+    validate_manifest,
+    validate_review,
+)
+
+ROOT = Path(__file__).parents[1]
+
+
+@pytest.fixture
+def manifest():
+    return json.loads((ROOT / "fixtures/adaptive-loop-v1/gate.json").read_text(encoding="utf-8"))
+
+
+def frozen(manifest):
+    prompt, metadata = compile_prompt(manifest)
+    return begin_run(manifest, metadata), prompt, metadata
+
+
+def review(result, findings=None, coverage=None):
+    return {
+        "schema_version": "forge-review-result/1.0",
+        "result": result,
+        "findings": findings or [],
+        "criterion_coverage": coverage or [],
+    }
+
+
+def finding(human=False):
+    return {
+        "id": "F-001",
+        "criterion_id": "FAL-01",
+        "severity": "high",
+        "observation": "transition was not proved",
+        "evidence_reference": "run:test",
+        "claim_status": "not_supported",
+        "minimum_remediation": "add transition evidence",
+        "human_decision_required": human,
+    }
+
+
+def to_reviewing(manifest):
+    value, _, _ = frozen(manifest)
+    value = transition(value, "executing", "executor", "begin")
+    value = transition(value, "evidence_ready", "collector", "collected")
+    return transition(value, "reviewing", "forge", "packet ready")
+
+
+def test_fixture_schema_validates(manifest):
+    validate_manifest(manifest)
+
+
+def test_required_field_is_enforced(manifest):
+    del manifest["scope"]
+    with pytest.raises(ContractError, match="missing required"):
+        validate_manifest(manifest)
+
+
+def test_process_level_is_enforced(manifest):
+    manifest["process_level"] = "extreme"
+    with pytest.raises(ContractError, match="process level"):
+        validate_manifest(manifest)
+
+
+def test_local_risk_dimensions_are_complete(manifest):
+    del manifest["risk"]["dimensions"]["uncertainty"]
+    with pytest.raises(ContractError, match="dimensions"):
+        validate_manifest(manifest)
+
+
+def test_risk_override_requires_human_rationale(manifest):
+    manifest["risk"]["human_override"] = True
+    with pytest.raises(ContractError, match="rationale"):
+        validate_manifest(manifest)
+
+
+def test_ready_can_enter_executing(manifest):
+    result = transition(manifest, "executing", "executor", "authorized")
+    assert result["state"] == "executing"
+    assert result["history"][0]["sequence"] == 1
+
+
+def test_invalid_transition_is_rejected(manifest):
+    with pytest.raises(ContractError, match="invalid transition"):
+        transition(manifest, "accepted", "executor", "self approval")
+
+
+def test_append_only_history_chain_is_validated(manifest):
+    value = transition(manifest, "executing", "executor", "begin")
+    value["history"][0]["sequence"] = 2
+    with pytest.raises(ContractError, match="append-only"):
+        validate_manifest(value)
+
+
+def test_deterministic_prompt_and_hash(manifest):
+    p1, m1 = compile_prompt(manifest)
+    p2, m2 = compile_prompt(deepcopy(manifest))
+    assert p1 == p2
+    assert m1 == m2
+    assert m1["prompt_hash"] == sha256(p1.encode())
+
+
+def test_frozen_criteria_cannot_change(manifest):
+    value, _, _ = frozen(manifest)
+    value["criteria"][0]["text"] = "new requirement"
+    with pytest.raises(ContractError, match="frozen contract"):
+        assert_frozen(value)
+
+
+def test_frozen_scope_cannot_change(manifest):
+    value, _, _ = frozen(manifest)
+    value["scope"].append("src/audio")
+    with pytest.raises(ContractError, match="frozen contract"):
+        assert_frozen(value)
+
+
+def test_allowed_file_is_accepted(manifest):
+    validate_changed_files(manifest, ["forge/adaptive_loop.py"])
+
+
+def test_forbidden_file_blocks_progression(manifest):
+    with pytest.raises(ContractError, match="forbidden file"):
+        validate_changed_files(manifest, ["src/AudioRecorder/App.cs"])
+
+
+def test_evidence_provenance_is_present(manifest):
+    command = {"command": ["pytest"], "exit_code": 0, "elapsed_seconds": 1, "provenance": "fixture"}
+    record = create_run_record(
+        manifest, [command], {"changed_files": [], "tests": {"status": "passed"}}
+    )
+    assert record["provenance"]["commands"] == "raw command result and exit code"
+    assert record["record_hash"]
+
+
+def test_missing_fields_are_marked_not_invented(manifest):
+    record = create_run_record(manifest, [], {"changed_files": []})
+    assert record["tests"] == "unknown"
+    assert record["cost"] == "not available"
+
+
+def test_false_green_test_claim_is_rejected(manifest):
+    with pytest.raises(ContractError, match="lacks command evidence"):
+        create_run_record(manifest, [], {"changed_files": [], "tests": {"status": "passed"}})
+
+
+def test_secret_redaction():
+    assert redact("token=abc123") == "[REDACTED]"
+    assert "secret" not in redact({"x": "Bearer secret"})["x"].lower()
+
+
+def test_reviewer_packet_is_reproducible(manifest):
+    value, _, _ = frozen(manifest)
+    record = create_run_record(value, [], {"changed_files": []})
+    one = reviewer_packet(value, record, "diff", [])
+    two = reviewer_packet(value, record, "diff", [])
+    assert one == two
+    assert one["mode"] == "read_only_adversarial"
+
+
+@pytest.mark.parametrize("result", ["CORRECTION_REQUIRED", "BLOCKED", "INCONCLUSIVE"])
+def test_review_results_validate(manifest, result):
+    validate_review(review(result, [finding()]), manifest)
+
+
+def test_pass_needs_complete_criterion_coverage(manifest):
+    with pytest.raises(ContractError, match="complete criterion"):
+        validate_review(review("PASS", coverage=["FAL-01"]), manifest)
+
+
+def test_pass_makes_gate_eligible_but_not_closed(manifest):
+    value = to_reviewing(manifest)
+    result = apply_review(value, review("PASS", coverage=["FAL-01", "FAL-02"]))
+    assert result["state"] == "accepted"
+    assert result["state"] != "closed"
+
+
+def test_reviewer_requests_bounded_correction(manifest):
+    result = apply_review(to_reviewing(manifest), review("CORRECTION_REQUIRED", [finding()]))
+    assert result["state"] == "correction_required"
+
+
+def test_human_finding_escalates(manifest):
+    result = apply_review(to_reviewing(manifest), review("CORRECTION_REQUIRED", [finding(True)]))
+    assert result["state"] == "awaiting_human"
+
+
+@pytest.mark.parametrize("outcome", ["BLOCKED", "INCONCLUSIVE"])
+def test_adverse_result_never_becomes_pass(manifest, outcome):
+    result = apply_review(to_reviewing(manifest), review(outcome, [finding()]))
+    assert result["state"] == "blocked"
+
+
+def test_correction_one_starts_without_changing_contract(manifest):
+    value = apply_review(to_reviewing(manifest), review("CORRECTION_REQUIRED", [finding()]))
+    result = start_correction(value, ["F-001"], "old", "new")
+    assert result["state"] == "executing"
+    assert result["correction_count"] == 1
+    assert_frozen(result)
+
+
+def test_third_correction_is_stopped(manifest):
+    value = apply_review(to_reviewing(manifest), review("CORRECTION_REQUIRED", [finding()]))
+    value["correction_count"] = 2
+    result = start_correction(value, ["F-001"], "old", "new")
+    assert result["state"] == "blocked"
+
+
+def test_new_run_id_does_not_reset_budget(manifest):
+    value = apply_review(to_reviewing(manifest), review("CORRECTION_REQUIRED", [finding()]))
+    value["correction_count"] = 2
+    value["run"]["id"] = "RUN-NEW"
+    result = start_correction(value, ["F-001"], "old", "new")
+    assert result["state"] == "blocked"
+
+
+def test_unchanged_diff_stops_as_no_progress(manifest):
+    value = apply_review(to_reviewing(manifest), review("CORRECTION_REQUIRED", [finding()]))
+    result = start_correction(value, ["F-001"], "same", "same")
+    assert result["state"] == "blocked"
+    assert "no progress" in result["history"][-1]["reason"]
+
+
+def test_decision_card_has_no_silent_default():
+    card = decision_card(
+        "DC-001",
+        "Accept residual risk?",
+        "residual_risk",
+        "Product Owner",
+        [
+            {"id": "accept", "consequence": "risk retained", "reversibility": "medium"},
+            {"id": "reject", "consequence": "work blocked", "reversibility": "high"},
+        ],
+        "reject",
+        "acceptance",
+        "before acceptance",
+    )
+    assert card["status"] == "pending"
+    assert "selected" not in card
+
+
+def test_non_human_decision_type_is_rejected():
+    with pytest.raises(ContractError):
+        decision_card("D", "Q", "formatting", "Codex", [{"id": "a"}, {"id": "b"}], "a", "x", "now")
+
+
+def test_command_collector_records_exit_code_and_partial_result(tmp_path):
+    result = collect_command(
+        ["python", "-c", "import sys; print('partial'); sys.exit(3)"], tmp_path
+    )
+    assert result["exit_code"] == 3
+    assert "partial" in result["stdout"]
+    assert result["provenance"] == "subprocess.run"
+
+
+def test_command_timeout_is_explicit(tmp_path):
+    result = collect_command(["python", "-c", "import time; time.sleep(1)"], tmp_path, timeout=0.01)
+    assert result["status"] == "timeout"
+    assert result["exit_code"] == "not available"
+
+
+def test_interrupted_run_can_be_reopened_only_through_policy(manifest):
+    manifest["state"] = "awaiting_human"
+    assert transition(manifest, "ready", "human", "resume approved")["state"] == "ready"
+
+
+def test_audio_recorder_baseline_fixture_is_unchanged():
+    import subprocess
+
+    repo = Path.home() / "Documents" / "Audio-Recorder"
+    if not repo.exists():
+        pytest.skip("Audio Recorder repository is not present")
+    head = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+    status = subprocess.check_output(["git", "-C", str(repo), "status", "--porcelain"], text=True)
+    assert head == "ae09df414060664de85daf8d5b394bb7d7744f9f"
+    assert status == ""

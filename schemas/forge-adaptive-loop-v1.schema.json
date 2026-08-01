@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.local/schemas/forge-adaptive-loop-v1.schema.json",
+  "title": "Forge Adaptive Loop V1 gate state",
+  "type": "object",
+  "required": ["schema_version", "forge_version", "project", "repository", "capability_id", "gate", "gate_id", "capability_status", "process_level", "risk", "decision_owners", "scope", "non_goals", "criteria", "allowed_paths", "forbidden_operations", "evidence_requirements", "command_policy", "state", "previous_state", "history", "run", "baseline_commit", "correction_count", "max_corrections", "pending_decisions", "reviewer_identity", "next_allowed_gate"],
+  "properties": {
+    "schema_version": {"const": "forge-adaptive-loop/1.0"},
+    "process_level": {"enum": ["lite", "standard", "high_assurance"]},
+    "state": {"enum": ["draft", "awaiting_human", "ready", "executing", "evidence_ready", "reviewing", "correction_required", "blocked", "accepted", "closed"]},
+    "correction_count": {"type": "integer", "minimum": 0, "maximum": 2},
+    "max_corrections": {"type": "integer", "minimum": 0, "maximum": 2},
+    "history": {"type": "array"},
+    "criteria": {"type": "array", "minItems": 1},
+    "pending_decisions": {"type": "array"}
+  },
+  "additionalProperties": true
+}

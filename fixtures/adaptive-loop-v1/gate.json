@@ -1,0 +1,39 @@
+{
+  "schema_version": "forge-adaptive-loop/1.0",
+  "forge_version": "0.5.0",
+  "project": "Forge",
+  "repository": "forge-ai-sef",
+  "capability_id": "FORGE-ADAPTIVE-LOOP-V1",
+  "gate": "process-improvement",
+  "gate_id": "GATE-FAL-001",
+  "capability_status": "authorized",
+  "process_level": "high_assurance",
+  "risk": {
+    "level": "high_assurance",
+    "rationale": "State authority and correction policy affect governance integrity.",
+    "dimensions": {"consequence": 4, "uncertainty": 3, "irreversibility": 2, "evidence_difficulty": 4, "external_impact": 1, "security_data_integrity": 4},
+    "human_override": false,
+    "override_rationale": null
+  },
+  "decision_owners": {"product": "human", "scope": "human", "risk_acceptance": "human", "technical_details": "codex", "policy": "forge"},
+  "scope": ["forge/adaptive_loop.py", "schemas/", "fixtures/adaptive-loop-v1/", "tests/test_adaptive_loop.py", "docs/"],
+  "non_goals": ["Audio Recorder changes", "album capability", "release automation", "general multi-agent platform"],
+  "criteria": [
+    {"id": "FAL-01", "text": "State transitions are deterministic", "truth_authority": "tests and transition table", "risk": "high_assurance"},
+    {"id": "FAL-02", "text": "Evidence retains provenance", "truth_authority": "validated run record", "risk": "high_assurance"}
+  ],
+  "allowed_paths": ["forge", "schemas", "fixtures/adaptive-loop-v1", "tests", "docs"],
+  "forbidden_operations": ["push", "tag", "merge", "release", "packaging", "distribution", "version_change", "history_rewrite", "destructive_git", "os_restart", "os_shutdown", "external_message", "credential_reuse"],
+  "evidence_requirements": ["pytest", "ruff", "git diff --check", "project memory health"],
+  "command_policy": {"allow": ["python -m pytest", "python -m ruff", "git diff --check", "python -m forge status"], "deny_shell": true},
+  "state": "ready",
+  "previous_state": null,
+  "history": [],
+  "run": {"id": "RUN-FAL-DEMO-001", "started_at": "2026-08-01T12:00:00Z", "working_directory": ".", "executor_identity": "fake-executor", "frozen_hash": null, "prompt_hash": null},
+  "baseline_commit": "21d3802df3e0f5a51ea692327fda3995f8d73eb0",
+  "correction_count": 0,
+  "max_corrections": 2,
+  "pending_decisions": [],
+  "reviewer_identity": "fresh-read-only-reviewer-fixture",
+  "next_allowed_gate": "human-acceptance"
+}
