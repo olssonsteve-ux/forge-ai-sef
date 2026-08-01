@@ -66,8 +66,11 @@ Forge may eventually include:
 
 ## Current Decisions
 
-- Keep Forge Adaptive Loop V1 blocked after `IR-FAL-001`; two correction rounds are exhausted and
-  any further work requires explicit resolution of `DC-FAL-001`.
+- Preserve `IR-FAL-001`, the two exhausted automatic correction rounds and the resolved
+  `DC-FAL-001`/`HD-FAL-001` authorization as immutable correction-series history.
+- Preserve `IR-FAL-002` as the result of the consumed `HD-FAL-001` human-bounded correction. The
+  local append-only ledger finding closed, but closure authority, nested schema semantics and
+  criterion/reviewer proof remain blocking; further work requires `DC-FAL-002`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

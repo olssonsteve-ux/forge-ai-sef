@@ -2,9 +2,11 @@
 
 ## Status
 
-Forge Adaptive Loop V1 is `Blocked` after independent High-Assurance review and two consumed
-correction rounds. `IR-FAL-001` retains four material findings. `DC-FAL-001` awaits a human decision
-before any further correction work. No release or Audio Recorder product work was authorized.
+Forge Adaptive Loop V1 remains `Blocked`. `HD-FAL-001` authorized and consumed one separate human
+bounded correction after two automatic rounds. Final read-only review `IR-FAL-002` closed
+`FINAL-F-03` but returned `CORRECTION_REQUIRED` for three findings. `DC-FAL-002` awaits a human
+disposition. FAL-001 is not closure-eligible or closed. No release or Audio Recorder product work
+was authorized.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -19,7 +21,7 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Resolve `DC-FAL-001` separately. No further Adaptive Loop correction, release work, or Audio Recorder
+Resolve `DC-FAL-002` separately. No further Adaptive Loop correction, release work, or Audio Recorder
 product work is active.
 
 ## What Exists
