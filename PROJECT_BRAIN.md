@@ -76,6 +76,9 @@ Forge may eventually include:
 - Treat FAL-002 as a new Standard-Assurance design: small bounded engineering core, canonical
   boundary model, criterion-bound evidence with reviewer semantic rationale, honest fresh read-only
   review, and High Assurance deferred to a separate future profile.
+- Treat the FAL-002 specification as approved for Implementation Planning under `HD-FAL-006`; all
+  four specification findings are closed. `EB-006` is the bounded implementation plan and must pass
+  human review before a separate decision may authorize implementation.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

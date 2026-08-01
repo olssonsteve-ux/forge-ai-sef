@@ -11,10 +11,10 @@ Forge's motto is: Build software with intention.
 ## Current Repository State
 
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. Never correct, accept, close or
-restart it. FAL-002 is specification-only and ready for separate human review; do not implement it
-without accepted review and a bounded Engineering Brief. Its authority is
-`docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md` with the explicit reuse
-matrix and first-trial measurement plan. The album capability remains unstarted.
+restart it. The FAL-002 specification is approved for Implementation Planning under `HD-FAL-006`;
+all four specification findings are closed. `EB-006` is `AWAITING HUMAN REVIEW`. Do not implement
+FAL-002 without accepted brief review and a separate explicit Implementation Authorization decision.
+The album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -206,7 +206,9 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Select the next Forge work item separately through the governed Product Owner workflow.
+Conduct human review of `EB-006` (`docs/engineering/EB-006-Implement-FAL-002-Standard-Assurance-Loop.md`).
+A review result is decision input only: do not start implementation until a separate human decision
+explicitly authorizes it and names the accepted brief and baseline.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

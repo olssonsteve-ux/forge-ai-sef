@@ -4,8 +4,9 @@
 
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
-FAL-002 Standard Assurance Bounded Engineering Loop is `Specified — ready for human review`.
-Implementation is not authorized. No release or Audio Recorder product work was authorized.
+FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
+Implementation Planning is complete in `EB-006`, which is `AWAITING HUMAN REVIEW`. Implementation
+is not authorized. No release or Audio Recorder product work was authorized.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -20,9 +21,9 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct a separate human/design review of FAL-002. Do not implement it before acceptance and a
-bounded Engineering Brief. Manual Digital Album Authoring and Export remains the next product gate
-but is not started in this process-design gate.
+Conduct human review of `EB-006`. Do not implement FAL-002 without a reviewed brief and a separate
+explicit Implementation Authorization decision. Manual Digital Album Authoring and Export remains
+the next product gate but is not started in this process-design gate.
 
 ## What Exists
 
@@ -133,6 +134,9 @@ but is not started in this process-design gate.
 - DAR-EB-0004 formal implementation review with final decision `PASS`
 - committed EB-005 implementation at `8d1ccb9854ec51c0235a06253c85019780309c32`
 - closed EB-005 Engineering Brief and CS-002.3 Capability Slice
+- human-approved FAL-002 specification with all `FAL2-HR-001`–`FAL2-HR-004` findings closed
+- `HD-FAL-006` authorization for FAL-002 Implementation Planning only
+- bounded `EB-006` implementation plan awaiting human review; implementation unauthorized
 
 ## What Does Not Exist
 

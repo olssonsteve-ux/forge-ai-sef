@@ -1,10 +1,11 @@
 # FAL-002 — Standard Assurance Bounded Engineering Loop
 
-Status: `AWAITING TARGETED HUMAN REVIEW — specification-only; implementation not authorized`
+Status: `SPECIFICATION APPROVED — Implementation Planning complete; implementation not authorized`
 
 Owner: Forge Design Authority
 
-Decision basis: `HD-FAL-002`, revised under `HD-FAL-003`, `HD-FAL-004` and `HD-FAL-005`
+Decision basis: `HD-FAL-002`, revised under `HD-FAL-003`, `HD-FAL-004` and `HD-FAL-005`; approved
+for Implementation Planning by `HD-FAL-006`
 
 Predecessor disposition: `DISP-FAL-001` (`TERMINATED BLOCKED`)
 
