@@ -118,11 +118,23 @@ Forge may eventually include:
   must implement `HD-FAL-012` without redesign, and must stop on specification, architecture,
   surface, dependency or budget authority needs. Findings may become only `ADDRESSED — AWAITING
   INDEPENDENT REVIEW`; FAL-002 remains `NOT AUTHORIZED`.
-- Treat EB-006 sections 34–42 as the completed CORR-011 final contracts. They supersede conflicting
-  earlier exact shapes and define 17 collector commands, full EvidenceBinding/exchange/decision
-  models, deterministic successor recovery, subordinate conflict cards, resolved offline authority,
-  complete-lineage finding lifecycle, exact no-progress and the independent fixture oracle. All
-  eight IR3 findings await fresh independent review; no implementation authority follows.
+- Treat EB-006 sections 34–42 as the completed CORR-011 correction-agent contract claim. They were
+  submitted for independent review with all eight IR3 findings still unverified. Independent IR4
+  now supersedes any implication that these sections are implementation-ready; no implementation
+  authority follows.
+- Treat Independent IR4's canonical outcome as `FAIL — IMPLEMENTATION AUTHORIZATION NOT
+  RECOMMENDED`; its abbreviated final `FAIL` is a non-material formatting deviation. Preserve all
+  five findings `EB006-IR4-01`–`EB006-IR4-05` as open.
+- Treat `HD-FAL-014` as the binding narrow clarification of `HD-FAL-012`: semantic recovery identity
+  retains intended/obstruction evidence, while pointer-free physical discovery derives only from an
+  authoritative predecessor and publication slot. Non-reconstructable intended bytes require a
+  GateRecord publication-intent commitment before final publication. Exact ordinal candidate lookup
+  is authoritative only through a valid RECOVERY_ROOT; directory presence is never authority.
+- Preserve one stable semantic `decision_identity` across physical recovery. A successor may rebind
+  its HumanDecisionRecord locator/hash with an incremented binding generation, but may not mint a
+  new governance question merely to escape a collision. Complete-lineage lookup uses only validated
+  GateRecord bindings. IR4-03 remains open with architecture authority provided; IR4-04 remains open
+  with its architecture dependency removed. CORR-012 and FAL-002 implementation are not authorized.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

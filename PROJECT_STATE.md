@@ -5,14 +5,16 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-The fresh independent IR3 review of the `HD-FAL-010` correction returned
-`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with eight blocking findings,
-`EB006-IR3-01` through `EB006-IR3-08`. The `HD-FAL-013`-authorized CORR-011 documentation correction
-is complete: EB-006 now defines final evidence/exchange models, independently reproducible fixtures,
-the `HD-FAL-012` successor recovery lineage, total conflict cards, collector version/offline evidence,
-complete-lineage finding lifecycle and deterministic no-progress. Every IR3 finding is only
-`ADDRESSED — AWAITING INDEPENDENT REVIEW`. FAL-002 remains `NOT AUTHORIZED` under the unchanged
-1,660 expected / 1,800 maximum LOC envelope.
+Independent IR4 of the CORR-011-corrected EB-006 has canonical outcome
+`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with five open blocking findings,
+`EB006-IR4-01` through `EB006-IR4-05`. `HD-FAL-014` is accepted as a narrow clarification of
+`HD-FAL-012`: physical recovery discovery now derives from authoritative predecessor/publication-slot
+facts, semantic recovery identity separately retains intended/obstruction evidence, and one stable
+pending decision identity may be rebound to a new physical HumanDecisionRecord locator across
+successor segments. Its effect on IR4-03 is only `ARCHITECTURE AUTHORITY PROVIDED — FINDING REMAINS
+OPEN`; it also removes the architecture dependency for later IR4-04 correction without correcting
+that finding. All five IR4 findings remain open, CORR-012 is `NOT AUTHORIZED`, and FAL-002 remains
+`NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -27,9 +29,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct a fresh independent read-only Standard-Assurance Review of the complete CORR-011-corrected
-EB-006. Do not implement FAL-002. Manual Digital Album Authoring and Export remains unstarted and
-unauthorized.
+Consider a separate Human Decision on whether to authorize one bounded CORR-012 documentation
+correction campaign for `EB006-IR4-01` through `EB006-IR4-05`. Do not correct EB-006 or implement
+FAL-002 without that separate authority. Manual Digital Album Authoring and Export remains unstarted
+and unauthorized.
 
 ## What Exists
 
@@ -157,6 +160,11 @@ unauthorized.
   documentation correction campaign; no finding closure or FAL-002 implementation authority
 - completed CORR-011 documentation correction with all eight IR3 findings only
   `ADDRESSED — AWAITING INDEPENDENT REVIEW`
+- independent IR4 canonical outcome `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with five
+  open blocking findings, `EB006-IR4-01` through `EB006-IR4-05`
+- accepted `HD-FAL-014` pointer-free recovery-discovery and decision-continuity clarification;
+  IR4-03 remains open with architecture authority provided, IR4-04's architecture dependency is
+  removed but the finding remains open, and CORR-012/FAL-002 implementation remain unauthorized
 
 ## What Does Not Exist
 
@@ -290,6 +298,8 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Select the next Forge work item separately through Product Owner and architecture governance.
-2. Keep FCS-002 active for future separately governed slices.
-3. Keep `v0.5.0` in `Planned`; no release work is authorized by this closeout.
+1. Create a separate Human Decision only if governance chooses to authorize the bounded
+   `CORR-012-01`–`CORR-012-05` EB-006 documentation correction.
+2. Keep FAL-002 implementation `NOT AUTHORIZED` and all five IR4 findings open until correction and
+   fresh independent review occur.
+3. Keep FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized by HD-FAL-014.

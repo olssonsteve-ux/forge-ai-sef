@@ -12,16 +12,16 @@ Forge's motto is: Build software with intention.
 
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
 correct, accept, close or restart it. The FAL-002 specification is approved for Implementation
-Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. The fresh independent IR3
-review of corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with all
-eight findings `EB006-IR3-01`–`EB006-IR3-08` blocking. `HD-FAL-012` now selects deterministic
-successor state-series segments as one logical authoritative lineage. The recovery root remains a
-GateRecord and conflict cards remain HumanDecisionRecords, so no sixth surface or mutable global
-pointer is introduced. The `HD-FAL-013` CORR-011 correction is documentation-complete in EB-006
-sections 34–42. All `EB006-IR3-01`–`EB006-IR3-08` findings remain only `ADDRESSED — AWAITING
-INDEPENDENT REVIEW`; none is verified or closed. The `HD-FAL-009` envelope remains approximately
-1,660 expected and at most 1,800 new production LOC. FAL-002 remains `NOT AUTHORIZED`; the album
-capability remains unstarted.
+Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. Independent IR4 of corrected
+EB-006 has canonical outcome `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with five open
+blocking findings, `EB006-IR4-01`–`EB006-IR4-05`. `HD-FAL-014` is accepted as a narrow clarification
+of `HD-FAL-012`: semantic recovery identity is distinct from predecessor/publication-slot-derived
+physical discovery, non-reconstructable output requires an existing-surface GateRecord publication
+intent, and a stable pending `decision_identity` may be physically rebound across successor segments.
+IR4-03 remains open with architecture authority provided; IR4-04 remains open with its architecture
+dependency removed. No finding is verified or closed. CORR-012 and FAL-002 implementation remain
+`NOT AUTHORIZED`. The `HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800
+new production LOC; the album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -213,10 +213,10 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Conduct a fresh independent read-only Standard-Assurance Review of corrected EB-006 sections 34–42
-and their precedence over historical clauses. Reassess all eight IR3 findings, recovery/card crash
-paths, fixture independence, finding carry-forward, no-progress, five-surface boundary and budget.
-Even a later PASS still requires separate Implementation Authorization.
+The next permitted FAL-002 governance step is a separate Human Decision considering authorization
+of one bounded `CORR-012-01`–`CORR-012-05` EB-006 documentation correction for the five open IR4
+findings. HD-FAL-014 does not authorize that correction. Do not modify EB-006, implement FAL-002,
+verify/close a finding or infer Implementation Authorization without the separate decision.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
