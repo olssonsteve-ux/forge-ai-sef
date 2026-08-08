@@ -1,0 +1,236 @@
+{
+  "$id": "fal002.gate-record.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actor": {},
+    "created_at": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+      "type": "string"
+    },
+    "event": {},
+    "payload": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint": {
+          "additionalProperties": false,
+          "properties": {
+            "decision_id": {},
+            "interruption_id": {},
+            "reason_code": {},
+            "resume_state": {},
+            "source_hashes": {},
+            "source_record_ids": {},
+            "staging_path": {}
+          },
+          "type": "object"
+        },
+        "closure": {
+          "additionalProperties": false,
+          "properties": {
+            "decision_hash": {},
+            "decision_id": {},
+            "eligible_gate_hash": {},
+            "eligible_gate_id": {}
+          },
+          "type": "object"
+        },
+        "control": {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {},
+            "decision_applications": {},
+            "decision_bindings": {},
+            "decision_requirements": {},
+            "diff_hash": {},
+            "evidence_hash": {},
+            "finding_checkpoint": {},
+            "finding_events": {},
+            "finding_ids": {},
+            "ordinal": {},
+            "progress": {}
+          },
+          "type": "object"
+        },
+        "correction_count": {},
+        "eligibility": {
+          "additionalProperties": false,
+          "properties": {
+            "criterion_ids": {},
+            "eligible": {},
+            "finding_ids": {},
+            "review_hash": {},
+            "review_id": {}
+          },
+          "type": "object"
+        },
+        "evidence": {
+          "additionalProperties": false,
+          "properties": {
+            "command_ids": {},
+            "evidence_hash": {},
+            "execution_id": {},
+            "run_id": {},
+            "run_record_hash": {}
+          },
+          "type": "object"
+        },
+        "execution": {
+          "additionalProperties": false,
+          "properties": {
+            "execution_id": {},
+            "invocation_grant": {},
+            "ordinal": {},
+            "request": {},
+            "request_hash": {},
+            "request_kind": {},
+            "run_id": {}
+          },
+          "type": "object"
+        },
+        "frozen_hash": {},
+        "inventory": {
+          "additionalProperties": false,
+          "properties": {
+            "baseline_commit": {},
+            "counts": {},
+            "dependencies": {},
+            "disposition": {},
+            "edges": {},
+            "entrypoint": {},
+            "exemptions": {},
+            "files": {},
+            "python_version": {},
+            "unresolved_targets": {}
+          },
+          "type": "object"
+        },
+        "manifest": {
+          "additionalProperties": false,
+          "properties": {
+            "allowed_paths": {},
+            "command_policy_hash": {},
+            "criteria_hash": {},
+            "decision_applications": {},
+            "decision_bindings": {},
+            "decision_requirements": {},
+            "executor_adapter_id": {},
+            "executor_principal_id": {},
+            "finding_checkpoint": {},
+            "offline_evidence": {},
+            "reviewer_adapter_id": {},
+            "reviewer_principal_id": {},
+            "scope_hash": {}
+          },
+          "type": "object"
+        },
+        "publication_intent": {
+          "additionalProperties": false,
+          "properties": {
+            "intended_file_hash": {},
+            "intended_record_hash": {},
+            "intent_commitment_hash": {},
+            "retained_state": {},
+            "slot": {},
+            "source_authority": {},
+            "source_record_hash": {},
+            "source_record_id": {},
+            "stage_attempt": {},
+            "stage_file_hash": {},
+            "stage_locator": {}
+          },
+          "type": "object"
+        },
+        "recovery_root": {
+          "additionalProperties": false,
+          "properties": {
+            "active_decision_bindings": {},
+            "allowed_paths_hash": {},
+            "applied_decisions": {},
+            "command_policy_hash": {},
+            "correction_count": {},
+            "criteria_hash": {},
+            "finding_checkpoint": {},
+            "frozen_hash": {},
+            "intended_decision_record_hash": {},
+            "intended_decision_record_id": {},
+            "max_prior_ordinal": {},
+            "no_progress_history": {},
+            "obstruction": {},
+            "origin_series_id": {},
+            "pending_decisions": {},
+            "predecessor_gate_hash": {},
+            "predecessor_gate_id": {},
+            "predecessor_sealed": {},
+            "predecessor_series_id": {},
+            "publication_slot": {},
+            "recovery_condition_hash": {},
+            "recovery_discovery_key": {},
+            "recovery_discovery_material": {},
+            "recovery_ordinal": {},
+            "retained_state": {},
+            "scope_hash": {},
+            "successor_series_id": {}
+          },
+          "type": "object"
+        },
+        "review": {
+          "additionalProperties": false,
+          "properties": {
+            "invocation_grant": {},
+            "ordinal": {},
+            "packet": {},
+            "packet_hash": {},
+            "review_id": {},
+            "run_id": {}
+          },
+          "type": "object"
+        },
+        "variant_kind": {}
+      },
+      "type": "object"
+    },
+    "payload_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "predecessor": {},
+    "record_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "record_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_id": {
+      "const": "fal002.gate-record.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "sequence": {},
+    "series_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "state": {}
+  },
+  "required": [
+    "actor",
+    "created_at",
+    "event",
+    "payload",
+    "payload_hash",
+    "predecessor",
+    "record_hash",
+    "record_id",
+    "schema_id",
+    "schema_version",
+    "sequence",
+    "series_id",
+    "state"
+  ],
+  "title": "GateRecord",
+  "type": "object"
+}

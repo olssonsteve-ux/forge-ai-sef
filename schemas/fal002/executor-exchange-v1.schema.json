@@ -1,0 +1,91 @@
+{
+  "$id": "fal002.executor-exchange.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "created_at": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+      "type": "string"
+    },
+    "invocation": {
+      "additionalProperties": false,
+      "properties": {
+        "grant": {},
+        "observed": {}
+      },
+      "type": "object"
+    },
+    "ordinal": {},
+    "payload_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "record_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "record_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "request": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_paths": {},
+        "command_ids": {},
+        "correction_count": {},
+        "criteria": {},
+        "execution_id": {},
+        "frozen_hash": {},
+        "request_kind": {},
+        "scope": {},
+        "work_packet_hash": {}
+      },
+      "type": "object"
+    },
+    "result": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "changed_paths": {},
+            "error_code": {},
+            "status": {},
+            "summary": {}
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "run_id": {},
+    "schema_id": {
+      "const": "fal002.executor-exchange.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "series_id": {
+      "format": "uuid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "created_at",
+    "invocation",
+    "ordinal",
+    "payload_hash",
+    "record_hash",
+    "record_id",
+    "request",
+    "result",
+    "run_id",
+    "schema_id",
+    "schema_version",
+    "series_id"
+  ],
+  "title": "ExecutorExchange",
+  "type": "object"
+}

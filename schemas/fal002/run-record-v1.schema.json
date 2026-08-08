@@ -1,0 +1,89 @@
+{
+  "$id": "fal002.run-record.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "build": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {},
+        "status": {}
+      },
+      "type": "object"
+    },
+    "commands": {},
+    "created_at": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+      "type": "string"
+    },
+    "diff": {},
+    "execution_id": {},
+    "ordinal": {},
+    "payload_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "record_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "record_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "repository": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_head": {},
+        "branch": {},
+        "changed_paths": {},
+        "final_head": {},
+        "offline_evidence_id": {},
+        "offline_evidence_record_hash": {},
+        "root": {},
+        "status": {}
+      },
+      "type": "object"
+    },
+    "runtime": {
+      "additionalProperties": false,
+      "properties": {
+        "python_executable": {},
+        "python_executable_sha256": {},
+        "python_implementation": {},
+        "python_version": {}
+      },
+      "type": "object"
+    },
+    "schema_id": {
+      "const": "fal002.run-record.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "series_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "tools": {}
+  },
+  "required": [
+    "build",
+    "commands",
+    "created_at",
+    "diff",
+    "execution_id",
+    "ordinal",
+    "payload_hash",
+    "record_hash",
+    "record_id",
+    "repository",
+    "runtime",
+    "schema_id",
+    "schema_version",
+    "series_id",
+    "tools"
+  ],
+  "title": "RunRecord",
+  "type": "object"
+}

@@ -241,6 +241,12 @@ Forge may eventually include:
   adapters, zero dependencies and the 1,660 expected / 1,800 maximum LOC envelope. Any binding stop
   condition returns to governance. Implementation and its later independent review require separate
   changes; neither acceptance nor closure is inferred.
+- Treat the FAL-002 implementation commit containing
+  `docs/engineering/FAL-002-implementation-review-handoff.md` as `Implemented` and awaiting fresh
+  independent implementation review. It uses exactly four new production modules, 1,777/1,800
+  counted LOC, one executor adapter, one reviewer adapter, five persisted/external surfaces and no
+  new dependency. Implementation does not close the independently verified planning findings,
+  accept/close FAL-002, authorize release or start the album capability.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

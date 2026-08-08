@@ -10,9 +10,10 @@ Independent IR10 of the CORR-017 baseline at
 `PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
 `EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and concluded that
 Standard-Assurance planning is complete. `HD-FAL-021` accepts that evidence and authorizes FAL-002
-implementation strictly under the reviewed EB-006 contract. FAL-002 is `Implementation Ready`;
-implementation has not begun. The five-surface boundary, four-module/two-adapter/zero-dependency
-inventory and 1,660 expected / 1,800 maximum production-LOC envelope remain binding. Both IR6
+implementation strictly under the reviewed EB-006 contract. The bounded implementation is now
+`Implemented — awaiting independent implementation review`: four new production modules total
+1,777 counted LOC, one adapter per role, exactly five generated surfaces and zero new dependencies.
+The five-surface boundary and 1,800 maximum production-LOC ceiling remain binding. Both IR6
 findings are `INDEPENDENTLY VERIFIED — NOT CLOSED`. No IR11 is required absent material baseline
 change.
 
@@ -29,10 +30,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Implement FAL-002 according to the EB-006 contract locked at
-`88e53fcbaa31ace83740699cd531f74f2d7e88b6` in a separate implementation change. Stop for governance
-on any `HD-FAL-021` hard-limit or frozen-contract breach, then perform a fresh independent
-implementation review. Manual Digital Album Authoring and Export remains unstarted and unauthorized.
+Perform a fresh independent implementation review of the committed FAL-002 runtime, schemas, tests
+and `docs/engineering/FAL-002-implementation-review-handoff.md` against EB-006, HD-FAL-021 and the
+frozen contracts. Do not accept or close FAL-002 from implementation evidence alone. Manual Digital
+Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -233,6 +234,10 @@ implementation review. Manual Digital Album Authoring and Export remains unstart
 - accepted `HD-FAL-021` authorization to implement FAL-002 strictly under the reviewed EB-006
   contract; FAL-002 is `Implementation Ready`, implementation has not begun, both IR6 findings
   remain verified but not closed, and a fresh independent implementation review remains mandatory
+- implemented the bounded FAL-002 runtime in exactly four new production modules with five generated
+  schemas, one executor and one reviewer adapter, deterministic canonical/hash/persistence/recovery/
+  decision/finding/governance behavior, 30 focused tests and no new dependency; deterministic
+  inventory is 1,777/1,800 LOC and status is `Implemented` pending independent implementation review
 
 ## What Does Not Exist
 
@@ -366,7 +371,7 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Implement FAL-002 according to EB-006 in a separate implementation change from the authorized
-   post-`HD-FAL-021` baseline, stopping for governance on any binding stop condition.
-2. Perform a fresh independent implementation review after implementation. Keep both IR6 findings
+1. Perform a fresh independent implementation review of the committed FAL-002 implementation
+   against EB-006, HD-FAL-021, the frozen contracts and the implementation-review handoff.
+2. Keep FAL-002 unaccepted and unclosed pending that review. Keep both IR6 findings
    verified but not closed, FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.

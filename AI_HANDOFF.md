@@ -15,12 +15,12 @@ correct, accept, close or restart it. Independent IR10 of the CORR-017 baseline 
 `88e53fcbaa31ace83740699cd531f74f2d7e88b6` returned
 `PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
 `EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and completed
-Standard-Assurance planning. `HD-FAL-021` authorizes FAL-002 implementation strictly under that
-reviewed EB-006 contract. FAL-002 is `Implementation Ready`; implementation has not begun. Both
-IR6 findings remain `INDEPENDENTLY VERIFIED — NOT CLOSED`. Preserve exactly five surfaces, four new
-production modules, two adapters, zero dependencies and the approximately 1,660 expected / 1,800
-maximum production-LOC envelope. Stop for governance on any frozen-contract or hard-limit breach.
-No IR11 is required absent material baseline change. The album capability remains unstarted.
+Standard-Assurance planning. `HD-FAL-021` authorized FAL-002 implementation strictly under that
+reviewed EB-006 contract. The bounded implementation is now `Implemented — awaiting independent
+implementation review`: exactly four new production modules, 1,777/1,800 counted LOC, one adapter
+per role, five generated surfaces, zero new dependencies and 30 focused tests. Both IR6 findings
+remain `INDEPENDENTLY VERIFIED — NOT CLOSED`; implementation does not accept or close FAL-002. No
+IR11 is required absent material planning-baseline change. The album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -212,11 +212,10 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Implement FAL-002 according to EB-006 in a separate implementation change from the authorized
-post-`HD-FAL-021` baseline. Preserve every frozen contract and budget, add the production tests,
-schemas and fixtures authorized by EB-006, and stop for governance on any binding stop condition.
-After implementation, perform a fresh independent implementation review. Do not infer FAL-002
-acceptance, closure or release from implementation completion.
+Perform a fresh independent implementation review of the committed FAL-002 runtime, schemas, tests
+and `docs/engineering/FAL-002-implementation-review-handoff.md` against EB-006, HD-FAL-021, the
+frozen contracts and authorized budget. Do not infer FAL-002 acceptance, closure or release from
+implementation completion or begin the album capability.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

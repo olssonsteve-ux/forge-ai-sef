@@ -1,0 +1,82 @@
+{
+  "$id": "fal002.human-decision.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "binding_generation": {},
+    "created_at": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+      "type": "string"
+    },
+    "decision_identity": {},
+    "decision_kind": {},
+    "owner": {},
+    "payload": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_key": {},
+        "decision_requirement_hash": {},
+        "eligible_gate_hash": {},
+        "eligible_gate_id": {},
+        "finding_ledger_hash": {},
+        "presentation_evidence": {},
+        "resolution_semantic_hash": {},
+        "resolution_semantic_input": {},
+        "review_hash": {},
+        "review_id": {},
+        "semantic_input": {}
+      },
+      "type": "object"
+    },
+    "payload_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "content_hash": {},
+        "locator": {},
+        "source": {}
+      },
+      "type": "object"
+    },
+    "record_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "record_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_id": {
+      "const": "fal002.human-decision.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "series_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "status": {}
+  },
+  "required": [
+    "binding_generation",
+    "created_at",
+    "decision_identity",
+    "decision_kind",
+    "owner",
+    "payload",
+    "payload_hash",
+    "provenance",
+    "record_hash",
+    "record_id",
+    "schema_id",
+    "schema_version",
+    "series_id",
+    "status"
+  ],
+  "title": "HumanDecisionRecord",
+  "type": "object"
+}
