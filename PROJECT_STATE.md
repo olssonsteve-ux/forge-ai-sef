@@ -15,12 +15,17 @@ CORR-013-01/EB006-IR5-01 and recorded two open blocking residual findings, `EB00
 created no new finding. `HD-FAL-018` authorized exactly one final bounded `CORR-015-01` oracle
 documentation correction mapped to `EB006-IR6-02`. Independent IR8 returned
 `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-015-01` is `PARTIALLY VERIFIED`,
-`EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorizes exactly
-one bounded `CORR-016-01` §48 oracle-totality correction mapped to `EB006-IR6-02`. That correction
-is documentation-complete and only `ADDRESSED — AWAITING INDEPENDENT REVIEW`.
-`EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains open, and no finding is
-closed. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC
-envelope.
+`EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorized exactly
+one bounded `CORR-016-01` §48 oracle-totality correction mapped to `EB006-IR6-02`. Independent IR9
+returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-016-01` is `PARTIALLY
+VERIFIED`, `EB006-IR6-02` remains `NOT VERIFIED`, and IR9 created no new finding. IR9 preserved all
+matrix, eligibility, recovery, successor, semantic-answer and five-surface regressions but proved
+that standalone PublicationSlot REHASH retains stale target path/slot identity and accepts wrong
+context. `HD-FAL-020` authorizes exactly one bounded `CORR-017-01` Option-B correction to prohibit
+that unused standalone operation and make dispatch/dependency self-checks executable. Status is
+`AUTHORIZED — NOT STARTED`. `EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains
+open, and no finding is closed. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected /
+1,800 maximum LOC envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -35,10 +40,11 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct one fresh independent read-only Standard-Assurance Review of the dedicated CORR-016
-correction baseline. Preserve every IR8-verified recovery, successor, decision and five-surface
-contract; keep `EB006-IR6-02` open pending that review. Do not implement FAL-002. Manual Digital
-Album Authoring and Export remains unstarted and unauthorized.
+Execute the single `HD-FAL-020`-authorized `CORR-017-01` final-§48 documentation correction in a
+separate commit: prohibit unused standalone PublicationSlot REHASH, strengthen executable dispatch
+and dependency coverage checks, and preserve every IR9-verified regression. Keep `EB006-IR6-02`
+open pending a fresh independent read-only review. Do not implement FAL-002. Manual Digital Album
+Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -218,6 +224,15 @@ Album Authoring and Export remains unstarted and unauthorized.
   24-row affected-matrix gate and canonical eligibility checks for addressed, empty-review,
   CRITICAL, independently verified and recovery-carried finding state. Status is only
   `ADDRESSED — AWAITING INDEPENDENT REVIEW`; `EB006-IR6-02` remains open
+- independent IR9 outcome `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`; it partially
+  verified CORR-016, preserved `EB006-IR6-01`, created no new finding and verified every matrix,
+  eligibility, recovery, successor, semantic-answer and five-surface regression. Its sole remaining
+  residual under `EB006-IR6-02` is standalone PublicationSlot REHASH plus the self-check that misses
+  its absent executable closure
+- accepted `HD-FAL-020` authorization for exactly one bounded `CORR-017-01` Option-B documentation
+  correction: prohibit unused standalone PublicationSlot REHASH, require executable dispatch and
+  derived-descendant coverage checks, and preserve the verified GateRecord publication-intent path.
+  Status is `AUTHORIZED — NOT STARTED`; this is not Implementation Authorization
 
 ## What Does Not Exist
 
@@ -351,7 +366,7 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Conduct one fresh independent read-only Standard-Assurance Review of the dedicated CORR-016
-   correction baseline.
+1. Execute the single `HD-FAL-020`-authorized `CORR-017-01` final-§48 documentation correction in one
+   separate commit, followed by one fresh independent read-only Standard-Assurance Review.
 2. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending that review,
    FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.

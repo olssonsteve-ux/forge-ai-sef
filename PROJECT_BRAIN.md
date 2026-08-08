@@ -211,6 +211,18 @@ Forge may eventually include:
   review never verifies an addressed blocker; CRITICAL blocks; exact independent absence clears
   only that finding blocker. Recovery depth three, successor execution and semantic answer
   relocation remain regression-green. `EB006-IR6-02` remains open pending independent review.
+- Treat IR9's canonical outcome as `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`.
+  `CORR-016-01` is `PARTIALLY VERIFIED`; `EB006-IR6-02` is `NOT VERIFIED`, open and blocking; IR9
+  created no new finding. Preserve its verified matrix, eligibility, recovery depth-three,
+  successor Run/Review, semantic-answer, finding/governance and five-surface results. The sole
+  residual is standalone PublicationSlot REHASH accepting key-complete wrong context and returning
+  stale target path/slot identity, plus a self-check that misses the absent executable handler.
+- Treat `HD-FAL-020` as authorization for exactly one bounded `CORR-017-01` → `EB006-IR6-02`
+  documentation correction. Normative caller audit selected Option B: direct standalone
+  PublicationSlot REHASH is unnecessary and must be prohibited, while the verified GateRecord
+  publication-intent path remains supported. Dispatch/dependency self-checks must detect missing
+  handlers and unauthorized fallback. FAL-002 remains `NOT AUTHORIZED`; no architecture, production
+  semantic, surface, dependency or budget change is authorized.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.
