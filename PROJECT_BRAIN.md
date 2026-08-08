@@ -144,9 +144,19 @@ Forge may eventually include:
 - Treat EB-006 sections 43–50 as the completed integrated CORR-012 correction claim. The final model
   uses domain-separated canonical hashing, predecessor/slot-derived recovery discovery, acyclic
   decision bindings, explicit immutable finding events plus derived current state, an executable
-  stdlib-only fixture oracle, and five-surface systemic audits. All five IR4 findings are only
-  `ADDRESSED — AWAITING INDEPENDENT REVIEW`; IR5 alone may verify them. FAL-002 implementation
-  remains `NOT AUTHORIZED`.
+  stdlib-only fixture oracle, and five-surface systemic audits. All five IR4 findings were submitted
+  as `ADDRESSED — AWAITING INDEPENDENT REVIEW` for IR5; the later IR5 disposition governs their
+  verification state. FAL-002 implementation remains `NOT AUTHORIZED`.
+- Treat Independent IR5's canonical outcome as `FAIL — IMPLEMENTATION AUTHORIZATION NOT
+  RECOMMENDED`. Preserve its verification of the narrow CORR-012-01/IR4-01 canonical-hash correction
+  and CORR-012-03/IR4-03 publication-intent/recovery-discovery correction without treating either as
+  finding closure. Preserve `EB006-IR5-01`–`EB006-IR5-04` as open blocking residuals.
+- Treat `HD-FAL-016` as authorization for exactly one coherent bounded EB-006 documentation campaign
+  mapping `CORR-013-01`–`CORR-013-04` one-to-one to `EB006-IR5-01`–`EB006-IR5-04`. It must replace or
+  consolidate the affected final sections into total fixture, decision-resolution, persisted finding
+  event and severity-fold contracts, not add another avoidable precedence layer. HD-FAL-012/014,
+  five surfaces, verified hash/recovery contracts and the 1,800-LOC ceiling remain unchanged.
+  FAL-002 implementation remains `NOT AUTHORIZED`; only IR6 may verify the correction.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

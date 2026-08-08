@@ -12,16 +12,15 @@ Forge's motto is: Build software with intention.
 
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
 correct, accept, close or restart it. The FAL-002 specification is approved for Implementation
-Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. Independent IR4 of corrected
-EB-006 has canonical outcome `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with five
-blocking findings, `EB006-IR4-01`–`EB006-IR4-05`. The `HD-FAL-015`-authorized integrated
-`CORR-012-01`–`CORR-012-05` documentation correction is now complete in EB-006 sections 43–50 under
-the `HD-FAL-012`/`HD-FAL-014` recovery architecture. It reconciles the universal hash contract,
-publication intent and pointer-free recovery, stable decision continuity, deterministic finding
-evolution, executable fixtures and cross-surface audits. Every IR4 finding is only
-`ADDRESSED — AWAITING INDEPENDENT REVIEW`; none is verified or closed. FAL-002 implementation
-remains `NOT AUTHORIZED`. The `HD-FAL-009` envelope remains approximately 1,660 expected and at most
-1,800 new production LOC; the album capability remains unstarted.
+Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. Independent IR5 of the
+CORR-012-corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified
+the narrow CORR-012-01/IR4-01 canonical-hash correction and CORR-012-03/IR4-03 publication-intent/
+recovery-discovery correction, but closed neither. It did not verify CORR-012-02, CORR-012-04 or
+CORR-012-05 and recorded four open blocking residual findings, `EB006-IR5-01`–`EB006-IR5-04`.
+`HD-FAL-016` authorizes one coherent bounded `CORR-013-01`–`CORR-013-04` EB-006 documentation
+correction campaign; it has not started. FAL-002 implementation remains `NOT AUTHORIZED`. The
+`HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800 new production LOC; the
+album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -213,9 +212,10 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 step is fresh independent read-only Standard-Assurance Review IR5 of the
-completed `CORR-012-01`–`CORR-012-05` EB-006 documentation correction. Until that review and a later
-human decision, retain every finding as only `ADDRESSED — AWAITING INDEPENDENT REVIEW`; do not
+The next permitted FAL-002 step is execution of the complete `HD-FAL-016`-authorized bounded
+`CORR-013-01`–`CORR-013-04` EB-006 documentation correction in one separate commit, using only its
+authorized paths. Then conduct fresh independent read-only Standard-Assurance Review IR6. During
+correction, every IR5 finding may become at most `ADDRESSED — AWAITING INDEPENDENT REVIEW`; do not
 implement FAL-002, verify/close a finding or infer Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
