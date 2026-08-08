@@ -13,8 +13,10 @@ facts, semantic recovery identity separately retains intended/obstruction eviden
 pending decision identity may be rebound to a new physical HumanDecisionRecord locator across
 successor segments. Its effect on IR4-03 is only `ARCHITECTURE AUTHORITY PROVIDED — FINDING REMAINS
 OPEN`; it also removes the architecture dependency for later IR4-04 correction without correcting
-that finding. All five IR4 findings remain open, CORR-012 is `NOT AUTHORIZED`, and FAL-002 remains
-`NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC envelope.
+that finding. All five IR4 findings remain open, and FAL-002 remains `NOT AUTHORIZED` under the
+unchanged 1,660 expected / 1,800 maximum LOC envelope. `HD-FAL-015` now authorizes one coherent
+bounded `CORR-012-01`–`CORR-012-05` EB-006 documentation correction campaign. The correction has not
+started; no IR4 finding is corrected, verified or closed by the authorization.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -29,10 +31,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Consider a separate Human Decision on whether to authorize one bounded CORR-012 documentation
-correction campaign for `EB006-IR4-01` through `EB006-IR4-05`. Do not correct EB-006 or implement
-FAL-002 without that separate authority. Manual Digital Album Authoring and Export remains unstarted
-and unauthorized.
+Execute the complete `HD-FAL-015`-authorized bounded `CORR-012-01`–`CORR-012-05` EB-006
+documentation correction in one separate commit, then conduct fresh independent read-only
+Standard-Assurance Review IR5. Do not implement FAL-002. Manual Digital Album Authoring and Export
+remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -164,7 +166,11 @@ and unauthorized.
   open blocking findings, `EB006-IR4-01` through `EB006-IR4-05`
 - accepted `HD-FAL-014` pointer-free recovery-discovery and decision-continuity clarification;
   IR4-03 remains open with architecture authority provided, IR4-04's architecture dependency is
-  removed but the finding remains open, and CORR-012/FAL-002 implementation remain unauthorized
+  removed but the finding remains open; HD-FAL-014 itself authorized neither CORR-012 nor FAL-002
+  implementation
+- accepted `HD-FAL-015` authorization for one bounded coherent `CORR-012-01`–`CORR-012-05` EB-006
+  documentation correction campaign; all five IR4 findings remain open and implementation remains
+  unauthorized
 
 ## What Does Not Exist
 
@@ -298,8 +304,8 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Create a separate Human Decision only if governance chooses to authorize the bounded
-   `CORR-012-01`–`CORR-012-05` EB-006 documentation correction.
-2. Keep FAL-002 implementation `NOT AUTHORIZED` and all five IR4 findings open until correction and
-   fresh independent review occur.
-3. Keep FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized by HD-FAL-014.
+1. Execute the complete bounded `CORR-012-01`–`CORR-012-05` EB-006 documentation correction in one
+   separate commit using only the HD-FAL-015 change surface.
+2. Conduct fresh independent read-only Standard-Assurance Review IR5 after that correction commit.
+3. Keep FAL-002 implementation `NOT AUTHORIZED`, all five IR4 findings open pending IR5, FCS-002
+   active and `v0.5.0` in `Planned`; no release work is authorized.

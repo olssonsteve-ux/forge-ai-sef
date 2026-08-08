@@ -134,7 +134,14 @@ Forge may eventually include:
   its HumanDecisionRecord locator/hash with an incremented binding generation, but may not mint a
   new governance question merely to escape a collision. Complete-lineage lookup uses only validated
   GateRecord bindings. IR4-03 remains open with architecture authority provided; IR4-04 remains open
-  with its architecture dependency removed. CORR-012 and FAL-002 implementation are not authorized.
+  with its architecture dependency removed. HD-FAL-014 itself authorized neither CORR-012 nor
+  FAL-002 implementation; HD-FAL-015 subsequently authorizes only the bounded correction.
+- Treat `HD-FAL-015` as authorization for exactly one coherent bounded EB-006 documentation campaign
+  mapping `CORR-012-01`–`CORR-012-05` one-to-one to `EB006-IR4-01`–`EB006-IR4-05`. The campaign must
+  reconcile one universal hash contract, a total independent oracle, HD-FAL-014 publication-intent/
+  discovery/decision continuity, complete-lineage decision lookup and deterministic finding
+  evolution as one model. It may change only EB-006 and necessary index/project-memory text. All
+  findings remain open; FAL-002 implementation remains `NOT AUTHORIZED`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

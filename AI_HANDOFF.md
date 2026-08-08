@@ -19,9 +19,10 @@ of `HD-FAL-012`: semantic recovery identity is distinct from predecessor/publica
 physical discovery, non-reconstructable output requires an existing-surface GateRecord publication
 intent, and a stable pending `decision_identity` may be physically rebound across successor segments.
 IR4-03 remains open with architecture authority provided; IR4-04 remains open with its architecture
-dependency removed. No finding is verified or closed. CORR-012 and FAL-002 implementation remain
-`NOT AUTHORIZED`. The `HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800
-new production LOC; the album capability remains unstarted.
+dependency removed. No finding is verified or closed. `HD-FAL-015` authorizes one coherent bounded
+`CORR-012-01`–`CORR-012-05` EB-006 documentation correction campaign; it has not started. FAL-002
+implementation remains `NOT AUTHORIZED`. The `HD-FAL-009` envelope remains approximately 1,660
+expected and at most 1,800 new production LOC; the album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -213,10 +214,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 governance step is a separate Human Decision considering authorization
-of one bounded `CORR-012-01`–`CORR-012-05` EB-006 documentation correction for the five open IR4
-findings. HD-FAL-014 does not authorize that correction. Do not modify EB-006, implement FAL-002,
-verify/close a finding or infer Implementation Authorization without the separate decision.
+The next permitted FAL-002 step is execution of the complete `HD-FAL-015`-authorized bounded
+`CORR-012-01`–`CORR-012-05` EB-006 documentation correction in one separate commit, using only its
+authorized paths. Then conduct fresh independent read-only Standard-Assurance Review IR5. The
+correction may claim at most `ADDRESSED — AWAITING INDEPENDENT REVIEW`; do not implement FAL-002,
+verify/close a finding or infer Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
