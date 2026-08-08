@@ -156,13 +156,23 @@ Forge may eventually include:
   consolidate the affected final sections into total fixture, decision-resolution, persisted finding
   event and severity-fold contracts, not add another avoidable precedence layer. HD-FAL-012/014,
   five surfaces, verified hash/recovery contracts and the 1,800-LOC ceiling remain unchanged.
-  FAL-002 implementation remains `NOT AUTHORIZED`; only IR6 may verify the correction.
+  At that gate FAL-002 implementation remained `NOT AUTHORIZED` and only IR6 could verify the correction.
 - Treat EB-006 §§44–50 as the completed CORR-013 remediation claim. The final consolidated model
   separates pending cards from accepted resolutions and GateRecord application, persists finding
   deltas/checkpoints in GateRecord, folds severity/blocking with human epochs, and provides a
   stdlib-only executable fixture/VFS oracle. These changes preserve the independently verified
-  CORR-012-01 hash and CORR-012-03 recovery/discovery contracts. All four CORR-013 objectives remain
-  only `ADDRESSED — AWAITING INDEPENDENT REVIEW`; IR6 alone may verify them.
+  CORR-012-01 hash and CORR-012-03 recovery/discovery contracts. All four CORR-013 objectives were
+  submitted as `ADDRESSED — AWAITING INDEPENDENT REVIEW`; the later IR6 disposition governs them.
+- Treat Independent IR6's canonical outcome as `FAIL — IMPLEMENTATION AUTHORIZATION NOT
+  RECOMMENDED`. Preserve its VERIFIED dispositions for CORR-013-03/IR5-03 and CORR-013-04/IR5-04,
+  PARTIALLY VERIFIED disposition for CORR-013-02/IR5-02 and NOT VERIFIED disposition for
+  CORR-013-01/IR5-01 without treating any as finding closure. Preserve `EB006-IR6-01` and
+  `EB006-IR6-02` as open blocking residuals.
+- Treat `HD-FAL-017` as authorization for exactly one coherent bounded EB-006 documentation campaign
+  mapping `CORR-014-01` to `EB006-IR6-01` and `CORR-014-02` to `EB006-IR6-02`. It may correct only
+  stable semantic-answer versus physical-binding semantics and the total lineage-aware independent
+  oracle. It must directly consolidate §§46 and 48, preserve every IR6-verified contract, keep five
+  surfaces and the 1,800-LOC ceiling, and leave FAL-002 implementation `NOT AUTHORIZED`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

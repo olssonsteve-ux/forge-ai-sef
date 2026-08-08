@@ -5,16 +5,14 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-Independent IR5 of the CORR-012-corrected EB-006 returned
-`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified the narrow canonical-hash
-correction CORR-012-01/EB006-IR4-01 and publication-intent/recovery-discovery correction
-CORR-012-03/EB006-IR4-03, without closing either finding. It did not verify CORR-012-02,
-CORR-012-04 or CORR-012-05 and identified four open blocking residual findings,
-`EB006-IR5-01` through `EB006-IR5-04`. `HD-FAL-016` now authorizes one bounded coherent
-`CORR-013-01`–`CORR-013-04` EB-006 documentation correction campaign. The campaign is complete as a
-correction-agent claim: all four objectives are `ADDRESSED — AWAITING INDEPENDENT REVIEW`, and no
-IR5 finding was independently verified or closed. FAL-002 remains `NOT AUTHORIZED` under the
-unchanged 1,660 expected / 1,800 maximum LOC envelope.
+Independent IR6 of the CORR-013-corrected EB-006 returned
+`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified CORR-013-03/EB006-IR5-03 and
+CORR-013-04/EB006-IR5-04, partially verified CORR-013-02/EB006-IR5-02, did not verify
+CORR-013-01/EB006-IR5-01 and recorded two open blocking residual findings, `EB006-IR6-01` and
+`EB006-IR6-02`. `HD-FAL-017` authorizes exactly one bounded coherent `CORR-014-01`–`CORR-014-02`
+EB-006 documentation correction campaign. It has not started; this decision verifies or closes no
+finding. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC
+envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -29,9 +27,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct fresh independent read-only Standard-Assurance Review IR6 of the dedicated completed
-`CORR-013-01`–`CORR-013-04` documentation correction commit. Do not implement FAL-002. Manual
-Digital Album Authoring and Export remains unstarted and unauthorized.
+Execute the complete `HD-FAL-017`-authorized bounded `CORR-014-01`–`CORR-014-02` EB-006
+documentation correction in one separate commit, then conduct fresh independent read-only
+Standard-Assurance Review IR7. Do not implement FAL-002. Manual Digital Album Authoring and Export
+remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -178,7 +177,12 @@ Digital Album Authoring and Export remains unstarted and unauthorized.
 - completed the coherent CORR-013 EB-006 documentation correction: separate immutable pending and
   resolution records with GateRecord applications, CONTROL-carried finding-event deltas and restart
   checkpoints, deterministic severity epochs/blocking fold, and an executable independent oracle;
-  all four claims await IR6 and implementation remains unauthorized
+  all four claims were submitted awaiting IR6, whose later disposition now governs them
+- independent IR6 outcome `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`; it verified
+  CORR-013-03/IR5-03 and CORR-013-04/IR5-04, partially verified CORR-013-02/IR5-02, did not verify
+  CORR-013-01/IR5-01 and recorded open blockers `EB006-IR6-01` and `EB006-IR6-02`
+- accepted `HD-FAL-017` authorization for one bounded coherent `CORR-014-01`–`CORR-014-02` EB-006
+  documentation correction campaign; no finding closure or FAL-002 implementation authority
 
 ## What Does Not Exist
 
@@ -312,7 +316,8 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Conduct fresh independent read-only Standard-Assurance Review IR6 of the dedicated CORR-013
-   correction commit.
-2. Keep FAL-002 implementation `NOT AUTHORIZED`, all four IR5 findings unverified/unclosed pending
-   IR6, FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.
+1. Execute the complete bounded `CORR-014-01`–`CORR-014-02` EB-006 documentation correction in one
+   separate commit using only the `HD-FAL-017` change surface.
+2. Conduct fresh independent read-only Standard-Assurance Review IR7 after that correction commit.
+3. Keep FAL-002 implementation `NOT AUTHORIZED`, both IR6 findings open pending correction and IR7,
+   FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.

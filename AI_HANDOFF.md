@@ -12,14 +12,12 @@ Forge's motto is: Build software with intention.
 
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
 correct, accept, close or restart it. The FAL-002 specification is approved for Implementation
-Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. Independent IR5 of the
-CORR-012-corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified
-the narrow CORR-012-01/IR4-01 canonical-hash correction and CORR-012-03/IR4-03 publication-intent/
-recovery-discovery correction, but closed neither. It did not verify CORR-012-02, CORR-012-04 or
-CORR-012-05 and recorded four open blocking residual findings, `EB006-IR5-01`–`EB006-IR5-04`.
-`HD-FAL-016` authorizes one coherent bounded `CORR-013-01`–`CORR-013-04` EB-006 documentation
-correction campaign. The campaign is complete as a correction-agent claim, with all four objectives
-`ADDRESSED — AWAITING INDEPENDENT REVIEW`; no IR5 finding is verified or closed. FAL-002
+Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. Independent IR6 of the
+CORR-013-corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified
+CORR-013-03/IR5-03 and CORR-013-04/IR5-04, partially verified CORR-013-02/IR5-02, did not verify
+CORR-013-01/IR5-01 and recorded two open blocking residual findings, `EB006-IR6-01` and
+`EB006-IR6-02`. `HD-FAL-017` authorizes one coherent bounded `CORR-014-01`–`CORR-014-02` EB-006
+documentation correction campaign; it has not started and verifies or closes no finding. FAL-002
 implementation remains `NOT AUTHORIZED`. The
 `HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800 new production LOC; the
 album capability remains unstarted.
@@ -214,10 +212,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 step is a fresh independent read-only Standard-Assurance Review IR6 of
-the dedicated completed `CORR-013-01`–`CORR-013-04` correction commit. Every IR5 finding remains at
-most `ADDRESSED — AWAITING INDEPENDENT REVIEW`; do not implement FAL-002, verify/close a finding or
-infer Implementation Authorization.
+The next permitted FAL-002 step is execution of the complete `HD-FAL-017`-authorized bounded
+`CORR-014-01`–`CORR-014-02` EB-006 documentation correction in one separate commit using only its
+authorized paths, followed by fresh independent read-only Standard-Assurance Review IR7. During
+correction both IR6 findings may become at most `ADDRESSED — AWAITING INDEPENDENT REVIEW`; do not
+implement FAL-002, verify/close a finding or infer Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
