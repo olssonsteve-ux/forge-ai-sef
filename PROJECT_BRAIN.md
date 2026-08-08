@@ -140,8 +140,13 @@ Forge may eventually include:
   mapping `CORR-012-01`–`CORR-012-05` one-to-one to `EB006-IR4-01`–`EB006-IR4-05`. The campaign must
   reconcile one universal hash contract, a total independent oracle, HD-FAL-014 publication-intent/
   discovery/decision continuity, complete-lineage decision lookup and deterministic finding
-  evolution as one model. It may change only EB-006 and necessary index/project-memory text. All
-  findings remain open; FAL-002 implementation remains `NOT AUTHORIZED`.
+  evolution as one model. It may change only EB-006 and necessary index/project-memory text.
+- Treat EB-006 sections 43–50 as the completed integrated CORR-012 correction claim. The final model
+  uses domain-separated canonical hashing, predecessor/slot-derived recovery discovery, acyclic
+  decision bindings, explicit immutable finding events plus derived current state, an executable
+  stdlib-only fixture oracle, and five-surface systemic audits. All five IR4 findings are only
+  `ADDRESSED — AWAITING INDEPENDENT REVIEW`; IR5 alone may verify them. FAL-002 implementation
+  remains `NOT AUTHORIZED`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.
