@@ -98,6 +98,10 @@ Forge may eventually include:
   FOR IMPLEMENTATION AUTHORIZATION` with `EB006-IR2-01`–`EB006-IR2-07`. `HD-FAL-010` authorizes only
   their bounded documentation correction. It cannot change the FAL-002 specification, 1,800-LOC
   ceiling, dependencies or implementation state and must stop on higher-order authority needs.
+- Treat EB-006 sections 28–33 as the completed `HD-FAL-010` refinements: exact nested variants,
+  command parsed unions, decision vocabulary, Forge-owned grants, unified staged publication,
+  independent fixture oracle, collector representations and corrected control mapping. They await
+  independent review and confer no implementation authority.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

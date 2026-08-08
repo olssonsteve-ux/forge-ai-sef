@@ -8,7 +8,7 @@ Owner: Chief Architect
 
 Decision basis: `HD-FAL-006`
 
-Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`
+Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -28,6 +28,13 @@ Residual finding status:
 | `EB006-FR-05` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-FR-06` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-FR-07` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR2-01` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR2-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR2-03` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR2-04` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR2-05` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR2-06` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR2-07` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 1. Purpose and gate
 
@@ -636,7 +643,7 @@ baseline_head:hex40|hex64,final_head:hex40|hex64,status:string[],changed_paths:P
 contains exactly 13 entries in §24 order. Each is `{command_id,phase,argv:string[],cwd:PathRel,
 environment_keys:string[],started_at,ended_at,exit_code:int|null,termination:
 EXITED|TIMEOUT|INTERRUPTED|SPAWN_ERROR,stdout_sha256,stderr_sha256,stdout_text,stderr_text,
-redaction_count:int>=0,parser_version:1,parsed:Json,classification:
+redaction_count:int>=0,parser_version:1,parsed:CommandParsed,classification:
 PASS|FAIL|NOT_AVAILABLE|BLOCKED|AWAITING_HUMAN}`; null exit code is valid only when not EXITED.
 `diff` is `{redacted_text,sha256,numstat:[{path,added:int|null,deleted:int|null}]}`; null counts are
 valid only for binary files. `build` is exactly `{status:"not_available",reason:
@@ -688,7 +695,7 @@ resolution. Required evidence always means a schema-valid, hash-valid, authorita
 | reviewing | `REVIEW_CORRECTION` | reviewer; CORRECTION_REQUIRED | reviewer result, gate | correction_required | count=2 → ceiling event |
 | reviewing | `REVIEW_BLOCKED` | reviewer; BLOCKED/INCONCLUSIVE | reviewer result, gate | blocked | no automatic retry |
 | reviewing | `REVIEW_INTERRUPTED` | recovery; no durable result | gate | awaiting_human | accepted retry uses next ordinal, count unchanged |
-| correction_required | `START_CORRECTION` | core; count<2, allowed paths | executor request, gate | executing | ordinal/count increment once; failure blocked |
+| correction_required | `START_CORRECTION` | core; count<2, allowed paths; request valid | executing gate with embedded request | executing | persist gate, then invoke; ordinal/count increment once; complete exchange only after result |
 | correction_required | `NO_PROGRESS` | core; repeated diff/evidence or findings | gate | blocked | human resolution only |
 | correction_required | `CEILING_REACHED` | core; count=2 | card, gate | awaiting_human | no automatic correction |
 | any non-closed | `AUTHORITY_CONFLICT` | core; two valid domain sources | card, gate | awaiting_human | exactly-once replay §25 |
@@ -707,7 +714,7 @@ every retry or correction uses max prior ordinal + 1, so retries never consume o
 `accepted` means sealed technical eligibility only, not
 risk acceptance, capability closure or release.
 
-## 23. Adapter lifecycle and Standard-Assurance separation
+## 23. Adapter lifecycle and Standard-Assurance separation (provenance superseded by §29)
 
 Core creates requests; I/O persists executor request in the executing gate and reviewer packet in the
 reviewing gate; core invokes only after that gate is durable. Adapters create no ID, record or
@@ -717,32 +724,17 @@ the gate-embedded request; no null-result exchange file is ever persisted.
 Both roles are externally non-idempotent and called at most once per invocation ID. Same-ID replay
 reads a durable result without adapter call. Missing result after interruption requires human retry
 and a new ordinal/ID. Changed/stale input, different duplicate result, timeout or exception follows
-§22 and §25. Executor/reviewer audit evidence is request/result hashes, invocation ID/times, adapter,
-principal, process and context IDs, and resulting gate IDs.
-
-A fresh Standard-Assurance review context is newly initialized for one review with
-`context_id=H("review-context:"+review_id+":"+run_record_hash)[:24]`, no prior executor/reviewer
-messages or state, and input limited byte-for-byte to the packet plus fixed adversarial instructions.
-It receives no executor prompt, transcript, private reasoning, credentials, mutable workspace handle
-or correction authority. This is structural Standard Assurance, not High-Assurance isolation.
-
-`reviewer_execution` is exactly `{invocation_id:review_id,context_id,role:"reviewer",adapter_id,
-principal_id,process_id:int,fresh_context:true,read_only:true,received_packet_hash,instructions_hash,
-started_at,ended_at:string|absent}`. Executor invocation records equivalent identity fields. Required
-separation is different `principal_id`, `adapter_id` and `context_id`; process IDs may match but are
-truthfully recorded. Equality of a separated value, missing provenance, inherited executor-only field
-or writable capability creates a deterministic independence card and `awaiting_human` before reviewer
-call. No PASS/eligibility follows. Executor mutates only executor result; reviewer mutates only review
-result. Cancellation/interruption produces no result and uses the retry rule above.
+§22 and §30. Executor mutates only executor result; reviewer mutates only review result. Cancellation
+or interruption produces no result and uses the retry rule above. All identity, audit evidence, fresh-
+context and separation rules are exclusively §29; the earlier self-reported provenance design is
+withdrawn and must not be implemented.
 
 ## 24. Exact collector execution contract
 
 Common contract: resolve `git` from PATH and Python as exact `sys.executable` 3.14; verified root cwd;
 closed stdin; exact environment keys from §15 with all other inheritance removed. On timeout terminate
-the process group, wait five seconds, then kill. This stdlib design cannot enforce network isolation;
-an externally verified offline precondition is required or a card/`AWAITING_HUMAN` occurs before any
-command. Redact stdout/stderr bytes before decode/hash by replacing case-insensitive UTF-8 matches of
-`(token|password|secret|api[_-]?key|authorization)=` through next whitespace/NUL with `<REDACTED>`.
+the process group, wait five seconds, then kill. Network precondition authority/evidence and the exact
+redaction byte machine are exclusively §32; the prior generic regex description is withdrawn.
 Strict UTF-8 decode; invalid bytes BLOCKED. Store CRLF/CR normalized to LF, but hash
 `H({command_id,stream,redacted_bytes_hex})` before line normalization. Stderr never proves success.
 Spawn/permission error, timeout, interruption, unexpected exit, missing/multiple/contradictory parse
@@ -770,40 +762,13 @@ therefore has 13 entries. The manifest is exactly gate 0 bytes at §3 path: read
 require manifest variant, canonical-reserialize byte-identically, verify hash, then pass that literal
 path in argv. No actor summary substitutes for collector evidence.
 
-## 25. Deterministic create-only recovery
+## 25. Historical create-only recovery analysis (superseded by §30)
 
-Authoritative create is validate → exclusive create final path → write all canonical bytes → flush/
-fsync → close → reread/hash → directory fsync. Final paths are never overwritten, deleted, truncated
-or renamed. A partial final path is preserved forever and makes that physical series terminal; no
-later gate may skip its occupied sequence. Operational disposition is `AWAITING_HUMAN` derived from
-the last verified predecessor plus corrupt-tail diagnostic, not a fabricated gate. Only a later Human
-Decision could authorize a successor series carrying the complete correction count/history; this
-brief does not authorize one.
+The direct-final-write design previously recorded here is withdrawn because it could leave a partial
+canonical path without authoritative disposition. It must not be implemented. Section 30 is the sole
+normative recovery, publication, conflict-card and closure durability contract.
 
-| IP | Possible filesystem and authority | Allowed recovery, reuse and resulting state |
-| --- | --- | --- |
-| IP-01 | no new bytes; prior chain authoritative | revalidate; same path/sequence/ordinal reusable; invalid → BLOCKED diagnostic |
-| IP-02 | no final path; prior chain authoritative | retry exclusive create using same IDs/path; no next ordinal |
-| IP-03 | final path contains any prefix; non-authoritative | preserve bytes/path; no reuse/delete/truncate/overwrite/next sequence/ordinal; terminal AWAITING_HUMAN diagnostic |
-| IP-04 | complete but unconfirmed file | reread; exact canonical bytes/hash adopts once with same IDs; otherwise IP-03 |
-| IP-05 | confirmed record authoritative | same-hash replay reads it; continue next required record; no duplicate append |
-| IP-06 | earlier record durable, later path absent | replay orchestration using same later ID/path; absent adapter result requires human retry/new ordinal, count unchanged |
-| IP-07 | target already exists | same hash idempotent; different hash preserves claim and creates conflict card/gate if paths free, else terminal diagnostic |
-| IP-08 | gap or predecessor mismatch | preserve all; no append/path/sequence reuse; terminal AWAITING_HUMAN diagnostic |
-| IP-09 | derived temp may be partial | temp name `current.{gate_record_hash}.tmp`; same valid hash may replace current; partial/different temp is preserved/ignored and next gate uses its own hash temp; authoritative state unchanged |
-
-Derived temp files are internal cache material, not boundary payloads. Atomic replace may replace only
-`current.json`. Authority-conflict order is card then gate. Card ID is
-`DC-{series_prefix}-{sequence}-{H(sorted(source_id+source_hash pairs))[:12]}`. Same conflict always
-derives the same ID. Crash before card durability recreates it; after card durability/before gate,
-replay adopts same-hash card then creates gate. Partial card/gate invokes IP-03 and no second card.
-Both sources/hashes are in card and checkpoint; history never changes.
-
-Closure order is accepted closure decision then closed gate. Crash between them adopts decision and
-appends deterministic closed gate. A partial decision/gate leaves the last verified accepted gate
-authoritative and cannot claim closure.
-
-## 26. Literal scenario-fixture contracts
+## 26. Scenario-fixture case inventory (oracle superseded by §31)
 
 Constants: `series_id=00000000-0000-4000-8000-000000000002`, `frozen_hash=H("F")`, baseline
 `7bdbc9a9afb57dcd3a6f2e878ed1dc582ff8ad68`, branch `main`, time
@@ -835,8 +800,8 @@ clean repository. IDs/hashes use §§14/21 expressions. Each file is exactly
 
 Each case specifies exact initial file list/bytes, operation entrypoint, mutation, expected validation
 code, record list/order, final state, forbidden files and replay outcome using the constants and table
-above. Future fixture content must spell out resulting canonical JSON and hashes; tests compare literal
-bytes without production constants. IP-01–IP-09 use the same constants and assert every §25 outcome.
+above. The definitive §31 generator spells out canonical JSON and hashes independently of production
+constants. IP-01–IP-09 use the same constants and assert every §30 outcome.
 No additional fixture artifact path is created.
 
 ## 27. Reconciled budget and end-to-end control coverage
@@ -882,3 +847,314 @@ Failure `reason_code` is exactly one of `MALFORMED_BOUNDARY`, `UNSUPPORTED_VERSI
 `CORR-008-01` through `CORR-008-07` and all ten listed findings are `ADDRESSED — AWAITING
 INDEPENDENT REVIEW`. This statement is not verification, PASS, closure or Implementation
 Authorization. The next gate is a fresh independent read-only Standard-Assurance review.
+
+## 28. Definitive nested canonical contracts
+
+Sections 28–32 are the final `HD-FAL-010` refinements. They replace, rather than supplement, every
+less-specific or conflicting clause in sections 14–27. No `Json` catch-all remains at a boundary.
+
+### 28.1 Gate payload discriminated union
+
+Every `GateRecord.payload` has exactly `frozen_hash:Sha256`, `correction_count:int 0..2`,
+`variant_kind` and the same-named variant object below. The eight permitted variants are:
+
+| `variant_kind` | Exact variant object |
+| --- | --- |
+| `MANIFEST` | `manifest:{scope_hash:Sha256,criteria_hash:Sha256,allowed_paths:PathRel[1..65535],command_policy_hash:Sha256,executor_principal_id:NonEmpty,reviewer_principal_id:NonEmpty,executor_adapter_id:NonEmpty,reviewer_adapter_id:NonEmpty,offline_evidence:OfflineEvidence}` |
+| `INVENTORY` | `inventory:{entrypoint:PathRel,baseline_commit:hex40|hex64,python_version:"3.14",files:InventoryFile[1..8],edges:InventoryEdge[0..65535],exemptions:Exemption[0..65535],counts:InventoryCounts,dependencies:DependencyInventory,unresolved_targets:UnresolvedTarget[0..65535],disposition:"PASS"|"AWAITING_HUMAN"}` |
+| `EXECUTION` | `execution:{execution_id:ExecutionId,run_id:RunId,ordinal:int 0..9999,request_kind:"INITIAL"|"CORRECTION",request:ExecutorRequest,request_hash:Sha256,invocation_grant:InvocationGrant}` |
+| `EVIDENCE` | `evidence:{run_id:RunId,run_record_hash:Sha256,execution_id:ExecutionId,command_ids:CommandId[13],evidence_hash:Sha256}` |
+| `REVIEW` | `review:{review_id:ReviewId,run_id:RunId,ordinal:int 0..9999,packet:ReviewerPacket,packet_hash:Sha256,invocation_grant:InvocationGrant}` |
+| `CONTROL` | `control:{ordinal:int 0..9999,correction_count:int 0..2,diff_hash:Sha256,evidence_hash:Sha256,finding_ids:NonEmpty[0..65535],progress:"MATERIAL"|"NONE"|"CEILING"}` |
+| `CHECKPOINT` | `checkpoint:{reason_code:ReasonCode,source_record_ids:NonEmpty[0..65535],source_hashes:Sha256[0..65535],interruption_id:InterruptionId|absent,decision_id:DecisionId|absent,resume_state:"ready"|"evidence_ready"|"correction_required"|absent,staging_path:PathRel|absent}` |
+| `ELIGIBILITY` | `eligibility:{review_id:ReviewId,review_hash:Sha256,criterion_ids:NonEmpty[1..65535],finding_ids:NonEmpty[0..65535],eligible:boolean}` |
+| `CLOSURE` | `closure:{decision_id:DecisionId,decision_hash:Sha256,eligible_gate_id:GateId,eligible_gate_hash:Sha256}` |
+
+`InventoryFile` is exactly `{path:PathRel,content_hash:Sha256,parent_edge:NonEmpty|absent,
+inbound_edges:NonEmpty[0..65535],reason:"ENTRYPOINT"|"STATIC_IMPORT"|"DYNAMIC_LITERAL"|
+"SUBPROCESS_LITERAL"|"PACKAGE_INIT",classification:"COUNT"|"EXEMPT",counted_loc:int>=0,
+roles:("EXECUTOR_ADAPTER"|"REVIEWER_ADAPTER")[0..2]}`. `InventoryEdge` is exactly
+`{edge_id:NonEmpty,source:PathRel,target:PathRel,kind:"IMPORT"|"DYNAMIC"|"SUBPROCESS"|
+"PACKAGE_INIT",locator:NonEmpty}`. `Exemption` is exactly `{path,baseline_hash,current_hash,
+provenance_ref,closure:PathRel[],predicates:[{name,status:"VERIFIED_TRUE"|"VERIFIED_FALSE"|
+"UNKNOWN"|"NOT_EVALUATED",evidence_ref}],classification:"EXEMPT"|"COUNT"|"AWAITING_HUMAN"}`.
+`InventoryCounts` is exactly `{modules:int>=0,new_production_loc:int>=0,executor_adapters:int>=0,
+reviewer_adapters:int>=0,schema_surfaces:int>=0}`. `DependencyInventory` is exactly
+`{stdlib:NonEmpty[],existing_third_party:NonEmpty[],new_direct:NonEmpty[],new_transitive:NonEmpty[],
+manifest_hash:Sha256,lock_hash:Sha256|absent}`. `UnresolvedTarget` is exactly
+`{source:PathRel,locator,expression,kind:"DYNAMIC"|"SUBPROCESS"|"IMPORT",reason}`.
+
+`ExecutorRequest` is exactly `{frozen_hash,scope:PathRel[],criteria:NonEmpty[],allowed_paths:
+PathRel[],command_ids:CommandId[13],correction_count:int 0..2,work_packet_hash,request_kind:
+"INITIAL"|"CORRECTION"}`. `ReviewerPacket` is exactly `{frozen_hash,run_record_id:RunId,
+run_record_hash,criterion_ids:NonEmpty[],evidence_index:EvidenceBinding[],instructions_hash}`.
+`EvidenceBinding` is exactly `{criterion_id,source_record_id,locator,content_hash,provenance:
+{authority:"COLLECTOR"|"REVIEWER",collector_id:CommandId|absent,record_id,record_hash}}`.
+
+For every variant `variant_kind` must match its sole present variant key; all other variant keys are
+absent. MANIFEST is legal only at sequence zero. EXECUTION `request_kind` must equal its nested value;
+CORRECTION requires correction count 1 or 2. EVIDENCE must reference a durable RunRecord. REVIEW must
+reference that evidence gate. ELIGIBILITY requires a valid PASS result. CLOSURE requires the
+immediately preceding accepted gate and accepted closure decision. Arrays use §21 ordering rules.
+Every nested value participates in `payload_hash`; JSON Schema uses `$defs` for the exact types above,
+`oneOf` keyed by the literal discriminator and `additionalProperties:false` at every object.
+
+### 28.2 Command-discriminated parsed-result union
+
+`CommandEntry.parsed` is one of the following exact objects, selected by `command_id`; no other
+shape is valid. Failure entries retain the same shape with `available:false`, all value fields absent,
+and required `failure_reason:ReasonCode`. Success entries require `available:true`, value fields, and
+no failure reason.
+
+| Command ID | Exact success `parsed` object |
+| --- | --- |
+| `GIT-ROOT` | `{available:true,root:"."}` |
+| `GIT-HEAD-BASELINE` | `{available:true,head:hex40|hex64,kind:"BASELINE"}` |
+| `GIT-BRANCH` | `{available:true,branch:NonEmpty}` |
+| `INVENTORY` | `{available:true,inventory_hash:Sha256,disposition:"PASS"|"AWAITING_HUMAN",counts:InventoryCounts}` |
+| `GIT-HEAD-FINAL` | `{available:true,head:hex40|hex64,kind:"FINAL"}` |
+| `GIT-STATUS` | `{available:true,entries:[{xy:two ASCII status bytes,path:PathRel,original_path:PathRel|absent}],changed_paths:PathRel[]}` |
+| `GIT-DIFF` | `{available:true,redacted_content_hash:Sha256,byte_count:int>=0}` |
+| `GIT-NUMSTAT` | `{available:true,entries:[{path:PathRel,added:int|null,deleted:int|null}]}` |
+| `SCHEMA-CHECK` | `{available:true,schemas:[{schema_id:SurfaceId,sha256:Sha256}]}` exactly five, sorted by ID |
+| `PYTEST` | `{available:true,passed:int>=0,failed:int>=0,skipped:int>=0,xfailed:int>=0,xpassed:int>=0,errors:int>=0,warnings:int>=0,duration_seconds_decimal:NonEmpty}` |
+| `RUFF-LINT` | `{available:true,status:"PASS"|"FAIL"}` |
+| `RUFF-FORMAT` | `{available:true,status:"PASS"|"FAIL"}` |
+| `FORGE-STATUS` | `{available:true,categories:[{name:NonEmpty,status:"OK"|"WARNING"|"NOT_APPLICABLE",evidence_lines:NonEmpty[]}]}` |
+
+`CommandId` is exactly those 13 literals. `SurfaceId` is exactly the five IDs in §3. Git status
+entries remain raw command order while `changed_paths` sorts bytewise; numstat and schemas sort by
+path/ID. Decimal duration is the exact ASCII decimal token without unit and is never converted to
+float. Binary numstat alone permits null counts. Classification and exit/termination must agree with
+§24; mismatch is `MALFORMED_BOUNDARY`.
+
+### 28.3 Human-decision vocabulary
+
+`domain` is exactly `SCOPE`, `CRITERIA`, `BUDGET`, `AUTHORITY_CONFLICT`, `EXECUTOR_RETRY`,
+`REVIEWER_RETRY`, `RECOVERY`, or `CLOSURE`. Allowed choices are fixed:
+
+| Domain | `allowed_choices` exact ordered array | Accepted choice effect |
+| --- | --- | --- |
+| `SCOPE` | `["AUTHORIZE_NEW_SERIES","DECLINE"]` | new series only under later scope Human Decision; current series remains awaiting_human |
+| `CRITERIA` | `["AUTHORIZE_NEW_SERIES","DECLINE"]` | same, with new frozen criteria authority required |
+| `BUDGET` | `["AUTHORIZE_BUDGET_CHANGE","DECLINE"]` | later budget decision only; no local change |
+| `AUTHORITY_CONFLICT` | `["SELECT_SOURCE_A","SELECT_SOURCE_B","ABANDON_SERIES"]` | chosen source ID must equal card source A/B; abandon blocks |
+| `EXECUTOR_RETRY` | `["RETRY","DECLINE"]` | RETRY resumes ready with new ordinal, unchanged correction count |
+| `REVIEWER_RETRY` | `["RETRY","DECLINE"]` | RETRY resumes evidence_ready with new ordinal |
+| `RECOVERY` | `["AUTHORIZE_SUCCESSOR_SERIES","ABANDON_SERIES"]` | successor requires separately accepted recovery decision carrying chain/count |
+| `CLOSURE` | `["CLOSE","DECLINE"]` | CLOSE allowed only with exact sealed eligibility |
+
+`decision_card` is exactly `{question,domain,target:{series_id,gate_id,gate_hash},source_a:
+{record_id,record_hash,authority},source_b:{record_id,record_hash,authority}|absent,allowed_choices}`.
+`authority` is exactly `HUMAN|COLLECTOR|CANONICAL_MODEL|REVIEWER|STATE_SERIES|REPOSITORY_HISTORY`.
+RESOLUTION adds exactly `{resolves_decision_id,selected_choice,rationale}`. No choice is implied or
+defaulted. The selected choice must be a member of the card array and satisfy the domain invariant.
+DECLINED status requires the domain's DECLINE/ABANDON choice. CLOSURE payload remains §21.5 and
+requires domain CLOSURE. Decision target and source hashes participate in payload and record hashes.
+
+## 29. Forge-owned invocation provenance
+
+Forge core, not either adapter, owns role provenance. Gate-zero MANIFEST binds distinct human-selected
+`executor_principal_id`, `reviewer_principal_id`, `executor_adapter_id` and `reviewer_adapter_id`.
+Equality is invalid before ready. These identifiers name authorized roles, not adapter-returned claims.
+
+Immediately before invocation core creates an `InvocationGrant` embedded in the durable EXECUTION or
+REVIEW gate. It is exactly `{grant_id,role:"EXECUTOR"|"REVIEWER",principal_id,adapter_id,context_id,
+input_record_id,input_hash,issued_by:"FORGE_CORE",issued_at,prior_context_id:NonEmpty|absent,
+allowed_effect:"RETURN_EXECUTOR_RESULT"|"RETURN_REVIEW_RESULT"}`. `grant_id=H({series_id,
+gate_sequence,role,principal_id,adapter_id,input_hash})`. The immutable grant is part of the gate hash.
+Adapter output contains only `grant_id`; identity/freshness facts never come from adapter output.
+
+I/O records caller-side `ObservedInvocation` exactly as `{grant_id,resolved_adapter_path:PathRel,
+adapter_content_hash:Sha256,process_id:int,thread_id:int,object_identity:int,started_at,ended_at|absent,input_hash,
+output_hash:Sha256|absent,termination:"RETURNED"|"TIMEOUT"|"INTERRUPTED"|"ERROR"}`. Adapter path/hash
+must equal frozen inventory attribution. OS process/thread values are sampled by I/O before/after
+entry and cannot be supplied by the result. The executor observation is exactly
+`ExecutorExchange.invocation.observed`; the reviewer observation is exactly
+`ReviewerExchange.reviewer_execution.observed`. Their grants are copied from the embedding gate and
+both objects participate in exchange payload/record hashes.
+
+A fresh reviewer context requires all of: REVIEW grant and manifest reviewer identities; context ID
+`H("review-context:"+review_id+":"+run_record_hash)[:24]`; no earlier equal context ID;
+`prior_context_id` absent; input hash covering only minimal packet/fixed adversarial instructions;
+reviewer principal/adapter distinct from executor; newly constructed reviewer adapter object after
+executor return; and no write or transition callback in its Protocol.
+
+Same process/module is permitted under Standard Assurance only when manifest principals and adapter
+entrypoint IDs differ and every check passes; content hashes may match only when both distinct
+entrypoints reside in the same frozen attributed module. This is structural separation, not High-
+Assurance isolation. Same principal/entrypoint, inherited context, missing/mismatched grant or
+adapter-supplied provenance is `INDEPENDENCE_FAILURE`: no reviewer exchange, one card, then
+awaiting_human.
+
+## 30. Unified staged publication and authoritative corruption
+
+This replaces §14.2 authoritative-write operations and conflicting §25 clauses. It is the single
+durability model for all five authoritative record types. It uses stdlib exclusive creation and
+same-volume atomic hard-link publication inside existing series directories; staging is internal
+non-authoritative persistence, not a schema surface or new namespace.
+
+For final path `P` and precomputed canonical bytes/hash `R`, staging path is
+`P.name+".stage-"+record_hash+"-"+attempt:04d` in `P.parent`. Attempt is the smallest 0..9999 whose
+path is absent. Algorithm:
+
+1. validate/build all bytes in memory and resolve final/parent under series root;
+2. if final exists, identical bytes/hash are idempotent; different bytes are authority conflict;
+3. scan staging attempts: exact complete hash is reusable; partial/different attempts remain preserved;
+4. otherwise exclusive-create next attempt, write, flush/fsync, close, reread/hash, fsync parent;
+5. publish atomically with `os.link(stage,P)`; `FileExistsError` returns to step 2; a filesystem
+   lacking same-volume atomic hard links returns AWAITING_HUMAN before any write;
+6. reread/hash final, flush the final file, then and only then grant authority. On POSIX, parent
+   directory fsync is additionally mandatory. On Windows (`os.name=="nt"`), where stdlib directory
+   fsync is unavailable, successful same-volume link, final-file flush/fsync and reread/hash are the
+   accepted local durability boundary; no implementation choice exists.
+
+Staging files are never deleted, truncated, renamed or authoritative. Crash during staging leaves
+final wholly absent and retryable with the next attempt; crash after link leaves final wholly present
+and adoptable. The algorithm cannot create a partial canonical final. A discovered partial/invalid
+final proves an out-of-contract writer: preserve it, stop AWAITING_HUMAN and retain the last valid gate
+as authority without asserting a new state.
+
+| IP | Exact authoritative recovery |
+| --- | --- |
+| IP-01 | no bytes; repeat validation with same IDs |
+| IP-02 | no stage/final; same sequence/ordinal, attempt zero |
+| IP-03 | partial stage preserved/non-authoritative, final absent; next attempt, same canonical record/sequence/ordinal |
+| IP-04 | exact complete stage reused, otherwise preserved and next attempt; final absent |
+| IP-05 | linked final is complete; exact hash adopted, mismatch is out-of-contract conflict |
+| IP-06 | earlier final authoritative/later absent; reconstruct same later bytes/ID and publish; missing adapter result uses grant retry |
+| IP-07 | same final hash idempotent; different final invokes conflict workflow |
+| IP-08 | gap prevents publication; preserve files; checkpoint only at next valid free sequence, otherwise last valid gate plus awaiting-human diagnostic |
+| IP-09 | hash-named current temp remains cache-only; rebuild/replace from latest valid gate |
+
+Conflict card ID remains `DC-{series_prefix}-{sequence}-{H(sorted source tuples)[:12]}` and bytes are
+complete before staging. Crash before/during card staging leaves final absent and replay republishes
+identical bytes. Crash after card link adopts it. Only then is the awaiting_human gate staged using the
+same model. Crash during gate staging leaves card durable/gate absent; replay adopts card and publishes
+the identical gate. A different final card is preserved as conflict; no alternate semantic ID exists.
+Thus every conflict has exactly one schema-valid canonical card.
+
+Closure uses the same decision-then-gate publication. Partial staging cannot close; a published
+decision with absent gate is adopted and the identical closed gate is republished. No overwrite,
+delete, truncate or evidence loss occurs.
+
+## 31. Independent normative fixture generator
+
+This replaces §26's requirement for future hand-authored JSON. The fixture oracle is a test-only
+generator implemented inside `tests/test_fal002_model.py`; it imports only stdlib `json`, `hashlib`
+and `pathlib`, never `forge.*`, generated schemas or production constants. There is no randomness.
+
+Primitive vocabulary is fixed: series `00000000-0000-4000-8000-000000000002`; time zero
+`2026-08-01T00:00:00.000000Z`; each subsequent record adds one microsecond; baseline
+`7bdbc9a9afb57dcd3a6f2e878ed1dc582ff8ad68`; branch `main`; scope `forge/fal002.py`; criterion
+`FAL2-CC-01`; principals `principal-executor`/`principal-reviewer`; adapters
+`forge/fal002_io.py#executor`/`#reviewer`; fixed content strings `F`, `S`, `C`, `P`, `R` are hashed as
+their raw UTF-8 bytes. Canonical encoder and H are the literal §21 algorithm reimplemented locally.
+The valid command oracle is root `.`, both heads equal baseline, branch `main`, empty status/diff/
+numstat, inventory counts `{modules:5,new_production_loc:1660,executor_adapters:1,
+reviewer_adapters:1,schema_surfaces:5}`, five schema hashes `H(schema_id raw UTF-8)`, pytest summary
+`1 passed in 0.01s` with all other counts zero, both Ruff statuses PASS, and Forge categories
+`[{name:"Project Memory Health",status:"OK",evidence_lines:["fixture"]},{name:
+"Version Consistency",status:"WARNING",evidence_lines:["fixture"]}]`.
+
+Generator operations are exactly `record(kind,sequence,ordinal,fields)`, `mutate(path,value|DELETE)`,
+`stage(record,attempt,prefix_length|FULL)`, and `publish(stage)`. `record` fills only §28 fields,
+derives IDs by §14, predecessor from prior literal record hash, created time by sequence microsecond,
+then payload/record hashes. `mutate` applies one JSON-pointer replacement after valid construction and
+does not recompute hashes unless the case says `REHASH`. `stage` emits the exact prefix of canonical
+bytes at the §30 path. `publish` produces a byte-identical final hard-link view. Output is one canonical
+JSON fixture file at the existing §18 path containing exact `initial_files`, `operation`, `fault`,
+`expected_files`, `forbidden_paths`, `expected_state`, `reason_code`, and `replay` objects. Paths sort
+bytewise; file values are lowercase hex of exact bytes. These rules uniquely determine every byte,
+ID, predecessor and hash without production logic.
+
+The generator input cases are exhaustive and fixed:
+
+| Fixture | Case IDs and exact generator operation/fault → expected record sequence/state/reason |
+| --- | --- |
+| `FX-GATE-VALID` | `valid-ready`: gate0 then MARK_READY → gate1/ready/NONE |
+| `FX-GATE-INVALID` | `missing-predecessor`: gate1 mutate `/predecessor` DELETE → none/draft/PREDECESSOR_GAP; `unknown-field`: add `/unknown=1`, REHASH → none/draft/MALFORMED_BOUNDARY |
+| `FX-EXEC-VALID` | `initial-complete`: gate0,gate1, START_EXECUTION, returned result → gate2 then executor exchange/executing/NONE |
+| `FX-EXEC-INVALID` | `executor-pass`: valid result add `/result/outcome="PASS"`, REHASH → no exchange/new gate; executing/FORBIDDEN_TRANSITION |
+| `FX-RUN-VALID` | `all-command-success`: completed exchange plus 13 literal parsed successes from §28.2 → run then evidence gate/evidence_ready/NONE |
+| `FX-RUN-INVALID` | `bad-hash`, `unknown-field`, `missing-executable`, `timeout`, `invalid-utf8`, `malformed-output`, `ambiguous-pytest`: mutate named command/hash or inject §32 bytes → blocked gate only/blocked with respectively HASH_MISMATCH, MALFORMED_BOUNDARY, COMMAND_FAILURE, TIMEOUT, MALFORMED_BOUNDARY, COMMAND_FAILURE, COMMAND_FAILURE |
+| `FX-REVIEW-VALID` | `fresh-pass`: valid run/grant plus complete criterion/rationale → review gate, reviewer exchange, eligibility gate/accepted/NONE |
+| `FX-REVIEW-INVALID` | `missing-criterion` → blocked gate/MISSING_EVIDENCE; `same-principal`, `inherited-context` → decision card then awaiting gate/INDEPENDENCE_FAILURE |
+| `FX-DECISION-VALID` | `retry-executor`: matching pending card and RETRY → resolution then ready gate/ready/NONE |
+| `FX-DECISION-INVALID` | `missing-owner`, `unknown-field`, `stale-target` → blocked gate/MALFORMED_BOUNDARY or STALE_RECORD; `declined` → decision then blocked gate/PENDING_DECISION |
+| `FX-HASH-ORDER` | `wrong-predecessor`, `sequence-gap`, `stale-sequence` → no publication/last state/PREDECESSOR_GAP or STALE_RECORD |
+| `FX-DUPLICATE` | `same-hash` → no record/idempotent; `different-hash` → card then awaiting gate/AUTHORITY_CONFLICT |
+| `FX-PARTIAL` | `gate`, `executor`, `run`, `reviewer`, `decision`: stage each record with prefix length `floor(byte_length/2)` → next attempt publishes same final; normal target state/NONE; prefix retained |
+| `FX-AUTH-CONFLICT` | `normal`, `crash-before-card-stage`, `crash-mid-card-stage`, `crash-after-card-link`, `crash-mid-gate-stage`, `crash-after-gate-link` → exactly one final card then awaiting gate/awaiting_human/AUTHORITY_CONFLICT |
+| `FX-REDACTED-RELEVANT` | `locator-secret`: raw `criterion=abc token='x y'` → exact §32 replacement; review blocked/MISSING_EVIDENCE |
+| `FX-CONDITIONAL` | `platform-and-type-checking`: source bytes `if sys.platform=='x': import forge.a\nif TYPE_CHECKING: import forge.b\n` → both files COUNT/ready/NONE |
+| `FX-DYNAMIC-LITERAL` | `import-and-subprocess`: source bytes `importlib.import_module('forge.a'); subprocess.run([sys.executable,'forge/b.py'])\n` → both COUNT/ready/NONE |
+| `FX-DYNAMIC-COMPUTED` | `computed-name`: source bytes `importlib.import_module(name)\n` → decision then awaiting gate/awaiting_human/PENDING_DECISION |
+| `FX-HIDDEN-SURFACE` | `sixth-surface` → awaiting gate/LIMIT_BREACH; `correction-one`, `correction-two` → executing gates with counts 1/2; `no-progress` → blocked gate/NO_PROGRESS; `ceiling` → card then awaiting gate/CORRECTION_CEILING; `closure` → closure decision then closed gate; `closure-mid-stage` → next staging attempt, same decision/gate, closed |
+
+For every case `forbidden_paths` is all canonical record paths not listed in expected files plus every
+out-of-policy path. Replay reruns the same operation and must produce byte-identical filesystem map
+with no new final record. Tests must first compare generated fixture bytes to committed fixture bytes,
+then supply those bytes to production; production can never generate its own oracle.
+
+## 32. Definitive collector representation rules
+
+### 32.1 Offline precondition
+
+Human authority owns the offline requirement through MANIFEST `offline_evidence`. It is exactly
+`{evidence_id,source:"HUMAN_DECISION",decision_id,locator,content_hash,collected_at,valid_until,
+command_policy_hash}`. `evidence_id=H({decision_id,locator,content_hash,command_policy_hash})`.
+`collected_at` and `valid_until` are Timestamps; valid_until must be at least collector start and no
+more than 24 hours after collected_at. Gate-zero hash binds it; core checks time and policy hash before
+each command. RunRecord repository adds exact `offline_evidence_id` and `offline_evidence_hash`.
+Missing, stale, mismatched or non-human evidence creates PENDING_DECISION/awaiting_human before spawn.
+
+### 32.2 Redaction byte grammar
+
+Input is raw stdout/stderr bytes. Scan left-to-right for ASCII case-insensitive key tokens exactly
+`token`, `password`, `secret`, `api_key`, `api-key`, `authorization`. A key begins at byte zero or
+after ASCII whitespace or one of `{`, `[`, `(`, `,`, `;`; it is followed by optional ASCII space/tab,
+then `=` or `:`, then optional space/tab. Value is either: single/double quoted bytes through the next
+matching unescaped quote, where backslash escapes exactly the next byte; or unquoted bytes through
+ASCII whitespace, NUL, comma, semicolon, `}`, `]`, `)` or end. Replace value bytes only with ASCII
+`<REDACTED>` and retain key, separator, spacing and quotes. Unterminated quote consumes to end.
+
+After replacement, resume after replacement; therefore replacements never rescan. At a position,
+choose the longest matching key (`authorization` before shorter alternatives); repeated values are
+all replaced. Non-ASCII bytes never form key/delimiter. Apply stdout then stderr independently.
+Hash exact redacted bytes using §24 preimage before CR/LF normalization. Stored bytes are strict-
+UTF-8 decoded redacted bytes with CRLF and CR replaced by LF; invalid UTF-8 after redaction is
+MALFORMED_BOUNDARY. The command-specific parsed union is exclusively §28.2.
+
+## 33. Corrected end-to-end control mapping
+
+This table replaces §27 coverage. Test names are planned implementation tests; fixture cases are
+normative generator cases from §31. No status here is independent review verification.
+
+| Control | Exact contract and implementation point | State/authority behavior | Literal verification path | Failure disposition |
+| --- | --- | --- | --- | --- |
+| `FAL2-CC-01` | §21 schema rules + §28 `$defs`; `fal002_model.generate_schemas` | validate before publication | `test_schema_generation_exact`; five valid generator roots and all invalid subcases | BLOCKED |
+| `FAL2-CC-02` | §21 validation order + every §28 object; model validators | INVALID_EVIDENCE gate | GATE/RUN/DECISION invalid cases with literal reason codes | BLOCKED |
+| `FAL2-CC-03` | Gate common fields/control + chain loader | reopen carries frozen hash/count/ordinal | HASH-ORDER plus correction-one/two and retry cases | BLOCKED |
+| `FAL2-CC-04` | §28.2 parsed union; I/O 13 collectors | only COLLECT_COMPLETE creates evidence | RUN valid/all seven invalid collector cases | BLOCKED |
+| `FAL2-CC-05` | CONTROL payload + §22 transitions | count 0→1→2; retries only ordinal; no-progress stops | HIDDEN correction/no-progress/ceiling cases | BLOCKED/AWAITING_HUMAN |
+| `FAL2-CC-06` | Reviewer result/ELIGIBILITY invariants | REVIEW_PASS rejected on blocker | REVIEW missing-criterion/blocking cases | BLOCKED |
+| `FAL2-CC-07` | EvidenceBinding and rationale arrays | reviewer semantic authority, collector identity authority | REVIEW valid and missing/wrong locator/hash cases | BLOCKED/no eligibility |
+| `FAL2-CC-08` | MANIFEST roles + InvocationGrant/ObservedInvocation §29 | independence precheck before reviewer | REVIEW same-principal/inherited-context/mismatched-grant | card/AWAITING_HUMAN |
+| `FAL2-CC-09` | staged publication §30 + Gate predecessor | only linked verified finals authoritative | PARTIAL/HASH-ORDER/AUTH-CONFLICT all crash cases | last gate retained/AWAITING_HUMAN |
+| `FAL2-CC-10` | §28.3 fixed domains/choices | no default; decision event only | DECISION valid/invalid/stale/declined | BLOCKED/AWAITING_HUMAN |
+| `FAL2-CC-11` | CLOSURE payload + staged decision/gate | human decision then closed gate | HIDDEN closure/mid-stage/replay | accepted remains until closed gate |
+| `FAL2-CC-12` | ExecutorRequest paths/13 IDs + command policy hash | checked before execution grant | EXEC PASS-field/out-of-policy command/path cases | BLOCKED |
+| `FAL2-CC-13` | INVENTORY payload/counts + 1,800 envelope | MARK_READY only on PASS | HIDDEN sixth-surface and self-inventory literal counts | AWAITING_HUMAN |
+| `FAL2-CC-14` | RunRecord exact 13 entries + §28.2/§32 | missing entry prevents evidence gate | RUN valid/missing/timeout/encoding/parser cases | BLOCKED |
+| `FAL2-CC-15` | ReviewerPacket + Forge grant/provenance | PASS/eligibility only after seven fresh checks | REVIEW fresh-pass and three independence failures | no eligibility/AWAITING_HUMAN |
+| `FAL2-CC-16` | CLOSURE decision vocabulary/eligibility binding | accepted→closed only by human | closure, repeated closure and mid-stage recovery | no premature closure |
+
+Budget remains the §27 allocation: 1,660 expected, 1,800 maximum and 140 margin. Sections 28–32
+make already budgeted model, fixture-test, provenance, recovery and parser responsibilities precise;
+they add no production module, dependency, adapter or schema surface and do not reopen `EB006-FR-07`.
+
+`CORR-010-01` through `CORR-010-07`, `EB006-IR2-01` through `EB006-IR2-07`, and corresponding
+historical residuals are `ADDRESSED — AWAITING INDEPENDENT REVIEW`. None is VERIFIED, CLOSED, PASS
+or implementation-authorized. The required next gate is a fresh independent read-only
+Standard-Assurance review.
