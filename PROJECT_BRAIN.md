@@ -204,6 +204,13 @@ Forge may eventually include:
   affected matrix rows and eligibility-oracle fidelity to frozen §47. It may not change production
   semantics, specification, architecture, runtime, five surfaces, dependencies or budget, and it
   leaves FAL-002 `NOT AUTHORIZED`.
+- Treat CORR-016 as documentation-complete and only `ADDRESSED — AWAITING INDEPENDENT REVIEW`.
+  Final §48 now executes an exhaustive REHASH policy with supported/context/prohibited dispatch,
+  dependency-cycle/context validation, coherent binding and publication identities, a 24-row
+  affected-matrix gate, and eligibility derived from carried finding history/checkpoint. Empty
+  review never verifies an addressed blocker; CRITICAL blocks; exact independent absence clears
+  only that finding blocker. Recovery depth three, successor execution and semantic answer
+  relocation remain regression-green. `EB006-IR6-02` remains open pending independent review.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

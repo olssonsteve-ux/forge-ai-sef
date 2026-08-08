@@ -22,8 +22,9 @@ It independently verified `CORR-014-01`/`EB006-IR6-01`, did not verify
 bounded `CORR-015-01` EB-006 fixture-oracle documentation correction. Independent IR8 returned
 `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: CORR-015 is `PARTIALLY VERIFIED`,
 `EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorizes exactly
-one bounded `CORR-016-01` final §48 oracle-totality correction; it is `AUTHORIZED — NOT STARTED`.
-`EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains open, and FAL-002 remains
+one bounded `CORR-016-01` final §48 oracle-totality correction. CORR-016 is documentation-complete
+and only `ADDRESSED — AWAITING INDEPENDENT REVIEW`. `EB006-IR6-01` remains independently verified,
+`EB006-IR6-02` remains open, and FAL-002 remains
 `NOT AUTHORIZED`. The
 `HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800 new production LOC; the
 album capability remains unstarted.
@@ -218,13 +219,13 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 step is execution of the single `HD-FAL-019`-authorized bounded
-`CORR-016-01` final §48 documentation correction in one separate commit, followed by one fresh
-independent read-only Standard-Assurance Review. Correct only executable REHASH policy/closure,
-the IR8-failing matrix rows and eligibility-oracle fidelity to frozen §47. Preserve recovery depth
-three, successor Run/Review/FindingEvent binding, DecisionRequirement REHASH/NO_REHASH, semantic
-answer relocation, `EB006-IR6-01`, five surfaces and budget. Keep `EB006-IR6-02` open. Do not
-implement FAL-002, close a finding or infer Implementation Authorization.
+The next permitted FAL-002 step is one fresh independent read-only Standard-Assurance Review of the
+dedicated CORR-016 correction baseline. Final §48 now executes supported/context/prohibited REHASH
+dispatch, dependency validation, 24 affected matrix rows and carried-checkpoint eligibility for
+addressed, empty-review, CRITICAL, independently verified and recovery cases. Preserve recovery
+depth three, successor Run/Review/FindingEvent binding, DecisionRequirement REHASH/NO_REHASH,
+semantic answer relocation, `EB006-IR6-01`, five surfaces and budget. Keep `EB006-IR6-02` open. Do
+not implement FAL-002, close a finding or infer Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

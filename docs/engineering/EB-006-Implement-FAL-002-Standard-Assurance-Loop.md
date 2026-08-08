@@ -9,7 +9,7 @@ Owner: Chief Architect
 Decision basis: `HD-FAL-006`
 
 Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`, `HD-FAL-012`,
-`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`, `HD-FAL-017`, `HD-FAL-018`
+`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`, `HD-FAL-017`, `HD-FAL-018`, `HD-FAL-019`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -1996,6 +1996,14 @@ final residual oracle correction; it does not reopen the verified semantic-answe
 | --- | --- | --- | --- | --- | --- |
 | `CORR-015-01` | `EB006-IR6-02` | `HD-FAL-018` | §§48–50 | explicit active-series propagation; executable recovery-N and successor run/review scenarios; topologically complete DecisionRequirement REHASH/NO_REHASH; create-only VFS and total row operations | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
+IR8 partially verified `CORR-015-01`, left `EB006-IR6-02` `NOT VERIFIED`, created no new finding and
+preserved `EB006-IR6-01` as independently verified. `HD-FAL-019` authorizes only the remaining §48
+oracle-totality correction:
+
+| Objective | Source | Authority | Final sections | Consolidated model and completion evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CORR-016-01` | `EB006-IR6-02` | `HD-FAL-019` | §§48–50 | executable supported/context/prohibited REHASH dispatch and dependency self-check; 24-row affected-matrix gate; carried-checkpoint eligibility with addressed/empty-review, CRITICAL, verified and recovery cases; preserved recovery depth three, successor and semantic-answer regressions | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+
 ## 44. Final universal canonical bytes and hash contract
 
 ### 44.1 Canonical JSON value domain
@@ -3368,8 +3376,27 @@ def checkpoint_gate(lineage):
 def eligibility_gate(lineage,rv):
     predecessor=lineage["active_gate"]; series=lineage["active_series_id"]
     assert rv["series_id"]==series and rv["result"]["outcome"]=="PASS"
+    rebuilt=checkpoint(lineage["finding_events"])
+    if rebuilt!=lineage["finding_checkpoint"]:
+        raise OracleDefinitionError("FINDING_CHECKPOINT_MISMATCH")
+    unresolved=[x for x in rebuilt["current_findings"] if x["state"] in UNRESOLVED]
+    blockers=[x for x in unresolved
+      if x["current_blocking"] or x["current_severity"]=="CRITICAL"]
+    if blockers:
+        raise OracleDefinitionError("ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING")
+    applied={x["decision_requirement_hash"] for x in lineage["decision_applications"]}
+    pending=[x for x in lineage["decision_requirements"]
+      if x["decision_requirement_hash"] not in applied]
+    if pending: raise OracleDefinitionError("ELIGIBILITY_PENDING_HUMAN_DECISION")
+    evidence_ids={x["criterion_id"] for x in rv["result"]["criterion_evidence"]}
+    rationale_ids={x["criterion_id"] for x in rv["result"]["semantic_rationale"]}
+    if evidence_ids!={"FAL2-CC-01"} or rationale_ids!={"FAL2-CC-01"}:
+        raise OracleDefinitionError("ELIGIBILITY_MISSING_CRITERION_EVIDENCE")
     value={"review_id":rv["record_id"],"review_hash":rv["record_hash"],
-      "criterion_ids":["FAL2-CC-01"],"finding_ids":[],"eligible":True}
+      "criterion_ids":["FAL2-CC-01"],
+      "finding_ids":[x["finding_id"] for x in rebuilt["current_findings"]],
+      "finding_ledger_hash":rebuilt["finding_ledger_hash"],
+      "unresolved_finding_ids":[x["finding_id"] for x in unresolved],"eligible":True}
     return gate(predecessor["sequence"]+1,"accepted","core","REVIEW_PASS",
       "ELIGIBILITY",value,predecessor["record_hash"],lineage["correction_count"],series)
 
@@ -4040,40 +4067,152 @@ def remove(value,pointer):
     else: raise OracleDefinitionError("NON_CONTAINER_PARENT")
     return result
 
-DERIVED_DEPENDENCY_ORDER=(
-  "DecisionSemanticInput->semantic_payload_hash",
-  "DecisionSemanticInput->decision_identity",
-  "DecisionRequirement->decision_requirement_hash",
-  "PresentationEvidence->presentation_evidence_hash",
-  "ResolutionSemanticInput->resolution_semantic_hash",
-  "DecisionBinding->binding_key",
-  "DecisionApplication->application_key",
-  "RemediationEvidence->remediation_evidence_hash",
-  "FindingEvent->event_id,event_hash",
-  "FindingEventHistory->FindingCheckpoint",
-  "OfflineEvidence->evidence_id",
-  "surface payload->payload_hash->record_hash")
+REHASH_SUPPORTED="REHASH_SUPPORTED"
+REHASH_REQUIRES_CONTEXT="REHASH_REQUIRES_CONTEXT"
+REHASH_PROHIBITED="REHASH_PROHIBITED"
 
-REHASH_PATH_POLICY={
-  "DecisionRequirement":("/semantic_input",),
-  "DecisionResolution":("/payload/resolution_semantic_input",),
-  "DecisionBinding":("/decision_requirement_hash","/binding_generation",
-    "/binding_series_id","/pending_card_record_id","/pending_card_locator",
-    "/previous_binding_key","/obstruction_evidence_hash"),
-  "DecisionApplication":("/decision_requirement_hash","/binding_generation","/binding_key",
-    "/pending_card_record_id","/pending_card_record_hash","/resolution_record_id",
-    "/resolution_locator","/resolution_record_hash","/resolution_semantic_hash",
-    "/presentation_evidence_hash","/selected_choice","/application_ordinal",
-    "/previous_application_key"),
-  "FindingEvent":("/payload",),"RemediationEvidence":("/",),
-  "GateRecord":("/payload/manifest/scope_hash","/payload/publication_intent/intended_record_hash",
-    "/payload/publication_intent/slot/target_record_id","/payload/control/finding_events")}
+DERIVED_DEPENDENCIES={
+  "semantic_payload_hash":("semantic_input",),
+  "decision_identity":("semantic_input",),
+  "decision_requirement_hash":("semantic_input","semantic_payload_hash","decision_identity"),
+  "presentation_evidence_hash":("presentation_evidence",),
+  "resolution_semantic_hash":("resolution_semantic_input",),
+  "pending_card_record_hash":("pending_card_record",),
+  "binding_key":("decision_requirement_hash","binding_generation","binding_series_id",
+    "pending_card_record_id","pending_card_locator","previous_binding_key",
+    "obstruction_evidence_hash"),
+  "application_key":("decision_requirement_hash","binding_key","pending_card_record_hash",
+    "resolution_record_hash","resolution_semantic_hash","presentation_evidence_hash",
+    "selected_choice","application_ordinal","previous_application_key"),
+  "content_hash":("source_evidence_value",),
+  "slot_target_path":("predecessor_series_id","target_surface","target_record_id"),
+  "slot_id":("origin_series_id","predecessor_series_id","predecessor_gate_id",
+    "predecessor_gate_hash","target_surface","target_record_id","slot_target_path",
+    "reconstruction"),
+  "intent_commitment_hash":("publication_slot","intended_record_hash","intended_file_hash",
+    "stage_locator","stage_file_hash","source_record_hash"),
+  "recovery_condition_hash":("obstruction",),
+  "recovery_discovery_key":("recovery_discovery_material",),
+  "remediation_evidence_hash":("remediation_evidence",),
+  "event_hash":("finding_event",),"event_id":("event_hash",),
+  "finding_history_hash":("finding_event_history",),
+  "finding_ledger_hash":("current_finding_state",),
+  "finding_checkpoint":("finding_event_history","finding_history_hash","finding_ledger_hash"),
+  "progress_evidence_hash":("run_record","current_finding_state"),
+  "unresolved_finding_set_hash":("current_finding_state",),
+  "evidence_id":("offline_evidence",),
+  "payload_hash":("surface_payload",),"record_hash":("surface_record","payload_hash"),
+  "file_hash":("canonical_file_bytes",)}
 
-REHASH_PROHIBITED_WITHOUT_SOURCE=(
-  "PendingDecisionCard.semantic_input","EvidenceBinding.content_hash",
-  "FindingCheckpoint without complete FindingEvent history",
-  "recovery condition/discovery material without exact obstruction and predecessor",
-  "progress fingerprint without exact RunRecord and CurrentFindingState")
+REHASH_RULES=(
+  {"family":"DecisionRequirement","prefix":"/semantic_input","policy":REHASH_SUPPORTED,
+   "context":()},
+  {"family":"DecisionBinding","prefix":"/binding_generation",
+   "policy":REHASH_REQUIRES_CONTEXT,
+   "context":("requirement","pending_record","predecessor_binding","obstruction_hash","series")},
+  {"family":"DecisionBinding","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"DecisionResolution","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"DecisionApplication","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"PendingDecisionCard","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"EvidenceBinding","prefix":"/content_hash","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"EvidenceBinding","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"FindingEvent","prefix":"/payload/evidence_bindings","policy":REHASH_PROHIBITED,
+   "context":()},
+  {"family":"FindingEvent","prefix":"/payload","policy":REHASH_SUPPORTED,"context":()},
+  {"family":"FindingEvent","prefix":"/previous_event_hash","policy":REHASH_SUPPORTED,
+   "context":()},
+  {"family":"RemediationEvidence","prefix":"/","policy":REHASH_SUPPORTED,"context":()},
+  {"family":"FindingCheckpoint","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"GateRecord","prefix":"/payload/publication_intent/slot/target_record_id",
+   "policy":REHASH_REQUIRES_CONTEXT,
+   "context":("lineage","target_record","source_record","stage_attempt")},
+  {"family":"GateRecord","prefix":"/payload/publication_intent/intended_record_hash",
+   "policy":REHASH_REQUIRES_CONTEXT,
+   "context":("lineage","target_record","source_record","stage_attempt")},
+  {"family":"GateRecord","prefix":"/payload/control/finding_events",
+   "policy":REHASH_REQUIRES_CONTEXT,"context":("lineage",)},
+  {"family":"GateRecord","prefix":"/payload/manifest/scope_hash",
+   "policy":REHASH_SUPPORTED,"context":()},
+  {"family":"GateRecord","prefix":"/payload/recovery_root",
+   "policy":REHASH_PROHIBITED,"context":()},
+  {"family":"GateRecord","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"PublicationSlot","prefix":"/","policy":REHASH_REQUIRES_CONTEXT,
+   "context":("origin_series_id","predecessor","target_surface","target_id","reconstruction")},
+  {"family":"RecoveryDerived","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"ProgressFingerprint","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+  {"family":"OfflineEvidence","prefix":"/","policy":REHASH_PROHIBITED,"context":()})
+
+def normalized_pointer(pointer):
+    return "/"+"/".join(x.replace("~","~0").replace("/","~1")
+      for x in pointer_tokens(pointer)) if pointer else ""
+
+def mutation_family(value):
+    if isinstance(value,dict) and value.get("schema_id")=="fal002.gate-record.v1":
+        return "GateRecord"
+    if isinstance(value,dict) and value.get("schema_id")=="fal002.human-decision.v1":
+        return {"PENDING_CARD":"PendingDecisionCard","RESOLUTION":"DecisionResolution"}.get(
+          value.get("decision_kind"),"HumanDecisionRecord")
+    if isinstance(value,dict) and "decision_requirement_hash" in value and \
+       "semantic_input" in value and "required_authority" in value:
+        return "DecisionRequirement"
+    if isinstance(value,dict) and "binding_key" in value and "pending_card_locator" in value:
+        return "DecisionBinding"
+    if isinstance(value,dict) and "application_key" in value and "resolution_record_hash" in value:
+        return "DecisionApplication"
+    if isinstance(value,dict) and "criterion_id" in value and "content_hash" in value and \
+       "provenance" in value:
+        return "EvidenceBinding"
+    if isinstance(value,dict) and "event_hash" in value and "event_kind" in value:
+        return "FindingEvent"
+    if isinstance(value,dict) and "remediation_evidence_hash" in value:
+        return "RemediationEvidence"
+    if isinstance(value,dict) and set(("event_count","finding_history_hash",
+       "current_findings","finding_ledger_hash")).issubset(value):
+        return "FindingCheckpoint"
+    if isinstance(value,dict) and "slot_id" in value and "target_surface" in value:
+        return "PublicationSlot"
+    if isinstance(value,dict) and ("recovery_discovery_key" in value or
+       "recovery_condition_hash" in value): return "RecoveryDerived"
+    if isinstance(value,dict) and "progress_evidence_hash" in value and "unresolved" in value:
+        return "ProgressFingerprint"
+    if isinstance(value,dict) and "evidence_id" in value and "command_policy_hash" in value:
+        return "OfflineEvidence"
+    raise OracleDefinitionError("REHASH_UNSUPPORTED_MUTATION_FAMILY")
+
+def resolve_rehash_rule(value,pointer):
+    family=mutation_family(value); normalized=normalized_pointer(pointer)
+    matches=[]
+    for rule in REHASH_RULES:
+        prefix=rule["prefix"]
+        if rule["family"]==family and (prefix=="/" or normalized==prefix or
+          normalized.startswith(prefix+"/")):
+            matches.append(rule)
+    if not matches: raise OracleDefinitionError("REHASH_UNSUPPORTED_MUTATION_FAMILY")
+    return max(matches,key=lambda x:len(x["prefix"]))
+
+def apply_mutation(value,pointer,operation,replacement=None):
+    if operation=="replace": return replace(value,pointer,replacement)
+    if operation=="add": return add(value,pointer,replacement)
+    if operation=="remove": return remove(value,pointer)
+    raise OracleDefinitionError("REHASH_UNSUPPORTED_MUTATION_OPERATION")
+
+def dependency_self_check():
+    allowed={REHASH_SUPPORTED,REHASH_REQUIRES_CONTEXT,REHASH_PROHIBITED}
+    assert all(x["policy"] in allowed for x in REHASH_RULES)
+    assert all(x["context"] for x in REHASH_RULES
+      if x["policy"]==REHASH_REQUIRES_CONTEXT)
+    graph={k:tuple(x for x in v if x in DERIVED_DEPENDENCIES)
+      for k,v in DERIVED_DEPENDENCIES.items()}
+    temporary=set(); complete=set()
+    def visit(node):
+        if node in temporary: raise OracleDefinitionError("REHASH_DEPENDENCY_CYCLE")
+        if node in complete: return
+        temporary.add(node)
+        for dependency in graph[node]: visit(dependency)
+        temporary.remove(node); complete.add(node)
+    for node in graph: visit(node)
+    return {"derived_field_count":len(DERIVED_DEPENDENCIES),
+      "rule_count":len(REHASH_RULES),"disposition":"VALID"}
 
 def rehash_value(value):
     if isinstance(value,list): return [rehash_value(x) for x in value]
@@ -4116,17 +4255,52 @@ def rehash_value(value):
           out["created_at"],fields)[0]
     return out
 
-def REHASH(value,lineage=None):
-    work=copy.deepcopy(value)
-    if isinstance(work,dict) and work.get("schema_id")=="fal002.gate-record.v1" and \
-       work["payload"].get("variant_kind")=="CONTROL":
-        if lineage is None: raise OracleDefinitionError("LINEAGE_REQUIRED_FOR_CONTROL_REHASH")
-        delta=work["payload"]["control"]["finding_events"]
+def REHASH(value,pointer,operation,replacement=None,context=None):
+    rule=resolve_rehash_rule(value,pointer)
+    if rule["policy"]==REHASH_PROHIBITED:
+        raise OracleDefinitionError("REHASH_PROHIBITED")
+    context={} if context is None else context
+    missing=[x for x in rule["context"] if x not in context]
+    if missing: raise OracleDefinitionError("REHASH_CONTEXT_REQUIRED")
+    work=apply_mutation(value,pointer,operation,replacement)
+    family=rule["family"]
+    if family=="DecisionBinding":
+        requirement=context["requirement"]; previous=context["predecessor_binding"]
+        generation=work["binding_generation"]
+        if value!=previous or generation!=previous["binding_generation"]+1 or context["series"]!= \
+           context["pending_record"]["series_id"]:
+            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+        expected,pending=rebound_bundle(requirement,context["series"],generation,previous,
+          context["obstruction_hash"])
+        if pending!=context["pending_record"]:
+            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+        return expected
+    if family=="GateRecord" and rule["prefix"].startswith("/payload/publication_intent"):
+        lineage=context["lineage"]; target=context["target_record"]
+        source=context["source_record"]; attempt=context["stage_attempt"]
+        if validate_surface_hash(value)!="VALID" or \
+           value["predecessor"]!=lineage["active_gate"]["record_hash"] or \
+           target["series_id"]!=lineage["active_series_id"] or \
+           source["series_id"]!=lineage["active_series_id"]:
+            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+        if rule["prefix"].endswith("target_record_id") and \
+           work["payload"]["publication_intent"]["slot"]["target_record_id"]!=target["record_id"]:
+            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+        if rule["prefix"].endswith("intended_record_hash") and \
+           work["payload"]["publication_intent"]["intended_record_hash"]!=target["record_hash"]:
+            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+        rebuilt=publication_intent(lineage,target,source,attempt)[0]
+        if rebuilt["sequence"]!=value["sequence"] or rebuilt["series_id"]!=value["series_id"]:
+            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+        return rebuilt
+    if family=="GateRecord" and rule["prefix"]=="/payload/control/finding_events":
+        lineage=context["lineage"]; delta=work["payload"]["control"]["finding_events"]
         history=copy.deepcopy(lineage["finding_events"])+copy.deepcopy(delta)
         work["payload"]["control"]["finding_checkpoint"]=checkpoint(history)
     return rehash_value(work)
 
-def NO_REHASH(value,lineage=None): return copy.deepcopy(value)
+def NO_REHASH(value,pointer,operation,replacement=None):
+    return apply_mutation(value,pointer,operation,replacement)
 
 def validate_requirement_hashes(requirement):
     semantic_hash=h("fal002-json-content-v1",requirement["semantic_input"])
@@ -4136,16 +4310,30 @@ def validate_requirement_hashes(requirement):
     return ("VALID" if requirement["semantic_payload_hash"]==semantic_hash and
       requirement["decision_identity"]==identity and
       requirement["decision_requirement_hash"]==expected_requirement else "HASH_MISMATCH")
+
+def validate_evidence_binding(evidence_binding,run_record):
+    expected=binding(run_record)
+    return "VALID" if evidence_binding==expected else "HASH_MISMATCH"
+
+def validate_publication_intent(lineage,intent,target,source,stage_attempt):
+    expected=publication_intent(lineage,target,source,stage_attempt)[0]
+    return "VALID" if intent==expected else "HASH_MISMATCH"
+
+def validate_surface_hash(record):
+    if record.get("schema_id") not in SURFACE_FIELDS: return "MALFORMED_BOUNDARY"
+    fields={k:record[k] for k in SURFACE_FIELDS[record["schema_id"]]}
+    expected=make_record(record["schema_id"],record["record_id"],record["series_id"],
+      record["created_at"],fields)[0]
+    return "VALID" if record==expected else "HASH_MISMATCH"
 ```
 
-`DERIVED_DEPENDENCY_ORDER` is the normative topological order. `REHASH` recursively rebuilds
-innermost derived objects, including semantic payload hash before decision identity and requirement
-hash, then presentation, binding, application, remediation, resolution and event objects; it derives
-a CONTROL checkpoint from explicit complete lineage plus delta, and finally recomputes surface
-payload and record hashes. `REHASH_PATH_POLICY` is the complete set of fixture-authorized REHASH
-families. A path named by `REHASH_PROHIBITED_WITHOUT_SOURCE` must use `NO_REHASH` or a total
-constructor carrying the named source context; direct REHASH raises `OracleDefinitionError` in its
-own fixture wrapper. No normative matrix row may request REHASH outside this policy.
+`REHASH_RULES` is executable dispatch policy, not descriptive metadata. Longest normalized pointer
+prefix wins. `REHASH` rejects unsupported, prohibited, missing-context and mismatched-context cases
+before returning an object. Supported generic families are rebuilt innermost-to-outermost;
+contextful binding and publication-intent paths use their total constructors. DecisionResolution,
+DecisionApplication, PendingDecisionCard, FindingCheckpoint, recovery, progress and offline-evidence
+mutation use their total constructors and prohibit generic REHASH. `dependency_self_check()` rejects
+cycles and incomplete context declarations. No generic fallback exists.
 `HB(CF(record))` is computed only when the rehashed record is placed in the VFS/output. A required
 ancestor context that is absent is `OracleDefinitionError`, never implementer discretion.
 
@@ -4274,7 +4462,8 @@ def scenario_recovery_n():
     assert root_paths[0]!=root_paths[1] and all(p in state["vfs"]["regular"] for p in root_paths)
     return {"state":state,"root1":root1,"root2":root2,"run0":rr0,"review0":rv0,
       "run1":rr1,"review1":rv1,"event0":e0,"event1":e1,
-      "origin_series":origin_series,"series1":series1,"series2":series2}
+      "origin_series":origin_series,"series1":series1,"series2":series2,
+      "disposition":"VALID"}
 
 def scenario_successor_run_review():
     state=oracle_lineage_state(); state,_,rr0,rv0=make_run_review(state,0,publish_review=False)
@@ -4304,7 +4493,21 @@ def scenario_successor_run_review():
     assert state["max_global_event_ordinal"]==2 and state["finding_checkpoint"]["event_count"]==3
     return {"state":state,"origin_series":origin_series,"series1":series1,"series2":series2,
       "run0":rr0,"review0":rv0,"event0":e0,"run1":rr1,"review1":rv1,"event1":e1,
-      "run2":rr2,"review2":rv2,"event2":e2}
+      "run2":rr2,"review2":rv2,"event2":e2,"disposition":"VALID"}
+
+def scenario_recovery_depth_three():
+    recovered=scenario_recovery_n(); state=recovered["state"]
+    state,_,_,review2=make_run_review(state,2,publish_review=False)
+    immutable=copy.deepcopy(state["vfs"]["regular"])
+    root3,_,state=recovery_root(state,review2,0)
+    series3=state["active_series_id"]
+    assert state["recovery_depth"]==3
+    assert len({recovered["origin_series"],recovered["series1"],
+      recovered["series2"],series3})==4
+    assert root3["payload"]["recovery_root"]["predecessor_series_id"]==recovered["series2"]
+    assert all(state["vfs"]["regular"].get(path)==value for path,value in immutable.items())
+    return {**recovered,"state":state,"root3":root3,"series3":series3,
+      "disposition":"VALID"}
 
 def scenario_decision_relocation():
     requirement,binding0,pending0,resolution0,application0,evidence=offline_bundle()
@@ -4331,19 +4534,21 @@ def scenario_decision_relocation():
 
 def scenario_mutation():
     base=gate0()[0]
-    mutated=replace(base,"/payload/manifest/scope_hash","0"*64)
-    stale=NO_REHASH(mutated); current=REHASH(mutated)
+    pointer="/payload/manifest/scope_hash"; replacement="0"*64
+    stale=NO_REHASH(base,pointer,"replace",replacement)
+    current=REHASH(base,pointer,"replace",replacement)
     assert stale["record_hash"]==base["record_hash"]
     assert current["record_hash"]!=base["record_hash"]
-    return {"base":base,"pointer":"/payload/manifest/scope_hash",
-      "operation":"replace","value":"0"*64,"REHASH":current,
+    return {"base":base,"pointer":pointer,
+      "operation":"replace","value":replacement,"REHASH":current,
       "REHASH_disposition":"AUTHORITY_CONFLICT","NO_REHASH":stale,
       "NO_REHASH_disposition":"HASH_MISMATCH"}
 
 def scenario_rehash_decision_requirement():
     base=offline_bundle()[0]; pointer="/semantic_input/question"
-    changed=replace(base,pointer,"May this independently mutated fixture execute offline?")
-    current=REHASH(changed); stale=NO_REHASH(changed)
+    replacement="May this independently mutated fixture execute offline?"
+    current=REHASH(base,pointer,"replace",replacement)
+    stale=NO_REHASH(base,pointer,"replace",replacement)
     expected_semantic=h("fal002-json-content-v1",current["semantic_input"])
     expected_identity="D-"+h("fal002-decision-identity-v1",current["semantic_input"])[:32]
     expected_base={k:v for k,v in current.items() if k!="decision_requirement_hash"}
@@ -4358,7 +4563,65 @@ def scenario_rehash_decision_requirement():
     assert stale["decision_requirement_hash"]==base["decision_requirement_hash"]
     assert validate_requirement_hashes(stale)=="HASH_MISMATCH"
     return {"base":base,"pointer":pointer,"REHASH":current,"NO_REHASH":stale,
-      "REHASH_disposition":"VALID","NO_REHASH_disposition":"HASH_MISMATCH"}
+      "REHASH_disposition":"VALID","NO_REHASH_disposition":"HASH_MISMATCH",
+      "disposition":"VALID"}
+
+def scenario_rehash_decision_binding():
+    requirement,binding0,_,_,_,_=offline_bundle(); pointer="/binding_generation"
+    try: REHASH(binding0,pointer,"replace",1)
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_CONTEXT_REQUIRED"; bare="REHASH_CONTEXT_REQUIRED"
+    else: raise AssertionError("bare binding generation mutation was accepted")
+    obstruction_hash=hb(b"binding-generation-obstruction")
+    binding1,pending1=rebound_bundle(requirement,
+      "00000000-0000-4000-8000-000000000099",1,binding0,obstruction_hash)
+    context={"requirement":requirement,"pending_record":pending1,
+      "predecessor_binding":binding0,"obstruction_hash":obstruction_hash,
+      "series":pending1["series_id"]}
+    current=REHASH(binding0,pointer,"replace",1,context)
+    assert current==binding1 and current["pending_card_record_hash"]==pending1["record_hash"]
+    wrong={**context,"pending_record":offline_bundle()[2]}
+    try: REHASH(binding0,pointer,"replace",1,wrong)
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_CONTEXT_MISMATCH"; mismatch="REHASH_CONTEXT_MISMATCH"
+    else: raise AssertionError("mismatched binding context was accepted")
+    return {"bare":bare,"binding1":current,"pending1":pending1,
+      "context_mismatch":mismatch,"disposition":"VALID"}
+
+def scenario_rehash_publication_slot():
+    state=oracle_lineage_state(); _,rv0,_,_,rv1,_=scenario_review_binding()
+    intent0=publication_intent(state,rv0,rv0,0)[0]
+    pointer="/payload/publication_intent/slot/target_record_id"
+    try: REHASH(intent0,pointer,"replace",rv1["record_id"])
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_CONTEXT_REQUIRED"; missing="REHASH_CONTEXT_REQUIRED"
+    else: raise AssertionError("publication mutation without context was accepted")
+    context={"lineage":state,"target_record":rv1,"source_record":rv1,"stage_attempt":0}
+    current=REHASH(intent0,pointer,"replace",rv1["record_id"],context)
+    old_slot=intent0["payload"]["publication_intent"]["slot"]
+    new_slot=current["payload"]["publication_intent"]["slot"]
+    expected=slot(state["origin_series_id"],state["active_gate"],rv1["schema_id"],
+      rv1["record_id"],"COMMITTED")
+    assert new_slot==expected and new_slot["slot_id"]!=old_slot["slot_id"]
+    assert current["record_hash"]!=intent0["record_hash"]
+    stale=NO_REHASH(intent0,pointer,"replace",rv1["record_id"])
+    assert stale["payload"]["publication_intent"]["slot"]["slot_id"]==old_slot["slot_id"]
+    assert validate_publication_intent(state,stale,rv1,rv1,0)=="HASH_MISMATCH"
+    return {"missing_context":missing,"REHASH":current,"NO_REHASH":stale,
+      "REHASH_disposition":"VALID","NO_REHASH_disposition":"HASH_MISMATCH",
+      "disposition":"VALID"}
+
+def scenario_rehash_evidence_binding():
+    rr,_,_,_,_,_=scenario_review_binding(); base=binding(rr)
+    pointer="/content_hash"; replacement="0"*64
+    try: REHASH(base,pointer,"replace",replacement)
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_PROHIBITED"; prohibited="REHASH_PROHIBITED"
+    else: raise AssertionError("prohibited evidence hash mutation was accepted")
+    stale=NO_REHASH(base,pointer,"replace",replacement)
+    assert validate_evidence_binding(stale,rr)=="HASH_MISMATCH"
+    return {"prohibited":prohibited,"NO_REHASH":stale,
+      "NO_REHASH_disposition":"HASH_MISMATCH","disposition":"VALID"}
 
 def scenario_resolution_relocation_recovery_n():
     recovered=scenario_recovery_n(); decision=scenario_decision_relocation()
@@ -4371,7 +4634,7 @@ def scenario_resolution_relocation_recovery_n():
       r2["record_hash"]})==3
     assert a2["binding_generation"]==2 and b2["binding_generation"]==2
     return {"recovery":recovered,"binding2":b2,"pending2":p2,
-      "resolution2":r2,"application2":a2,**decision}
+      "resolution2":r2,"application2":a2,"disposition":"VALID",**decision}
 
 def scenario_vfs_create_only():
     state=oracle_lineage_state(); state,_,_,target=make_run_review(state,0,publish_review=False)
@@ -4388,6 +4651,129 @@ def scenario_vfs_create_only():
     return {"state":state,"intent":intent,"target":target,
       "disposition":"DUPLICATE_CONFLICT"}
 
+def publication_requirement(record):
+    return ("INTENT_NOT_REQUIRED" if record["schema_id"]=="fal002.gate-record.v1"
+      else "INTENT_REQUIRED")
+
+def activate_intent(lineage,intent):
+    updated=copy.deepcopy(lineage); predecessor=updated["active_gate"]
+    assert intent["predecessor"]==predecessor["record_hash"]
+    publish_record(updated["vfs"],canonical_path(intent["schema_id"],intent["series_id"],
+      intent["record_id"]),intent)
+    updated["active_gate"]=intent; updated["gate_chain"].append(intent)
+    updated["publication_slots"].append(copy.deepcopy(
+      intent["payload"]["publication_intent"]["slot"]))
+    return updated
+
+def attempt_committed_publication(lineage,target):
+    active=lineage["active_gate"]
+    if active["payload"]["variant_kind"]!="PUBLICATION_INTENT":
+        raise OracleDefinitionError("FORBIDDEN_TRANSITION")
+    intent=active["payload"]["publication_intent"]; slot_value=intent["slot"]
+    if slot_value["target_record_id"]!=target["record_id"] or \
+       slot_value["target_surface"]!=target["schema_id"] or \
+       intent["intended_record_hash"]!=target["record_hash"] or \
+       intent["intended_file_hash"]!=hb(cf(target)):
+        raise OracleDefinitionError("PUBLICATION_INTENT_MISMATCH")
+    updated=copy.deepcopy(lineage)
+    publish_record(updated["vfs"],slot_value["target_path"],target)
+    return updated
+
+def scenario_intent_not_required():
+    state=oracle_lineage_state(); next_gate=ready(state)[0]
+    assert next_gate["payload"]["variant_kind"]=="INVENTORY"
+    assert publication_requirement(next_gate)=="INTENT_NOT_REQUIRED"
+    return {"next_gate":next_gate,"disposition":"INTENT_NOT_REQUIRED"}
+
+def scenario_intent_required_missing():
+    state=oracle_lineage_state(); target=executor_exchange(state,0)[0]
+    before=copy.deepcopy(state["vfs"])
+    assert publication_requirement(target)=="INTENT_REQUIRED"
+    try: attempt_committed_publication(state,target)
+    except OracleDefinitionError as error:
+        assert str(error)=="FORBIDDEN_TRANSITION"; disposition="FORBIDDEN_TRANSITION"
+    else: raise AssertionError("committed target published without intent")
+    assert state["vfs"]==before
+    return {"state":state,"target":target,"disposition":disposition}
+
+def restart_decision_state(root,fs):
+    recovery=root["payload"]["recovery_root"]
+    bindings=copy.deepcopy(recovery["active_decision_bindings"])
+    requirements=copy.deepcopy(recovery["pending_decisions"])
+    if not bindings or not requirements: raise OracleDefinitionError("MISSING_DECISION_STATE")
+    binding_value=bindings[-1]; path=host_path(binding_value["pending_card_locator"])
+    pending=None if path not in fs["regular"] else json.loads(fs["regular"][path])
+    if pending is not None and (pending["record_hash"]!=binding_value["pending_card_record_hash"] or
+      pending["record_id"]!=binding_value["pending_card_record_id"]):
+        raise OracleDefinitionError("DECISION_BINDING_MISMATCH")
+    return {"requirements":requirements,"bindings":bindings,"pending":pending,
+      "pending_path":path,"disposition":"PENDING_ABSENT" if pending is None else "VALID"}
+
+def scenario_recovery_crash_after_root():
+    state=oracle_lineage_state(); state,_,_,review0=make_run_review(
+      state,0,publish_review=False)
+    root,pending,recovered=recovery_root(state,review0,0)
+    root_path=host_path(canonical_path(root["schema_id"],root["series_id"],root["record_id"]))
+    assert recovered["vfs"]["regular"][root_path]==cf(root)
+    crashed=copy.deepcopy(recovered); pending_path=host_path(
+      root["payload"]["recovery_root"]["active_decision_bindings"][-1]["pending_card_locator"])
+    remove_path(crashed["vfs"],pending_path)
+    before=restart_decision_state(root,crashed["vfs"])
+    assert before["disposition"]=="PENDING_ABSENT"
+    publish_record(crashed["vfs"],
+      root["payload"]["recovery_root"]["active_decision_bindings"][-1]["pending_card_locator"],
+      pending)
+    after=restart_decision_state(root,crashed["vfs"])
+    assert after["disposition"]=="VALID" and after["pending"]==pending
+    return {"root":root,"before":before,"after":after,"disposition":"VALID"}
+
+def scenario_affected_matrix_primitives():
+    state=oracle_lineage_state(); _,review0,_,_,_,_=scenario_review_binding()
+    target=review0; intent=publication_intent(state,target,target,0)[0]
+    assert validate_publication_intent(state,intent,target,target,0)=="VALID"
+    valid={"intent":intent,"disposition":"VALID"}
+    crash_stage=vfs(); stage=intent["payload"]["publication_intent"]["stage_locator"]
+    partial=cf(target)[:len(cf(target))//2]; write_bytes(crash_stage,host_path(stage),partial)
+    intent1=publication_intent(state,target,target,1)[0]
+    write_bytes(crash_stage,host_path(intent1["payload"]["publication_intent"]["stage_locator"]),
+      cf(target))
+    assert crash_stage["regular"][host_path(stage)]==partial
+    crash_stage_result={"intent1":intent1,"disposition":"VALID"}
+    crash_final=vfs(); intent_path=canonical_path(intent["schema_id"],intent["series_id"],
+      intent["record_id"]); publish_record(crash_final,intent_path,intent)
+    assert host_path(intent["payload"]["publication_intent"]["slot"]["target_path"]) not in \
+      crash_final["regular"]
+    crash_final_result={"disposition":"VALID"}
+    root0,_,recovered0=recovery_root(copy.deepcopy(state),target,0)
+    assert root0["payload"]["recovery_root"]["recovery_ordinal"]==0
+    discovery_zero={"root":root0,"disposition":"VALID"}
+    key=root0["payload"]["recovery_root"]["recovery_discovery_key"]
+    collision=copy.deepcopy(state); candidate0=canonical_path("fal002.gate-record.v1",
+      successor_id(key,0),"gate-00000000")
+    raw(collision["vfs"],host_path(candidate0),"7b")
+    root1,_,_=recovery_root(collision,target,1)
+    assert root1["series_id"]==successor_id(key,1)
+    discovery_later={"root":root1,"disposition":"VALID"}
+    wrong=NO_REHASH(root0,"/payload/recovery_root/origin_series_id","replace",
+      "00000000-0000-4000-8000-000000000003")
+    assert validate_surface_hash(wrong)=="HASH_MISMATCH"
+    wrong_lineage={"disposition":"HASH_MISMATCH"}
+    crashed=copy.deepcopy(recovered0); root_path=canonical_path(root0["schema_id"],
+      root0["series_id"],root0["record_id"]); remove_path(crashed["vfs"],host_path(root_path))
+    assert host_path(root_path) not in crashed["vfs"]["regular"]
+    publish_record(crashed["vfs"],root_path,root0)
+    assert crashed["vfs"]["regular"][host_path(root_path)]==cf(root0)
+    crash_before_root={"disposition":"VALID"}
+    decision=scenario_decision_relocation(); fs=vfs()
+    publish_record(fs,decision["binding0"]["pending_card_locator"],decision["pending0"])
+    assert fs["regular"][host_path(decision["binding0"]["pending_card_locator"])]== \
+      cf(decision["pending0"])
+    binding_zero={"disposition":"VALID"}
+    return {"intent-valid":valid,"intent-crash-stage":crash_stage_result,
+      "intent-crash-after-final":crash_final_result,"discovery-zero":discovery_zero,
+      "discovery-later":discovery_later,"discovery-wrong-lineage":wrong_lineage,
+      "recovery-crash-before-root":crash_before_root,"decision-binding-zero":binding_zero}
+
 def scenario_progress_across_recovery():
     recovered=scenario_recovery_n(); carried=recovered["root2"]["payload"]["recovery_root"]
     current=recovered["state"]
@@ -4396,17 +4782,120 @@ def scenario_progress_across_recovery():
     assert carried["finding_checkpoint"]==current["finding_checkpoint"]
     return {"carried":carried,"current":current,"disposition":"CARRIED_IDENTICALLY"}
 
+def scenario_eligibility_historical_blocker(recover=False):
+    state=oracle_lineage_state(); state,_,run0,review0=make_run_review(
+      state,0,publish_review=False)
+    finding=finding_observation(); event0=review_event(review0,run0,finding,0)
+    _,state=control(state,[event0]); event1=remediation_event(finding,event0,run0,1)
+    _,state=control(state,[event1])
+    assert state["finding_checkpoint"]["current_findings"][0]["state"]== \
+      "ADDRESSED_AWAITING_REVIEW"
+    if recover: _,_,state=recovery_root(state,review0,0)
+    state,_,run1,empty_review=make_run_review(state,1,outcome="PASS",observations=[])
+    assert len(empty_review["result"]["findings"])==0
+    assert state["finding_checkpoint"]["event_count"]==2
+    try: eligibility_gate(state,empty_review)
+    except OracleDefinitionError as error:
+        assert str(error)=="ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING"
+        denied="ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING"
+    else: raise AssertionError("empty review erased an unresolved blocker")
+    state,_,run2,absence_review=make_run_review(state,2,outcome="PASS",
+      observations=[finding_observation("HIGH",True,"ABSENT_AFTER_CORRECTION")])
+    absence=finding_observation("HIGH",True,"ABSENT_AFTER_CORRECTION")
+    event2=review_event(absence_review,run2,absence,2,event1); _,state=control(state,[event2])
+    assert state["finding_checkpoint"]["current_findings"][0]["state"]== \
+      "INDEPENDENTLY_VERIFIED"
+    if recover:
+        try: eligibility_gate(state,absence_review)
+        except OracleDefinitionError as error:
+            assert str(error)=="ELIGIBILITY_PENDING_HUMAN_DECISION"
+            eligible=None; post_verification="ELIGIBILITY_PENDING_HUMAN_DECISION"
+        else: raise AssertionError("pending recovery decision did not block eligibility")
+    else:
+        eligible=eligibility_gate(state,absence_review)[0]
+        assert eligible["payload"]["eligibility"]["eligible"] is True
+        post_verification="ELIGIBLE"
+    return {"state":state,"denied":denied,"eligible":eligible,
+      "post_verification":post_verification,"recovered":recover,"disposition":"VALID"}
+
+def scenario_eligibility_critical():
+    state=oracle_lineage_state(); state,_,run0,review0=make_run_review(
+      state,0,publish_review=False)
+    critical=finding_observation("CRITICAL",True,"NEW")
+    event0=review_event(review0,run0,critical,0); _,state=control(state,[event0])
+    state,_,_,pass_review=make_run_review(state,1,outcome="PASS",observations=[])
+    try: eligibility_gate(state,pass_review)
+    except OracleDefinitionError as error:
+        assert str(error)=="ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING"
+        disposition="ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING"
+    else: raise AssertionError("CRITICAL finding did not block eligibility")
+    return {"state":state,"disposition":disposition}
+
+def execute_affected_matrix():
+    results=scenario_affected_matrix_primitives(); results.update({
+      "intent-not-required":scenario_intent_not_required(),
+      "intent-required-missing":scenario_intent_required_missing(),
+      "recovery-crash-after-root":scenario_recovery_crash_after_root(),
+      "dependency-self-check":dependency_self_check(),
+      "decision-requirement-rehash":scenario_rehash_decision_requirement(),
+      "decision-binding-rehash":scenario_rehash_decision_binding(),
+      "publication-slot-rehash":scenario_rehash_publication_slot(),
+      "evidence-binding-rehash":scenario_rehash_evidence_binding(),
+      "recovery-chain-two":scenario_recovery_n(),
+      "successor-run-review":scenario_successor_run_review(),
+      "decision-recovery-n":scenario_resolution_relocation_recovery_n(),
+      "vfs-create-only":scenario_vfs_create_only(),
+      "progress-across-recovery":scenario_progress_across_recovery(),
+      "eligibility-historical":scenario_eligibility_historical_blocker(False),
+      "eligibility-recovery":scenario_eligibility_historical_blocker(True),
+      "eligibility-critical":scenario_eligibility_critical()})
+    assert len(results)==24 and all("disposition" in x for x in results.values())
+    return {"row_count":len(results),"results":results,"disposition":"VALID"}
+
+def scenario_adversarial_self_check():
+    binding_case=scenario_rehash_decision_binding()
+    slot_case=scenario_rehash_publication_slot()
+    evidence_case=scenario_rehash_evidence_binding()
+    missing_intent=scenario_intent_required_missing()
+    crash=scenario_recovery_crash_after_root()
+    addressed=scenario_eligibility_historical_blocker(False)
+    recovered=scenario_eligibility_historical_blocker(True)
+    critical=scenario_eligibility_critical()
+    results={"prohibited_rehash":evidence_case["prohibited"],
+      "missing_binding_context":binding_case["bare"],
+      "wrong_binding_context":binding_case["context_mismatch"],
+      "publication_context_missing":slot_case["missing_context"],
+      "stale_slot_no_rehash":slot_case["NO_REHASH_disposition"],
+      "missing_intent":missing_intent["disposition"],
+      "crash_restart":crash["disposition"],"addressed_blocker":addressed["denied"],
+      "addressed_blocker_recovery":recovered["denied"],
+      "critical_blocker":critical["disposition"]}
+    assert set(results.values())=={"REHASH_PROHIBITED","REHASH_CONTEXT_REQUIRED",
+      "REHASH_CONTEXT_MISMATCH","HASH_MISMATCH","FORBIDDEN_TRANSITION","VALID",
+      "ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING"}
+    return {"case_count":len(results),"results":results,"disposition":"VALID"}
+
 def execute_normative_oracle():
     return {"finding_chain":scenario_finding_chain(),
       "finding_recovery":scenario_finding_recovery(),"recovery_n":scenario_recovery_n(),
+      "recovery_depth_three":scenario_recovery_depth_three(),
       "origin_review_binding":scenario_review_binding(),
       "successor_run_review":scenario_successor_run_review(),
       "decision_semantic_relocation":scenario_decision_relocation(),
       "nested_rehash":scenario_rehash_decision_requirement()["REHASH"],
       "nested_no_rehash":scenario_rehash_decision_requirement()["NO_REHASH"],
+      "decision_binding_policy":scenario_rehash_decision_binding(),
+      "publication_slot_policy":scenario_rehash_publication_slot(),
+      "evidence_binding_policy":scenario_rehash_evidence_binding(),
       "vfs_create_only":scenario_vfs_create_only(),
       "resolution_relocation_recovery_n":scenario_resolution_relocation_recovery_n(),
-      "progress_across_recovery":scenario_progress_across_recovery()}
+      "progress_across_recovery":scenario_progress_across_recovery(),
+      "matrix_totality":execute_affected_matrix(),
+      "eligibility_historical":scenario_eligibility_historical_blocker(False),
+      "eligibility_recovery":scenario_eligibility_historical_blocker(True),
+      "eligibility_critical":scenario_eligibility_critical(),
+      "dependency_self_check":dependency_self_check(),
+      "adversarial_self_check":scenario_adversarial_self_check()}
 
 def case_environment():
     state=oracle_lineage_state(); decision=scenario_decision_relocation()
@@ -4434,9 +4923,9 @@ def case_environment():
       "mutation":scenario_mutation(),**decision}
 ```
 
-### 48.10 Exact CORR-015 fixture matrix
+### 48.10 Exact CORR-016 fixture matrix
 
-Every row begins independently with `e=case_environment()`. The rows changed by CORR-015 use exact
+Every row begins independently with `e=case_environment()`. The rows changed by CORR-015/CORR-016 use exact
 Python syntax naming the constructor, mutation or VFS operation to execute; unchanged historical
 assertion rows retain their previously reviewed compact notation. Before its operation, each row
 assigns every bare local from
@@ -4451,8 +4940,8 @@ this closed map: `state=e["state"]`, `fs=e["fs"]`, `gate0=e["gate0"]`, `ready=e[
 `event1` locals are the dictionary members whose keys exactly equal those local names. A row that
 names `x` initializes it explicitly
 from one of those locals. No row inherits a mutated object or VFS from another row. Operations
-execute left-to-right. `REHASH` means the executable
-function with `e["state"]`; `NO_REHASH` means its executable function. Expected valid files are
+execute left-to-right. `REHASH(base,pointer,operation,replacement,context)` and
+`NO_REHASH(base,pointer,operation,replacement)` mean the exact §48.9 functions. Expected valid files are
 exact `cf(record)` and expected hashes are §48.1 outputs. Invalid input is never published as an
 authoritative final.
 
@@ -4462,12 +4951,12 @@ authoritative final.
 | `hash-preimage-no-lf` | gate0 | preimage equals `cj({domain:"fal002-record-v1:fal002.gate-record.v1",value:gate0 without record_hash})` |
 | `hash-wrong-lf` | gate0; set record_hash to sha256(preimage+0a); NO_REHASH | HASH_MISMATCH; no authority |
 | `hash-domain-missing` | gate0; replace record_hash with sha256(cj(record without hash)); NO_REHASH | HASH_MISMATCH |
-| `intent-not-required` | `next_gate=ready(state)[0]` | `next_gate["payload"]["kind"]=="READY"`; ordinary reconstructable gate append requires no PUBLICATION_INTENT |
-| `intent-required-missing` | `fs=vfs(); target=executor_exchange(state,0)[0]; publish_record(fs,canonical_path(target["schema_id"],target["series_id"],target["record_id"]),target)` | FORBIDDEN_TRANSITION; target ignored because no PUBLICATION_INTENT exists |
+| `intent-not-required` | `x=scenario_intent_not_required()` | `x["next_gate"]["payload"]["variant_kind"]=="INVENTORY"`; `x["disposition"]=="INTENT_NOT_REQUIRED"` |
+| `intent-required-missing` | `x=scenario_intent_required_missing()` | exact attempted committed publication returns `x["disposition"]=="FORBIDDEN_TRANSITION"`; VFS unchanged |
 | `intent-valid` | `target=review0; intent=publication_intent(state,target,target,0)[0]` | `intent["series_id"]==state["active_series_id"]`; intent gate final; retained reviewing state |
-| `intent-wrong-predecessor` | `x=replace(intent,"/payload/publication_intent/slot/predecessor_gate_hash","0"*64); NO_REHASH(x)` | HASH_MISMATCH |
-| `intent-wrong-slot` | `x=replace(intent,"/payload/publication_intent/slot/target_record_id","review-wrong"); REHASH(x,state)` | MALFORMED_BOUNDARY |
-| `intent-wrong-hash` | `x=replace(intent,"/payload/publication_intent/intended_record_hash","0"*64); REHASH(x,state)` | HASH_MISMATCH |
+| `intent-wrong-predecessor` | `x=NO_REHASH(intent,"/payload/publication_intent/slot/predecessor_gate_hash","replace","0"*64); assert validate_surface_hash(x)=="HASH_MISMATCH"` | HASH_MISMATCH |
+| `intent-wrong-slot` | `x=scenario_rehash_publication_slot()` | context-free mutation rejects; contextful mutation changes target path, `slot_id`, intent commitment and outer hashes; NO_REHASH is HASH_MISMATCH |
+| `intent-wrong-hash` | `context={"lineage":state,"target_record":target,"source_record":target,"stage_attempt":0}; REHASH(intent,"/payload/publication_intent/intended_record_hash","replace","0"*64,context)` | `REHASH_CONTEXT_MISMATCH` |
 | `intent-replay` | `publish_record(fs,canonical_path(intent["schema_id"],intent["series_id"],intent["record_id"]),intent)` twice | one final; idempotent |
 | `intent-crash-stage` | `write_bytes(fs,host_path(stage),cf(target)[:len(cf(target))//2])` | partial bytes preserved; `stage_attempt=1` selects attempt-0001; predecessor active until intent final |
 | `intent-crash-after-final` | `publish_record(fs,canonical_path(intent["schema_id"],intent["series_id"],intent["record_id"]),intent)` | target absent; intent gate active; replay uses `cf(target)` without actor invocation |
@@ -4475,10 +4964,10 @@ authoritative final.
 | `discovery-candidate-invalid` | `raw(fs,host_path(candidate0),"7b")` | preserve exact byte; candidate-1 eligible |
 | `discovery-later` | `raw(state["vfs"],host_path(candidate0),"7b"); root,card,next_state=recovery_root(state,target,1)` | `root["series_id"]==successor_id(key,1)`; ordinal 1 root authoritative |
 | `discovery-first-absent` | assert `host_path(candidate0)` absent; `publish_record(fs,candidate1,root1)` | candidate-1 ignored; predecessor remains active |
-| `discovery-wrong-lineage` | `x=replace(root0,"/payload/recovery_root/origin_series_id","00000000-0000-4000-8000-000000000003"); NO_REHASH(x)` | HASH_MISMATCH; invalid stable candidate; no authority |
+| `discovery-wrong-lineage` | `x=NO_REHASH(root0,"/payload/recovery_root/origin_series_id","replace","00000000-0000-4000-8000-000000000003"); assert validate_surface_hash(x)=="HASH_MISMATCH"` | HASH_MISMATCH; invalid stable candidate; no authority |
 | `discovery-no-directory-heuristic` | `publish_record(fs,canonical_path("fal002.gate-record.v1","00000000-0000-4000-8000-000000000099","gate-00000000"),root0)` | ignored evidence |
 | `recovery-crash-before-root` | `write_bytes(fs,host_path(intent["payload"]["publication_intent"]["stage_locator"]),cf(root0)); assert host_path(candidate0) not in fs["regular"]` | predecessor active; replay produces byte-identical `root0` |
-| `recovery-crash-after-root` | `publish_record(fs,candidate0,root0); assert host_path(root0["payload"]["recovery_root"]["decision_binding"]["pending_card_locator"]) not in fs["regular"]` | successor authoritative; replay publishes exact bound decision |
+| `recovery-crash-after-root` | `x=scenario_recovery_crash_after_root()` | root survives; restart reads actual `active_decision_bindings`; absent pending is reconstructed and exact pending replay validates |
 | `recovery-chain-two` | `x=scenario_recovery_n()` | `x["root2"]["payload"]["recovery_root"]["predecessor_series_id"]==x["series1"]`; one logical lineage; depth 2 |
 | `successor-run-review` | `x=scenario_successor_run_review()` | Run0/1/2 and Review0/1/2 use `x["origin_series"]`, `x["series1"]`, `x["series2"]`; event ordinals equal `[0,1,2]` |
 | `decision-binding-zero` | `x=scenario_decision_relocation(); fs=vfs(); publish_record(fs,x["binding0"]["pending_card_locator"],x["pending0"]); assert fs["regular"][host_path(x["binding0"]["pending_card_locator"])]==cf(x["pending0"])` | exact active locator/read succeeds |
@@ -4489,11 +4978,14 @@ authoritative final.
 | `decision-pending-rebound-before-answer` | `binding_before,pending_before,resolution_after,application_after` from `scenario_decision_relocation()` | P1 presentation is answered; semantic answer validates against the unchanged requirement; application binds P1 |
 | `decision-resolution-obstructed` | `raw(fs,host_path(application0["resolution_locator"]),"7b")`; use `resolution1`/`application1` from `scenario_decision_relocation()` | R0 physical obstruction; R1 physical hash differs; semantic hash identical; one applied answer |
 | `decision-resolution-replay` | `publish_record(fs,application1["resolution_locator"],resolution1)` twice with create-only identical-byte adoption | one semantic resolution; idempotent |
-| `decision-resolution-conflict` | `x=replace(resolution1,"/payload/resolution_semantic_input/selected_choice","DECLINE"); x=REHASH(x)` | different semantic hash/choice; AUTHORITY_CONFLICT; no application |
+| `decision-resolution-conflict` | `x,a=resolution_for(requirement,binding1,pending1,"DECLINE","The conflicting fixture declines.",application1["application_ordinal"]+1,application1)` | different semantic hash/choice; AUTHORITY_CONFLICT against applied answer; no second application |
 | `decision-resolution-orphan` | publish accepted resolution at canonical path for inactive series `00000000-0000-4000-8000-000000000099` | STALE_RECORD; ignored for authority |
 | `decision-recovery-n` | `x=scenario_resolution_relocation_recovery_n()` | one semantic resolution hash across R0/R1/R2; physical hashes distinct; `x["binding2"]["binding_generation"]==2` |
 | `decision-requirement-rehash` | `x=scenario_rehash_decision_requirement()` | `x["REHASH_disposition"]=="VALID"`; semantic payload, identity and requirement hash recomputed in dependency order |
 | `decision-requirement-no-rehash` | `x=scenario_rehash_decision_requirement()` | `x["NO_REHASH_disposition"]=="HASH_MISMATCH"`; stale nested and outer hashes retained |
+| `decision-binding-rehash-policy` | `x=scenario_rehash_decision_binding()` | bare mutation rejects `REHASH_CONTEXT_REQUIRED`; exact generation-1 context validates; wrong context rejects `REHASH_CONTEXT_MISMATCH` |
+| `publication-slot-rehash-policy` | `x=scenario_rehash_publication_slot()` | exact context recomputes slot and outer identities; missing context rejects; NO_REHASH mismatches |
+| `evidence-binding-rehash-policy` | `x=scenario_rehash_evidence_binding()` | bare REHASH rejects `REHASH_PROHIBITED`; NO_REHASH validates as `HASH_MISMATCH` |
 | `vfs-create-only` | `x=scenario_vfs_create_only()` | identical intent replay adopted; conflicting target bytes preserved; `x["disposition"]=="DUPLICATE_CONFLICT"` |
 | `decision-rebound` | compare `binding0,pending0,resolution0` to `binding1,pending1,resolution1` | same decision identity and semantic answer hash; new physical pending/resolution records |
 | `decision-generation-gap` | generation 0 then 2 | AUTHORITY_CONFLICT |
@@ -4534,6 +5026,10 @@ authoritative final.
 | `progress-severity-blocker` | previous MEDIUM/false; current HIGH/true, diff/evidence changed | introduced_blocker; NO_PROGRESS |
 | `progress-remediation-only` | same diff/evidence; OPEN→ADDRESSED with evidence | unresolved, resolved_any false; NO_PROGRESS |
 | `progress-across-recovery` | `x=scenario_progress_across_recovery()` | `x["disposition"]=="CARRIED_IDENTICALLY"`; checkpoint, correction count and no-progress history equal across physical segments |
+| `eligibility-addressed-empty-review` | `x=scenario_eligibility_historical_blocker(False)` | ADDRESSED_AWAITING_REVIEW plus empty review rejects `ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING`; later exact absence event removes that blocker |
+| `eligibility-addressed-recovery` | `x=scenario_eligibility_historical_blocker(True)` | identical unresolved-finding denial across recovery; after exact absence, that blocker clears and the distinct pending recovery decision still denies eligibility |
+| `eligibility-critical` | `x=scenario_eligibility_critical()` | unresolved effective CRITICAL rejects `ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING` |
+| `affected-matrix-gate` | `x=execute_affected_matrix()` | `x["row_count"]==24`; zero unexpected exception/ambient local/prose transition; `x["disposition"]=="VALID"` |
 | `progress-ceiling` | material progress true, correction_count 2 | CORRECTION_CEILING after progress calculation |
 | `progress-diff-only` | change only diff hash | NO_PROGRESS; resolved_any false |
 | `progress-evidence-only` | change only progress evidence hash | NO_PROGRESS; resolved_any false |
@@ -4554,7 +5050,7 @@ normalized operations are:
 - GATE invalid predecessor: `remove(e["gate0"],"/predecessor")`; unknown field:
   `add(e["gate0"],"/unknown",1)`;
 - EXEC forbidden PASS: `add(e["executor0"],"/result/outcome","PASS")`;
-- RUN bad record hash: `NO_REHASH(replace(e["run0"],"/record_hash","0"*64))`; unknown:
+- RUN bad record hash: `NO_REHASH(e["run0"],"/record_hash","replace","0"*64)`; unknown:
   `add(e["run0"],"/unknown",1)`; missing executable begins `x=e["run0"]` and applies, in order,
   `replace(x,"/commands/1/termination","SPAWN_ERROR")`,
   `replace(x,"/commands/1/exit_code",None)` and
@@ -4576,7 +5072,7 @@ normalized operations are:
   `replace(x,"/sequence",3)` then `replace(x,"/record_id","gate-00000003")`; stale replaces both
   fields with their exact zero equivalents;
 - duplicate same publishes exact CF bytes; duplicate different uses
-  `REHASH(replace(e["gate0"],"/payload/manifest/scope_hash",hb(b"different")))`;
+  `REHASH(e["gate0"],"/payload/manifest/scope_hash","replace",hb(b"different"))`;
 - partial uses exactly `cf(record)[:len(cf(record))//2]` at attempt zero;
 - redaction raw input is UTF-8 `criterion=abc token='x y'` and exact persisted replacement
   `criterion=abc token='<REDACTED>'`;
@@ -4668,6 +5164,14 @@ The following final results are mandatory:
 - severity escalation/blocking latch → conservative current state; downgrade/clear needs HumanDecision;
 - remediation without complete evidence → remains OPEN; correction self-verification forbidden;
 - recurrence → deterministic occurrence; empty review never erases; malformed history blocks;
+- REHASH prohibited/missing-context/mismatched-context → exact OracleDefinitionError before any
+  object is returned; supported paths recompute every registered descendant innermost-to-outermost;
+- DecisionBinding generation mutation without exact new-card context rejects; contextful generation
+  and publication-target mutation independently reproduce binding/slot/parent identities;
+- all 24 CORR-015/CORR-016-affected matrix rows execute through one exact matrix gate with their
+  declared dispositions and no unexpected KeyError or ambient state;
+- ADDRESSED_AWAITING_REVIEW plus empty review and every unresolved effective CRITICAL blocker deny
+  eligibility before and after recovery; exact independent absence follows the frozen §47 fold; and
 - no-progress and ceiling operate after complete-lineage derivation and survive recovery.
 
 ### 49.4 Whole-document supersession audit
@@ -4680,7 +5184,7 @@ hash, recovery locator, decision lookup, finding evolution and fixture statement
 force. Sections 44–48 explicitly incorporate only named unchanged structures, parser rules and raw
 fixture inputs. No competing normative answer remains.
 
-## 50. Final budget, scope and CORR-015 state
+## 50. Final budget, scope and CORR-016 state
 
 The corrected design retains four new production modules plus unchanged `forge/__init__.py`
 attribution, one executor adapter, one reviewer adapter, five schema surfaces and zero new dependency.
@@ -4690,14 +5194,14 @@ decision binding and finding derivation refine responsibilities already allocate
 they add no module or surface. Implementation inventory must continuously prove the limit and stop
 `BUDGET AUTHORITY REQUIRED` on contrary concrete evidence. `EB006-FR-07` is not reopened.
 
-Only EB-006 and necessary documentation index/project-memory text may change in CORR-015. Runtime,
+Only EB-006 and necessary documentation index/project-memory text may change in CORR-016. Runtime,
 tests, schemas, committed fixture implementation, dependencies, versions, Audio Recorder,
 FAL-002 specification, FAL-001 and unrelated artifacts remain unchanged.
 
-`CORR-015-01`, mapped to `EB006-IR6-02`, is `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only
+`CORR-016-01`, mapped to `EB006-IR6-02`, is `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only
 the correction agent's remediation claim: `EB006-IR6-02` remains open and is not independently
-verified, closed, accepted or PASS. IR7's independent verification of `CORR-014-01`/
-`EB006-IR6-01` is preserved and not reopened; that finding is not closed.
+verified, closed, accepted or PASS. IR8 created no new finding. Its preservation of
+`EB006-IR6-01` as independently verified is not reopened; that finding is not closed.
 FAL-002 remains `NOT AUTHORIZED`; no runtime implementation occurred. FAL-001 remains permanently
 `TERMINATED BLOCKED`, unaccepted and unclosed, correction count 2/2. The only next gate is a fresh
-independent read-only Standard-Assurance Review against the dedicated CORR-015 commit.
+independent read-only Standard-Assurance Review against the dedicated CORR-016 commit.

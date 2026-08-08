@@ -16,8 +16,9 @@ created no new finding. `HD-FAL-018` authorized exactly one final bounded `CORR-
 documentation correction mapped to `EB006-IR6-02`. Independent IR8 returned
 `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-015-01` is `PARTIALLY VERIFIED`,
 `EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorizes exactly
-one bounded `CORR-016-01` §48 oracle-totality correction mapped to `EB006-IR6-02`; it is
-`AUTHORIZED — NOT STARTED`. `EB006-IR6-01` remains independently verified, and no finding is
+one bounded `CORR-016-01` §48 oracle-totality correction mapped to `EB006-IR6-02`. That correction
+is documentation-complete and only `ADDRESSED — AWAITING INDEPENDENT REVIEW`.
+`EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains open, and no finding is
 closed. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC
 envelope.
 
@@ -34,11 +35,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Execute the single `HD-FAL-019`-authorized bounded `CORR-016-01` final §48 documentation correction
-in a separate commit, followed by one fresh independent read-only Standard-Assurance Review.
-Preserve every IR8-verified recovery, successor, decision and five-surface contract; keep
-`EB006-IR6-02` open. Do not implement FAL-002. Manual Digital Album Authoring and Export remains
-unstarted and unauthorized.
+Conduct one fresh independent read-only Standard-Assurance Review of the dedicated CORR-016
+correction baseline. Preserve every IR8-verified recovery, successor, decision and five-surface
+contract; keep `EB006-IR6-02` open pending that review. Do not implement FAL-002. Manual Digital
+Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -213,6 +213,11 @@ unstarted and unauthorized.
   REHASH-policy, affected-matrix and eligibility-oracle failures under `EB006-IR6-02`
 - accepted `HD-FAL-019` authorization for exactly one bounded `CORR-016-01` final §48 oracle-totality
   documentation correction; status is `AUTHORIZED — NOT STARTED`, with no implementation authority
+- completed CORR-016 directly in final §48: executable supported/context/prohibited REHASH policy,
+  dependency self-check, coherent binding/slot derivation, prohibited evidence-hash mutation,
+  24-row affected-matrix gate and canonical eligibility checks for addressed, empty-review,
+  CRITICAL, independently verified and recovery-carried finding state. Status is only
+  `ADDRESSED — AWAITING INDEPENDENT REVIEW`; `EB006-IR6-02` remains open
 
 ## What Does Not Exist
 
@@ -346,8 +351,7 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Execute the single bounded `CORR-016-01` final §48 documentation correction in one separate
-   commit under `HD-FAL-019`.
-2. Conduct one fresh independent read-only Standard-Assurance Review of that correction baseline.
-3. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending that review,
+1. Conduct one fresh independent read-only Standard-Assurance Review of the dedicated CORR-016
+   correction baseline.
+2. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending that review,
    FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.
