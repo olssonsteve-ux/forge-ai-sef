@@ -8,7 +8,7 @@ Owner: Chief Architect
 
 Decision basis: `HD-FAL-006`
 
-Correction authority: `HD-FAL-007`
+Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -21,6 +21,13 @@ Residual finding status:
 | `EB006-R1` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-R2` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-R3` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-FR-01` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-FR-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-FR-03` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-FR-04` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-FR-05` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-FR-06` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-FR-07` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 1. Purpose and gate
 
@@ -537,3 +544,341 @@ Material inventory tests are `test_inventory_static_relative_init`,
 conflict test `test_authority_conflict_awaits_human` produces both raw sources and exactly one card.
 Redaction test `test_redaction_blocks_missing_locator` uses `FX-REDACTED-RELEVANT`. Every requirement
 fails closed when its named evidence is missing; no integration-test wildcard supplies coverage.
+
+## 21. Normative implementation-complete conventions
+
+Sections 21–27 refine sections 3–20 and control wherever earlier shorthand is less specific.
+`Json` means null, boolean, signed base-10 integer, UTF-8 string, ordered array, or object with string
+keys. Floats, duplicate keys, NaN, infinity and lone surrogates are invalid. `Timestamp` is UTC
+`YYYY-MM-DDTHH:MM:SS.ffffffZ`; `Sha256` is 64 lowercase hex characters; `PathRel` is a normalized
+`/`-separated repository-relative path without empty, `.`, `..`, drive or NUL segments. Set-valued
+arrays sort by UTF-8 bytes and reject duplicates. Every unqualified string field below is one required
+`NonEmpty` trimmed string. Every unqualified array is required with cardinality 1..65535; only
+`changed_paths`, `status`, `findings`, `finding_ids` and `source_record_ids/source_hashes` may be empty.
+An explicitly optional/absent field has cardinality 0..1. Every object is required exactly once.
+
+Canonical serialization is RFC-8259 JSON in UTF-8, keys sorted by UTF-8 bytes, separators `,` and
+`:`, no insignificant whitespace and one terminal LF. `H(x)` is lowercase SHA-256 of canonical bytes.
+Hash preimages omit only the field holding that hash. Runtime object → canonical model → schema
+validation → canonical bytes → deterministic ID/hash must round-trip byte-identically before state
+effect. There are no implicit defaults, nullable fields or extension containers. Optional means
+absent; present null is invalid unless explicitly allowed below.
+
+All surfaces require `schema_id`, `schema_version=1`, `record_id`, `series_id`, `created_at`,
+`payload_hash` and `record_hash`. Unknown fields/enums/schema IDs/versions are `BLOCKED`. Version 1
+accepts only version 1: no forward compatibility, backward conversion or extension field. A future
+version requires Human Decision and a new schema ID. `payload_hash=H(payload)` and
+`record_hash=H(record without record_hash)`. Validation order is JSON grammar → exact keys → schema/
+version → primitive types/normalization → IDs/paths → enums/cardinality → hashes → cross-field
+invariants → predecessor/series chain → authority invariants. The payload hash input is GateRecord
+`payload`; ExecutorExchange `{request,result,invocation}`; RunRecord `{repository,commands,diff,build}`;
+ReviewerExchange `{packet,result,reviewer_execution}`; and HumanDecisionRecord
+`{decision_kind,status,owner,provenance,payload}`.
+
+For collector observations `created_at` is the recorded UTC observation time. For deterministic
+cards it is the lexicographically greatest source-record timestamp; the following gate uses that card
+timestamp. Consequently identical canonical conflict inputs produce identical card and gate bytes.
+
+Generated schemas use JSON Schema draft 2020-12, root `$id` equal to the canonical surface ID,
+`type:object`, exact `required`, `additionalProperties:false`, explicit integer/string/array bounds and
+`oneOf` only for the stated variants. Schema output and check behavior remain §17. Model→bytes→schema
+validate→model→bytes equality is required for every valid fixture; every invalid fixture must fail
+both model and schema at the same validation category.
+
+### 21.1 `GateRecord` — `fal002.gate-record.v1`
+
+| Field | Type / cardinality / requirement | Meaning and invariant |
+| --- | --- | --- |
+| `schema_id` | literal, one, required | `fal002.gate-record.v1` |
+| `schema_version` | integer, one, required | exactly 1 |
+| `record_id` | string, one, required | `gate-{sequence:08d}` |
+| `series_id` | canonical UUID, one, required | frozen manifest identity |
+| `sequence` | integer 0..99999999, one, required | zero initially; otherwise predecessor + 1 |
+| `predecessor` | `Sha256` or null, one, required | null iff sequence zero; otherwise prior gate hash |
+| `state` | enum, one, required | `draft|ready|executing|evidence_ready|reviewing|correction_required|blocked|awaiting_human|accepted|closed` |
+| `actor` | enum, one, required | `human|core|collector|executor|reviewer|recovery` |
+| `event` | §22 event enum, one, required | must permit predecessor state → state |
+| `created_at` | `Timestamp`, one, required | evidence; included in hashes, never IDs |
+| `payload` | exact object variant, one, required | below |
+| `payload_hash`, `record_hash` | `Sha256`, each one, required | common hash rules |
+
+`payload` contains exactly `frozen_hash:Sha256`, `correction_count:int 0..2` and one object variant:
+`manifest|inventory|execution|evidence|review|control|checkpoint|eligibility|closure`. `manifest` has
+`scope_hash`, `criteria_hash`, `allowed_paths:PathRel[]`, `command_policy_hash`; `control` has
+`ordinal:int 0..9999`, `diff_hash`, `evidence_hash`, `finding_ids:string[]`; `checkpoint` has
+`reason_code`, `source_record_ids:string[]`, `source_hashes:Sha256[]`, and optional
+`interruption_id`, `decision_id`, `resume_state`; `eligibility` has `review_id`, `review_hash`,
+`criterion_ids`, `finding_ids`, `eligible:boolean`; `closure` has `decision_id`, `decision_hash`.
+`execution` contains `{execution_id,run_id,ordinal,request,request_hash}` and is the persisted request
+before executor invocation. `review` contains `{review_id,run_id,ordinal,packet,packet_hash}` and is
+the persisted request before reviewer invocation. Other variants contain exactly the referenced
+top-level record ID and hash. Gate zero is
+`draft/INITIALIZE`, actor human, manifest variant, count zero. `accepted` requires eligible true;
+`closed` requires prior accepted gate and matching accepted closure decision.
+
+### 21.2 `ExecutorExchange` — `fal002.executor-exchange.v1`
+
+Besides the common envelope, exact fields are `record_id=execution_id`, `run_id`, `ordinal:int 0..9999`,
+`request`, `result`, `invocation`. `request` has exactly `frozen_hash`, `scope:PathRel[]`,
+`criteria:string[]`, `allowed_paths:PathRel[]`, `command_ids:string[]`, `correction_count:int 0..2`,
+`work_packet_hash`. `result` is required null before invocation or exactly `{status:
+COMPLETED|FAILED,changed_paths:PathRel[],summary:string,error_code:string|absent}` after return.
+`invocation` has `invocation_id=execution_id`, `role=executor`, `adapter_id`, `principal_id`,
+`context_id`, `process_id:int`, `started_at`, optional `ended_at`, `timeout_seconds:int>0`, `input_hash`.
+Result may change only null→object; all request bytes remain identical. PASS, review, evidence,
+decision and closure fields are forbidden.
+
+### 21.3 `RunRecord` — `fal002.run-record.v1`
+
+Besides the common envelope, exact fields are `record_id=run_id`, `execution_id`, `ordinal:int 0..9999`,
+`repository`, `commands`, `diff`, `build`. `repository` is exactly `{root:".",branch,
+baseline_head:hex40|hex64,final_head:hex40|hex64,status:string[],changed_paths:PathRel[]}`. `commands`
+contains exactly 13 entries in §24 order. Each is `{command_id,phase,argv:string[],cwd:PathRel,
+environment_keys:string[],started_at,ended_at,exit_code:int|null,termination:
+EXITED|TIMEOUT|INTERRUPTED|SPAWN_ERROR,stdout_sha256,stderr_sha256,stdout_text,stderr_text,
+redaction_count:int>=0,parser_version:1,parsed:Json,classification:
+PASS|FAIL|NOT_AVAILABLE|BLOCKED|AWAITING_HUMAN}`; null exit code is valid only when not EXITED.
+`diff` is `{redacted_text,sha256,numstat:[{path,added:int|null,deleted:int|null}]}`; null counts are
+valid only for binary files. `build` is exactly `{status:"not_available",reason:
+"packaging_forbidden"}`. Repository/command/diff facts have collector authority.
+
+### 21.4 `ReviewerExchange` — `fal002.reviewer-exchange.v1`
+
+Besides the common envelope, exact fields are `record_id=review_id`, `run_id`, `ordinal:int 0..9999`,
+`packet`, `result`, `reviewer_execution`. `packet` is exactly `{frozen_hash,run_record_id,
+run_record_hash,criterion_ids:string[],evidence_index:[{criterion_id,source_record_id,locator,
+content_hash,provenance}],instructions_hash}`. It contains no executor prompt, transcript, private
+reasoning or mutable handle. `result` is null before invocation or exactly `{outcome:
+PASS|CORRECTION_REQUIRED|BLOCKED|INCONCLUSIVE,findings:[{finding_id,severity:
+CRITICAL|HIGH|MEDIUM|LOW,blocking:boolean,status:OPEN|ADDRESSED,criterion_ids,statement}],
+criterion_evidence:[{criterion_id,source_record_id,locator,content_hash,provenance}],
+semantic_rationale:[{criterion_id,rationale}]}`. PASS requires every criterion exactly once, no open
+CRITICAL/blocking finding and no pending decision. Reviewer execution is defined in §23.
+
+### 21.5 `HumanDecisionRecord` — `fal002.human-decision.v1`
+
+Besides the common envelope, exact fields are `record_id=decision_id`, `decision_kind:
+PENDING_CARD|RESOLUTION|CLOSURE`, `status:PENDING|ACCEPTED|DECLINED`, `owner`, `provenance:
+{source,locator,content_hash}`, `payload`. PENDING_CARD requires PENDING and payload
+`{decision_card:{question,domain,source_record_ids,source_hashes,allowed_choices}}`. RESOLUTION
+requires ACCEPTED or DECLINED and payload `{resolves_decision_id,chosen_value:string|absent,
+rationale}`; chosen value is absent iff declined. CLOSURE requires ACCEPTED and payload
+`{eligible_gate_id,eligible_gate_hash,review_id,review_hash}`. Decisions cannot rewrite facts/history.
+Same ID/hash is idempotent; same ID/different hash is authority conflict. IDs derive exactly by §14.1;
+card conflict suffix is refined in §25.
+
+## 22. Exhaustive state-transition contract
+
+Every event not listed for the current state is `FORBIDDEN TRANSITION`: append a `blocked` gate when
+the next path is writable, otherwise return a `BLOCKED` diagnostic; retry requires accepted human
+resolution. Required evidence always means a schema-valid, hash-valid, authoritative record.
+
+| Current | Event | Preconditions; actor/authority; evidence | Records created in order | Next | Failure; retry/resume |
+| --- | --- | --- | --- | --- | --- |
+| none | `INITIALIZE` | human; valid frozen manifest | gate 0 | draft | invalid → BLOCKED diagnostic; same-hash replay adopts |
+| draft | `MARK_READY` | core; inventory PASS, no pending card | gate | ready | unresolved/limit → awaiting_human gate |
+| draft | `ESCALATE` | core; unresolved input | card, gate | awaiting_human | accepted resolution only |
+| ready | `START_EXECUTION` | core; ordinal=max prior ordinal+1, or 0 if none; request valid | gate with execution request | executing | persistence → §25; invoke only after gate durability |
+| executing | `EXECUTOR_COMPLETED` | executor; matching result | executor result | executing | same hash idempotent; conflict → conflict event |
+| executing | `EXECUTOR_FAILED` | core; failed/timeout/error result | gate | blocked | human resolution only |
+| executing | `EXECUTOR_INTERRUPTED` | recovery; interruption checkpoint | gate | awaiting_human | accepted retry uses next ordinal, count unchanged |
+| executing | `COLLECT_COMPLETE` | collector; all 13 command entries | run, gate | evidence_ready | missing/malformed → blocked gate |
+| evidence_ready | `START_REVIEW` | core; packet and independence precheck | gate with review packet | reviewing | failed separation → card, awaiting_human gate; invoke only after durability |
+| reviewing | `REVIEW_PASS` | reviewer; complete valid PASS | reviewer result, eligibility gate | accepted | blocking/missing → blocked gate |
+| reviewing | `REVIEW_CORRECTION` | reviewer; CORRECTION_REQUIRED | reviewer result, gate | correction_required | count=2 → ceiling event |
+| reviewing | `REVIEW_BLOCKED` | reviewer; BLOCKED/INCONCLUSIVE | reviewer result, gate | blocked | no automatic retry |
+| reviewing | `REVIEW_INTERRUPTED` | recovery; no durable result | gate | awaiting_human | accepted retry uses next ordinal, count unchanged |
+| correction_required | `START_CORRECTION` | core; count<2, allowed paths | executor request, gate | executing | ordinal/count increment once; failure blocked |
+| correction_required | `NO_PROGRESS` | core; repeated diff/evidence or findings | gate | blocked | human resolution only |
+| correction_required | `CEILING_REACHED` | core; count=2 | card, gate | awaiting_human | no automatic correction |
+| any non-closed | `AUTHORITY_CONFLICT` | core; two valid domain sources | card, gate | awaiting_human | exactly-once replay §25 |
+| any non-closed | `INVALID_EVIDENCE` | model/core; malformed/missing/stale/gap | gate if writable | blocked | facts unchanged; human resolution only |
+| any non-closed | `PENDING_DECISION` | core; unresolved human question | card, gate | awaiting_human | no default |
+| awaiting_human | `DECISION_ACCEPTED` | human; matching accepted resolution | decision, gate | stored `resume_state` | target only ready/evidence_ready/correction_required; interrupted executor→ready, reviewer→evidence_ready |
+| awaiting_human | `DECISION_DECLINED` | human; matching declined resolution | decision, gate | blocked | no resume |
+| blocked | `HUMAN_REOPEN` | human; accepted decision names evidence/target | decision, gate | ready or awaiting_human | count/ordinal/history retained |
+| accepted | `HUMAN_CLOSE` | human; accepted closure, exact eligibility, no open/pending | decision, gate | closed | pair recovery §25 |
+| closed | `HUMAN_CLOSE` | same closure ID/hash | none | closed | idempotent success |
+| closed | any other | none | none | closed | FORBIDDEN/BLOCKED diagnostic |
+
+Same-hash replay creates nothing. Different-hash duplicate uses AUTHORITY_CONFLICT when both claims
+are valid authorities, otherwise INVALID_EVIDENCE. Correction rounds increment correction count;
+every retry or correction uses max prior ordinal + 1, so retries never consume or reset corrections.
+`accepted` means sealed technical eligibility only, not
+risk acceptance, capability closure or release.
+
+## 23. Adapter lifecycle and Standard-Assurance separation
+
+Core creates requests; I/O persists executor request in the executing gate and reviewer packet in the
+reviewing gate; core invokes only after that gate is durable. Adapters create no ID, record or
+transition and only return a value. Model validates, I/O create-persists the complete exchange once
+after return, and core transitions. The request copied into the exchange must be byte-identical to
+the gate-embedded request; no null-result exchange file is ever persisted.
+Both roles are externally non-idempotent and called at most once per invocation ID. Same-ID replay
+reads a durable result without adapter call. Missing result after interruption requires human retry
+and a new ordinal/ID. Changed/stale input, different duplicate result, timeout or exception follows
+§22 and §25. Executor/reviewer audit evidence is request/result hashes, invocation ID/times, adapter,
+principal, process and context IDs, and resulting gate IDs.
+
+A fresh Standard-Assurance review context is newly initialized for one review with
+`context_id=H("review-context:"+review_id+":"+run_record_hash)[:24]`, no prior executor/reviewer
+messages or state, and input limited byte-for-byte to the packet plus fixed adversarial instructions.
+It receives no executor prompt, transcript, private reasoning, credentials, mutable workspace handle
+or correction authority. This is structural Standard Assurance, not High-Assurance isolation.
+
+`reviewer_execution` is exactly `{invocation_id:review_id,context_id,role:"reviewer",adapter_id,
+principal_id,process_id:int,fresh_context:true,read_only:true,received_packet_hash,instructions_hash,
+started_at,ended_at:string|absent}`. Executor invocation records equivalent identity fields. Required
+separation is different `principal_id`, `adapter_id` and `context_id`; process IDs may match but are
+truthfully recorded. Equality of a separated value, missing provenance, inherited executor-only field
+or writable capability creates a deterministic independence card and `awaiting_human` before reviewer
+call. No PASS/eligibility follows. Executor mutates only executor result; reviewer mutates only review
+result. Cancellation/interruption produces no result and uses the retry rule above.
+
+## 24. Exact collector execution contract
+
+Common contract: resolve `git` from PATH and Python as exact `sys.executable` 3.14; verified root cwd;
+closed stdin; exact environment keys from §15 with all other inheritance removed. On timeout terminate
+the process group, wait five seconds, then kill. This stdlib design cannot enforce network isolation;
+an externally verified offline precondition is required or a card/`AWAITING_HUMAN` occurs before any
+command. Redact stdout/stderr bytes before decode/hash by replacing case-insensitive UTF-8 matches of
+`(token|password|secret|api[_-]?key|authorization)=` through next whitespace/NUL with `<REDACTED>`.
+Strict UTF-8 decode; invalid bytes BLOCKED. Store CRLF/CR normalized to LF, but hash
+`H({command_id,stream,redacted_bytes_hex})` before line normalization. Stderr never proves success.
+Spawn/permission error, timeout, interruption, unexpected exit, missing/multiple/contradictory parse
+candidate or forbidden trailing noise is BLOCKED. Every entry maps to `RunRecord.commands[]`; only
+named parsed facts have collector authority.
+
+| Collector / phase | Exact argv; input; timeout | Exit/parser; mapping |
+| --- | --- | --- |
+| `GIT-ROOT` / preflight | `git rev-parse --show-toplevel`; none; 30s | 0; exactly one absolute line/no noise, resolve=cwd → root |
+| `GIT-HEAD-BASELINE` / pre-execution | `git rev-parse HEAD`; none; 30s | 0; exactly one lowercase hex40/64 matching frozen baseline → baseline_head |
+| `GIT-BRANCH` / pre-execution | `git branch --show-current`; none; 30s | 0; exactly one non-empty line → branch |
+| `INVENTORY` / pre-execution | Python inventory argv §15; manifest path; 120s | manifest procedure below; exit 0 PASS or 3 AWAITING_HUMAN; one JSON object/no noise → gate inventory |
+| `GIT-HEAD-FINAL` / post-executor | `git rev-parse HEAD`; none; 30s | same grammar, separate invocation → final_head |
+| `GIT-STATUS` / post-executor | exact argv §15; none; 30s | 0; exact NUL grammar; trailing fragment invalid → status/paths |
+| `GIT-DIFF` / post-executor | exact baseline argv §15; 30s | 0; entire normalized redacted stdout → diff text/hash |
+| `GIT-NUMSTAT` / post-executor | exact baseline argv §15; 30s | 0; every NUL record exact tab grammar, sorted path → numstat |
+| `SCHEMA-CHECK` / verification | Python schema argv §17 `--check`; 120s | 0 and one JSON array of five sorted `{schema_id,sha256}`; exit 1/other BLOCKED |
+| `PYTEST` / verification | `PYTHON -m pytest -q`; 900s | exit 0/1/5 recognized; only 0 PASS. Final non-empty line is sole anchored summary candidate; earlier candidate, contradiction, missing/malformed summary or interruption BLOCKED. Warning count is a summary category |
+| `RUFF-LINT` / verification | `PYTHON -m ruff check .`; 300s | 0 PASS, 1 FAIL, other BLOCKED; text cannot override exit |
+| `RUFF-FORMAT` / verification | `PYTHON -m ruff format --check .`; 300s | 0 PASS, 1 FAIL, other BLOCKED |
+| `FORGE-STATUS` / verification | `PYTHON -m forge status`; 120s | 0 and exactly one required heading/status each; duplicate/missing/unknown BLOCKED |
+
+Order is the table order and execution is sequential. This replaces ambiguous `GIT-HEAD`; RunRecord
+therefore has 13 entries. The manifest is exactly gate 0 bytes at §3 path: read, §21.1 validate,
+require manifest variant, canonical-reserialize byte-identically, verify hash, then pass that literal
+path in argv. No actor summary substitutes for collector evidence.
+
+## 25. Deterministic create-only recovery
+
+Authoritative create is validate → exclusive create final path → write all canonical bytes → flush/
+fsync → close → reread/hash → directory fsync. Final paths are never overwritten, deleted, truncated
+or renamed. A partial final path is preserved forever and makes that physical series terminal; no
+later gate may skip its occupied sequence. Operational disposition is `AWAITING_HUMAN` derived from
+the last verified predecessor plus corrupt-tail diagnostic, not a fabricated gate. Only a later Human
+Decision could authorize a successor series carrying the complete correction count/history; this
+brief does not authorize one.
+
+| IP | Possible filesystem and authority | Allowed recovery, reuse and resulting state |
+| --- | --- | --- |
+| IP-01 | no new bytes; prior chain authoritative | revalidate; same path/sequence/ordinal reusable; invalid → BLOCKED diagnostic |
+| IP-02 | no final path; prior chain authoritative | retry exclusive create using same IDs/path; no next ordinal |
+| IP-03 | final path contains any prefix; non-authoritative | preserve bytes/path; no reuse/delete/truncate/overwrite/next sequence/ordinal; terminal AWAITING_HUMAN diagnostic |
+| IP-04 | complete but unconfirmed file | reread; exact canonical bytes/hash adopts once with same IDs; otherwise IP-03 |
+| IP-05 | confirmed record authoritative | same-hash replay reads it; continue next required record; no duplicate append |
+| IP-06 | earlier record durable, later path absent | replay orchestration using same later ID/path; absent adapter result requires human retry/new ordinal, count unchanged |
+| IP-07 | target already exists | same hash idempotent; different hash preserves claim and creates conflict card/gate if paths free, else terminal diagnostic |
+| IP-08 | gap or predecessor mismatch | preserve all; no append/path/sequence reuse; terminal AWAITING_HUMAN diagnostic |
+| IP-09 | derived temp may be partial | temp name `current.{gate_record_hash}.tmp`; same valid hash may replace current; partial/different temp is preserved/ignored and next gate uses its own hash temp; authoritative state unchanged |
+
+Derived temp files are internal cache material, not boundary payloads. Atomic replace may replace only
+`current.json`. Authority-conflict order is card then gate. Card ID is
+`DC-{series_prefix}-{sequence}-{H(sorted(source_id+source_hash pairs))[:12]}`. Same conflict always
+derives the same ID. Crash before card durability recreates it; after card durability/before gate,
+replay adopts same-hash card then creates gate. Partial card/gate invokes IP-03 and no second card.
+Both sources/hashes are in card and checkpoint; history never changes.
+
+Closure order is accepted closure decision then closed gate. Crash between them adopts decision and
+appends deterministic closed gate. A partial decision/gate leaves the last verified accepted gate
+authoritative and cannot claim closure.
+
+## 26. Literal scenario-fixture contracts
+
+Constants: `series_id=00000000-0000-4000-8000-000000000002`, `frozen_hash=H("F")`, baseline
+`7bdbc9a9afb57dcd3a6f2e878ed1dc582ff8ad68`, branch `main`, time
+`2026-08-01T00:00:00.000000Z`. “Base” is literal valid gate 0 draft plus gate 1 ready, count/ordinal 0,
+clean repository. IDs/hashes use §§14/21 expressions. Each file is exactly
+`{fixture_id,cases:[{arrange,act,assert}]}` and expected values are literal, not imported constants.
+
+| Fixture / cases | Arrange; act | Assert: records in order; final; forbidden |
+| --- | --- | --- |
+| `FX-GATE-VALID` | gate 0; validate/MARK_READY | gate 1; ready; no exchange/run/review/decision |
+| `FX-GATE-INVALID` | missing predecessor and unknown-field cases; validate | none; BLOCKED diagnostic; unchanged filesystem |
+| `FX-EXEC-VALID` | Base; START_EXECUTION then completed return | executing gate with request, complete executor exchange; executing; no run/review |
+| `FX-EXEC-INVALID` | Base plus executor PASS field; validate | no result/gate; BLOCKED authority error |
+| `FX-RUN-VALID` | completed executor; collect 13 commands | run, evidence_ready gate; exact derived IDs/hashes; no review |
+| `FX-RUN-INVALID` | bad hash, unknown field, missing executable, timeout, invalid UTF-8, malformed output and ambiguous pytest cases; collect | no run/evidence gate; blocked gate if writable; §24 code |
+| `FX-REVIEW-VALID` | valid run; fresh PASS review | reviewing gate with packet, complete reviewer exchange, accepted eligibility gate; no closure |
+| `FX-REVIEW-INVALID` | missing criterion, reused executor principal, inherited context cases; precheck/validate | evidence error→blocked gate; independence error→card, awaiting_human gate; no PASS |
+| `FX-DECISION-VALID` | awaiting_human/matching card; accepted resolution | resolution, resume gate; stored target; no rewrite |
+| `FX-DECISION-INVALID` | missing owner, unknown field, stale and declined cases; apply | malformed/stale→blocked; declined→decision, blocked gate; no resume |
+| `FX-HASH-ORDER` | predecessor mismatch, gap, stale sequence cases; load | none; terminal AWAITING_HUMAN diagnostic; no later gate |
+| `FX-DUPLICATE` | same-hash and different-hash cases; replay append | same→none/idempotent; different→card, awaiting_human gate if free else terminal |
+| `FX-PARTIAL` | IP-03 for gate/executor/run/reviewer/decision; recover | exact prefix preserved; terminal AWAITING_HUMAN; no reuse/delete/next record |
+| `FX-AUTH-CONFLICT` | human/collector disagreement plus crash-before/after-card cases; conflict | one deterministic card, gate; awaiting_human; replay no semantic duplicate |
+| `FX-REDACTED-RELEVANT` | secret removes locator; collect/review | redacted text/hash; blocked review; no eligibility |
+| `FX-CONDITIONAL` | literal platform and TYPE_CHECKING imports; inventory | both targets COUNT; inventory gate; no exclusion |
+| `FX-DYNAMIC-LITERAL` | literal importlib/subprocess target; inventory | target COUNT/edges; deterministic inventory hash |
+| `FX-DYNAMIC-COMPUTED` | computed target; inventory | card, awaiting_human gate; no executor request |
+| `FX-HIDDEN-SURFACE` | cases sixth surface, correction 1/2, no-progress, ceiling, closure, failed closure; inventory/flow | sixth→awaiting_human; rounds→ordinals/counts 1/2; repeat→blocked; ceiling→card/awaiting_human; closure→decision/closed gate; partial closure→accepted remains |
+
+Each case specifies exact initial file list/bytes, operation entrypoint, mutation, expected validation
+code, record list/order, final state, forbidden files and replay outcome using the constants and table
+above. Future fixture content must spell out resulting canonical JSON and hashes; tests compare literal
+bytes without production constants. IP-01–IP-09 use the same constants and assert every §25 outcome.
+No additional fixture artifact path is created.
+
+## 27. Reconciled budget and end-to-end control coverage
+
+| Module | Principal functions/classes/protocols and included logic | New LOC | Reuse | Risk allocation |
+| --- | --- | ---: | ---: | ---: |
+| `fal002.py` | Event/transition table, apply_event, orchestration, correction/no-progress, decisions, eligibility, closure | 330 | 0 | 25 |
+| `fal002_model.py` | five dataclasses, nested validators, canonical JSON, ID/hash, schema generator/checker, error enums | 420 | 0 | 35 |
+| `fal002_inventory.py` | manifest, AST resolver, dynamic/subprocess edges, exemptions, LOC/module/adapter/surface/dependency output | 360 | 0 | 30 |
+| `fal002_io.py` | exclusive persistence, load/recovery, 13 collectors/parsers, redaction, two protocols, provenance checks/error mapping | 550 | 0 | 50 |
+| **Expected** | **all production behavior** | **1,660** | **0** | **140 to 1,800 maximum** |
+
+Risk allocation is shared unallocated margin, not expected LOC or scope. Production logic, generators
+and generated runtime code count. Test LOC, 19 fixture files, five purely derivative schemas and
+documentation are excluded; schemas still consume five surfaces. No dependency is added. Exceeding
+1,800 new LOC, eight modules, one adapter per role, six surfaces or zero new dependencies requires a
+new Human Decision. The envelope is a maximum, never a target.
+
+| Control | Normative requirement | Canonical contract / implementation | State/authority mapping | Verification / fixture | Failure |
+| --- | --- | --- | --- | --- | --- |
+| `FAL2-CC-01` | generated schemas equal model | §21; model generator | pre-persist model authority | byte round-trip; five VALID cases | BLOCKED |
+| `FAL2-CC-02` | reject malformed boundaries | §21 order; validators | INVALID_EVIDENCE | invalid Gate/Run/Decision cases | BLOCKED |
+| `FAL2-CC-03` | frozen identity/count persists | Gate payload; chain loader | reopen never resets | HASH-ORDER/correction cases | BLOCKED |
+| `FAL2-CC-04` | collector owns facts | RunRecord; collectors | COLLECT_COMPLETE | RUN-VALID/executor contradiction | BLOCKED |
+| `FAL2-CC-05` | two corrections/no-progress | Gate control; core | §22 correction events | HIDDEN-SURFACE flow cases | BLOCKED/awaiting_human |
+| `FAL2-CC-06` | blockers forbid PASS | Review/eligibility validators | REVIEW_PASS guard | REVIEW-INVALID | BLOCKED |
+| `FAL2-CC-07` | criterion binding/rationale | Review fields; resolver | reviewer semantic authority | review valid/invalid | no eligibility/BLOCKED |
+| `FAL2-CC-08` | truthful fresh review | §23 provenance/precheck | START_REVIEW guard | principal/context cases | card/awaiting_human |
+| `FAL2-CC-09` | adverse append-only history | Gate chain; recovery | never rewrite | HASH-ORDER/PARTIAL/CONFLICT | awaiting_human |
+| `FAL2-CC-10` | cards block defaults | HumanDecision; core | decision events | DECISION cases | awaiting_human/blocked |
+| `FAL2-CC-11` | human-only atomic close | closure fields; core/I/O | HUMAN_CLOSE only | closure/replay/IP cases | no closure |
+| `FAL2-CC-12` | forbidden command/path | request policy; allowlist | before execution | EXEC invalid/policy literals | BLOCKED |
+| `FAL2-CC-13` | hard limits | inventory output | MARK_READY guard | HIDDEN-SURFACE/self-inventory | awaiting_human |
+| `FAL2-CC-14` | complete command evidence | RunRecord 13; I/O | COLLECT_COMPLETE guard | RUN collector cases | BLOCKED |
+| `FAL2-CC-15` | separate implementation review | ReviewerExchange/§23 | PASS/eligibility | REVIEW-VALID/independence cases | no eligibility |
+| `FAL2-CC-16` | human closure decision | CLOSURE model; core | accepted→closed only | closure/replay/partial | no closure |
+
+Failure `reason_code` is exactly one of `MALFORMED_BOUNDARY`, `UNSUPPORTED_VERSION`, `HASH_MISMATCH`,
+`FORBIDDEN_TRANSITION`, `AUTHORITY_CONFLICT`, `MISSING_EVIDENCE`, `STALE_RECORD`, `DUPLICATE_CONFLICT`,
+`PREDECESSOR_GAP`, `COMMAND_FAILURE`, `TIMEOUT`, `INTERRUPTED`, `INDEPENDENCE_FAILURE`,
+`NO_PROGRESS`, `CORRECTION_CEILING`, `LIMIT_BREACH` or `PENDING_DECISION`.
+
+`CORR-008-01` through `CORR-008-07` and all ten listed findings are `ADDRESSED — AWAITING
+INDEPENDENT REVIEW`. This statement is not verification, PASS, closure or Implementation
+Authorization. The next gate is a fresh independent read-only Standard-Assurance review.

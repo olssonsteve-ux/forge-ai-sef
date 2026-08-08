@@ -89,7 +89,11 @@ Forge may eventually include:
 - Treat `HD-FAL-009` as the sole budget reconciliation for the unchanged FAL-002 scope: approximately
   1,660 expected and at most 1,800 new production LOC. The ceiling is a maximum envelope, not a
   target; every non-LOC limit, assurance requirement and finding remains unchanged. The bounded
-  `HD-FAL-008` correction may resume, but FAL-002 implementation remains unauthorized.
+  `HD-FAL-008` correction is documentation-complete, but FAL-002 implementation remains unauthorized.
+- Treat the resumed `HD-FAL-008` correction as documentation-complete but unverified. EB-006 sections
+  21–27 are the implementation-complete refinements for boundary models, state transitions,
+  fixtures, adapters, reviewer separation, collectors, recovery, budget and control coverage. All
+  ten findings await fresh independent review; no implementation authority follows.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.
