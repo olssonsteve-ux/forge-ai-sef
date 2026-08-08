@@ -5,11 +5,13 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-The `HD-FAL-010` second bounded residual EB-006 documentation correction is complete. It defines
-closed nested models, an independent fixture oracle, Forge-owned invocation grants, unified staged
-publication, authoritative recovery, exactly-one valid conflict cards and definitive collector
-representations. All findings remain only `ADDRESSED — AWAITING INDEPENDENT REVIEW`. FAL-002 remains
-`NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC envelope.
+The fresh independent IR3 review of the `HD-FAL-010` correction returned
+`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with eight blocking findings,
+`EB006-IR3-01` through `EB006-IR3-08`. `HD-FAL-011` accepts that disposition and requires a separate
+recovery/state architecture decision because occupied or invalid canonical gate/card paths cannot
+obtain a total authoritative state under the current single-series contract. No CORR-011 objective
+is authorized. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum
+LOC envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -24,8 +26,9 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct a fresh independent read-only Standard-Assurance review of the `HD-FAL-010`-corrected EB-006.
-Implementation and Manual Digital Album Authoring and Export remain unstarted and unauthorized.
+Create a separate bounded FAL-002 recovery/state architecture decision resolving `EB006-IR3-04` and
+the dependent publication portion of `EB006-IR3-05`. Do not correct EB-006 or implement FAL-002.
+Manual Digital Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -144,6 +147,9 @@ Implementation and Manual Digital Album Authoring and Export remain unstarted an
 - completed bounded EB-006 documentation correction awaiting fresh independent review
 - `HD-FAL-010` authorization for a second bounded EB-006 residual documentation correction only
 - completed `HD-FAL-010` documentation correction awaiting fresh independent review
+- independent IR3 result `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with eight blocking
+  findings, `EB006-IR3-01` through `EB006-IR3-08`
+- accepted `HD-FAL-011` recovery-architecture gate; no CORR-011 or FAL-002 implementation authority
 
 ## What Does Not Exist
 

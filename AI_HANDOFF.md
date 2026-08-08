@@ -12,12 +12,14 @@ Forge's motto is: Build software with intention.
 
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
 correct, accept, close or restart it. The FAL-002 specification is approved for Implementation
-Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. The latest independent EB-006
-review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION` with `EB006-IR2-01`–`EB006-IR2-07`.
-The `HD-FAL-010` second residual documentation correction is complete under the unchanged
-`HD-FAL-009` envelope of approximately 1,660 expected and at most 1,800 new production LOC. All
-findings remain open for independent review. Do not implement FAL-002 without a separate decision.
-The album capability remains unstarted.
+Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. The fresh independent IR3
+review of corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with all
+eight findings `EB006-IR3-01`–`EB006-IR3-08` blocking. `HD-FAL-011` accepts that review and requires
+a separate recovery/state architecture decision before further EB-006 correction because occupied
+or invalid canonical gate/card paths lack a total authoritative recovery result. `CORR-011-01`
+through `CORR-011-08` are reserved but `NOT AUTHORIZED`. The `HD-FAL-009` envelope remains
+approximately 1,660 expected and at most 1,800 new production LOC. Do not implement FAL-002. The
+album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -209,9 +211,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Conduct a fresh independent read-only Standard-Assurance review of corrected EB-006 sections 28–33,
-including nested models, fixture oracle, provenance grants, staged recovery and collector unions.
-Implementation still requires a separate Human Decision naming an accepted brief and baseline.
+Create a separate bounded FAL-002 recovery/state architecture decision for the authoritative
+occupied-path problem in `EB006-IR3-04` and the dependent total conflict-card recovery in
+`EB006-IR3-05`. Do not edit EB-006, start any CORR-011 objective or implement FAL-002. A later Human
+Decision must authorize one coherent correction, followed by fresh independent review; even a later
+PASS would still require separate Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

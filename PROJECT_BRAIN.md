@@ -102,6 +102,12 @@ Forge may eventually include:
   command parsed unions, decision vocabulary, Forge-owned grants, unified staged publication,
   independent fixture oracle, collector representations and corrected control mapping. They await
   independent review and confer no implementation authority.
+- Treat the independent IR3 verdict as `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with
+  all eight findings `EB006-IR3-01`–`EB006-IR3-08` open. `HD-FAL-011` authorizes no CORR-011 work;
+  it requires a separate recovery/state architecture decision because an occupied canonical gate
+  path cannot record authoritative fail-closed state under the current single-series contract and
+  total conflict-card recovery depends on that choice. Keep the 1,660 expected / 1,800 maximum LOC
+  envelope unchanged and FAL-002 `NOT AUTHORIZED`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.
