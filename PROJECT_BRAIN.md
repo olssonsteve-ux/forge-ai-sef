@@ -118,6 +118,11 @@ Forge may eventually include:
   must implement `HD-FAL-012` without redesign, and must stop on specification, architecture,
   surface, dependency or budget authority needs. Findings may become only `ADDRESSED — AWAITING
   INDEPENDENT REVIEW`; FAL-002 remains `NOT AUTHORIZED`.
+- Treat EB-006 sections 34–42 as the completed CORR-011 final contracts. They supersede conflicting
+  earlier exact shapes and define 17 collector commands, full EvidenceBinding/exchange/decision
+  models, deterministic successor recovery, subordinate conflict cards, resolved offline authority,
+  complete-lineage finding lifecycle, exact no-progress and the independent fixture oracle. All
+  eight IR3 findings await fresh independent review; no implementation authority follows.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

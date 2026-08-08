@@ -1,6 +1,6 @@
 # EB-006 — Implement FAL-002 Standard Assurance Bounded Engineering Loop
 
-Status: `AWAITING HUMAN REVIEW`
+Status: `AWAITING INDEPENDENT REVIEW`
 
 Date: 2026-08-01
 
@@ -8,7 +8,7 @@ Owner: Chief Architect
 
 Decision basis: `HD-FAL-006`
 
-Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`
+Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`, `HD-FAL-013`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -35,6 +35,14 @@ Residual finding status:
 | `EB006-IR2-05` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR2-06` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR2-07` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-01` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-03` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-04` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-05` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-06` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-07` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR3-08` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 1. Purpose and gate
 
@@ -552,9 +560,11 @@ conflict test `test_authority_conflict_awaits_human` produces both raw sources a
 Redaction test `test_redaction_blocks_missing_locator` uses `FX-REDACTED-RELEVANT`. Every requirement
 fails closed when its named evidence is missing; no integration-test wildcard supplies coverage.
 
-## 21. Normative implementation-complete conventions
+## 21. Historical canonical conventions (superseded where section 35 differs)
 
-Sections 21–27 refine sections 3–20 and control wherever earlier shorthand is less specific.
+Sections 21–27 record the pre-CORR-011 canonical design. Sections 34–42 are the sole final authority
+where they add, replace or conflict with this text; no implementer may select an older competing
+shape.
 `Json` means null, boolean, signed base-10 integer, UTF-8 string, ordered array, or object with string
 keys. Floats, duplicate keys, NaN, infinity and lone surrogates are invalid. `Timestamp` is UTC
 `YYYY-MM-DDTHH:MM:SS.ffffffZ`; `Sha256` is 64 lowercase hex characters; `PathRel` is a normalized
@@ -637,10 +647,11 @@ decision and closure fields are forbidden.
 
 ### 21.3 `RunRecord` — `fal002.run-record.v1`
 
-Besides the common envelope, exact fields are `record_id=run_id`, `execution_id`, `ordinal:int 0..9999`,
-`repository`, `commands`, `diff`, `build`. `repository` is exactly `{root:".",branch,
+This pre-CORR-011 shape is historical; final RunRecord is exclusively §35.4. Historically, fields
+were `record_id=run_id`, `execution_id`, `ordinal:int 0..9999`, `repository`, `commands`, `diff`,
+`build`, and `repository` was `{root:".",branch,
 baseline_head:hex40|hex64,final_head:hex40|hex64,status:string[],changed_paths:PathRel[]}`. `commands`
-contains exactly 13 entries in §24 order. Each is `{command_id,phase,argv:string[],cwd:PathRel,
+contained 13 entries in §24 order; final count is 17. Each historical entry was `{command_id,phase,argv:string[],cwd:PathRel,
 environment_keys:string[],started_at,ended_at,exit_code:int|null,termination:
 EXITED|TIMEOUT|INTERRUPTED|SPAWN_ERROR,stdout_sha256,stderr_sha256,stdout_text,stderr_text,
 redaction_count:int>=0,parser_version:1,parsed:CommandParsed,classification:
@@ -667,9 +678,9 @@ CRITICAL/blocking finding and no pending decision. Reviewer execution is defined
 Besides the common envelope, exact fields are `record_id=decision_id`, `decision_kind:
 PENDING_CARD|RESOLUTION|CLOSURE`, `status:PENDING|ACCEPTED|DECLINED`, `owner`, `provenance:
 {source,locator,content_hash}`, `payload`. PENDING_CARD requires PENDING and payload
-`{decision_card:{question,domain,source_record_ids,source_hashes,allowed_choices}}`. RESOLUTION
-requires ACCEPTED or DECLINED and payload `{resolves_decision_id,chosen_value:string|absent,
-rationale}`; chosen value is absent iff declined. CLOSURE requires ACCEPTED and payload
+`{decision_card:{question,domain,source_record_ids,source_hashes,allowed_choices}}`. The historical
+RESOLUTION `chosen_value` shape is withdrawn; final RESOLUTION and CLOSURE are exclusively §35.5.
+Historically, CLOSURE required ACCEPTED and payload
 `{eligible_gate_id,eligible_gate_hash,review_id,review_hash}`. Decisions cannot rewrite facts/history.
 Same ID/hash is idempotent; same ID/different hash is authority conflict. IDs derive exactly by §14.1;
 card conflict suffix is refined in §25.
@@ -689,7 +700,7 @@ resolution. Required evidence always means a schema-valid, hash-valid, authorita
 | executing | `EXECUTOR_COMPLETED` | executor; matching result | executor result | executing | same hash idempotent; conflict → conflict event |
 | executing | `EXECUTOR_FAILED` | core; failed/timeout/error result | gate | blocked | human resolution only |
 | executing | `EXECUTOR_INTERRUPTED` | recovery; interruption checkpoint | gate | awaiting_human | accepted retry uses next ordinal, count unchanged |
-| executing | `COLLECT_COMPLETE` | collector; all 13 command entries | run, gate | evidence_ready | missing/malformed → blocked gate |
+| executing | `COLLECT_COMPLETE` | collector; all final §35.1 command entries | run, gate | evidence_ready | missing/malformed → blocked gate |
 | evidence_ready | `START_REVIEW` | core; packet and independence precheck | gate with review packet | reviewing | failed separation → card, awaiting_human gate; invoke only after durability |
 | reviewing | `REVIEW_PASS` | reviewer; complete valid PASS | reviewer result, eligibility gate | accepted | blocking/missing → blocked gate |
 | reviewing | `REVIEW_CORRECTION` | reviewer; CORRECTION_REQUIRED | reviewer result, gate | correction_required | count=2 → ceiling event |
@@ -757,8 +768,8 @@ named parsed facts have collector authority.
 | `RUFF-FORMAT` / verification | `PYTHON -m ruff format --check .`; 300s | 0 PASS, 1 FAIL, other BLOCKED |
 | `FORGE-STATUS` / verification | `PYTHON -m forge status`; 120s | 0 and exactly one required heading/status each; duplicate/missing/unknown BLOCKED |
 
-Order is the table order and execution is sequential. This replaces ambiguous `GIT-HEAD`; RunRecord
-therefore has 13 entries. The manifest is exactly gate 0 bytes at §3 path: read, §21.1 validate,
+The historical order was sequential and replaced ambiguous `GIT-HEAD`; final order and 17-entry
+RunRecord are exclusively §35.1/§35.4. The manifest is exactly gate 0 bytes at §3 path: read, §21.1 validate,
 require manifest variant, canonical-reserialize byte-identically, verify hash, then pass that literal
 path in argv. No actor summary substitutes for collector evidence.
 
@@ -848,15 +859,17 @@ Failure `reason_code` is exactly one of `MALFORMED_BOUNDARY`, `UNSUPPORTED_VERSI
 INDEPENDENT REVIEW`. This statement is not verification, PASS, closure or Implementation
 Authorization. The next gate is a fresh independent read-only Standard-Assurance review.
 
-## 28. Definitive nested canonical contracts
+## 28. CORR-010 nested canonical contracts (superseded where sections 35–40 differ)
 
-Sections 28–32 are the final `HD-FAL-010` refinements. They replace, rather than supplement, every
-less-specific or conflicting clause in sections 14–27. No `Json` catch-all remains at a boundary.
+Sections 28–32 record the `HD-FAL-010` refinements. Sections 34–42 are the final `HD-FAL-013`
+replacement wherever they differ, including evidence bindings, invocation containers, decisions,
+RunRecord versions, recovery, cards, finding lifecycle, no-progress and fixture generation. No
+`Json` catch-all remains at a boundary.
 
 ### 28.1 Gate payload discriminated union
 
 Every `GateRecord.payload` has exactly `frozen_hash:Sha256`, `correction_count:int 0..2`,
-`variant_kind` and the same-named variant object below. The eight permitted variants are:
+`variant_kind` and the same-named variant object below. The nine pre-CORR-011 variants were:
 
 | `variant_kind` | Exact variant object |
 | --- | --- |
@@ -949,8 +962,9 @@ float. Binary numstat alone permits null counts. Classification and exit/termina
 `authority` is exactly `HUMAN|COLLECTOR|CANONICAL_MODEL|REVIEWER|STATE_SERIES|REPOSITORY_HISTORY`.
 RESOLUTION adds exactly `{resolves_decision_id,selected_choice,rationale}`. No choice is implied or
 defaulted. The selected choice must be a member of the card array and satisfy the domain invariant.
-DECLINED status requires the domain's DECLINE/ABANDON choice. CLOSURE payload remains §21.5 and
-requires domain CLOSURE. Decision target and source hashes participate in payload and record hashes.
+DECLINED status requires the domain's DECLINE/ABANDON choice. The former undefined CLOSURE-domain
+requirement is withdrawn; final closure is exclusively §35.5. Decision target and source hashes
+participate in payload and record hashes.
 
 ## 29. Forge-owned invocation provenance
 
@@ -1027,8 +1041,8 @@ as authority without asserting a new state.
 | IP-08 | gap prevents publication; preserve files; checkpoint only at next valid free sequence, otherwise last valid gate plus awaiting-human diagnostic |
 | IP-09 | hash-named current temp remains cache-only; rebuild/replace from latest valid gate |
 
-Conflict card ID remains `DC-{series_prefix}-{sequence}-{H(sorted source tuples)[:12]}` and bytes are
-complete before staging. Crash before/during card staging leaves final absent and replay republishes
+The former `H(sorted source tuples)` ID expression is withdrawn; §37 is the sole card identity rule.
+Historically, bytes were complete before staging. Crash before/during card staging leaves final absent and replay republishes
 identical bytes. Crash after card link adopts it. Only then is the awaiting_human gate staged using the
 same model. Crash during gate staging leaves card durable/gate absent; replay adopts card and publishes
 the identical gate. A different final card is preserved as conflict; no alternate semantic ID exists.
@@ -1038,9 +1052,10 @@ Closure uses the same decision-then-gate publication. Partial staging cannot clo
 decision with absent gate is adopted and the identical closed gate is republished. No overwrite,
 delete, truncate or evidence loss occurs.
 
-## 31. Independent normative fixture generator
+## 31. Historical fixture generator design (withdrawn; replaced by section 40)
 
-This replaces §26's requirement for future hand-authored JSON. The fixture oracle is a test-only
+The generator described in this section is withdrawn as an oracle because it did not determine every
+primitive and mutation. Section 40 is the sole fixture authority. Historically, it proposed a test-only
 generator implemented inside `tests/test_fal002_model.py`; it imports only stdlib `json`, `hashlib`
 and `pathlib`, never `forge.*`, generated schemas or production constants. There is no randomness.
 
@@ -1126,7 +1141,7 @@ Hash exact redacted bytes using §24 preimage before CR/LF normalization. Stored
 UTF-8 decoded redacted bytes with CRLF and CR replaced by LF; invalid UTF-8 after redaction is
 MALFORMED_BOUNDARY. The command-specific parsed union is exclusively §28.2.
 
-## 33. Corrected end-to-end control mapping
+## 33. CORR-010 control mapping (superseded by sections 34–42)
 
 This table replaces §27 coverage. Test names are planned implementation tests; fixture cases are
 normative generator cases from §31. No status here is independent review verification.
@@ -1144,9 +1159,9 @@ normative generator cases from §31. No status here is independent review verifi
 | `FAL2-CC-09` | staged publication §30 + Gate predecessor | only linked verified finals authoritative | PARTIAL/HASH-ORDER/AUTH-CONFLICT all crash cases | last gate retained/AWAITING_HUMAN |
 | `FAL2-CC-10` | §28.3 fixed domains/choices | no default; decision event only | DECISION valid/invalid/stale/declined | BLOCKED/AWAITING_HUMAN |
 | `FAL2-CC-11` | CLOSURE payload + staged decision/gate | human decision then closed gate | HIDDEN closure/mid-stage/replay | accepted remains until closed gate |
-| `FAL2-CC-12` | ExecutorRequest paths/13 IDs + command policy hash | checked before execution grant | EXEC PASS-field/out-of-policy command/path cases | BLOCKED |
+| `FAL2-CC-12` | historical request mapping; final paths/17 IDs + command policy hash in §35.1 | checked before execution grant | EXEC PASS-field/out-of-policy command/path cases | BLOCKED |
 | `FAL2-CC-13` | INVENTORY payload/counts + 1,800 envelope | MARK_READY only on PASS | HIDDEN sixth-surface and self-inventory literal counts | AWAITING_HUMAN |
-| `FAL2-CC-14` | RunRecord exact 13 entries + §28.2/§32 | missing entry prevents evidence gate | RUN valid/missing/timeout/encoding/parser cases | BLOCKED |
+| `FAL2-CC-14` | historical mapping; final RunRecord has 17 entries under §35.1/§35.4 | missing entry prevents evidence gate | RUN valid/missing/timeout/encoding/parser cases | BLOCKED |
 | `FAL2-CC-15` | ReviewerPacket + Forge grant/provenance | PASS/eligibility only after seven fresh checks | REVIEW fresh-pass and three independence failures | no eligibility/AWAITING_HUMAN |
 | `FAL2-CC-16` | CLOSURE decision vocabulary/eligibility binding | accepted→closed only by human | closure, repeated closure and mid-stage recovery | no premature closure |
 
@@ -1158,3 +1173,767 @@ they add no production module, dependency, adapter or schema surface and do not 
 historical residuals are `ADDRESSED — AWAITING INDEPENDENT REVIEW`. None is VERIFIED, CLOSED, PASS
 or implementation-authorized. The required next gate is a fresh independent read-only
 Standard-Assurance review.
+
+## 34. CORR-011 authority, precedence and traceability
+
+`HD-FAL-012` is the binding recovery architecture and `HD-FAL-013` authorizes this single bounded
+correction. Sections 35–42 are one inseparable final contract. They replace every conflicting exact
+field list, command count, fixture rule, recovery rule, finding rule and coverage claim in sections
+3–33. Earlier text remains historical rationale only where it differs. Unchanged requirements remain
+in force. The five boundary roots and their schema IDs remain exactly §3.
+
+| Objective | Finding | Architecture dependency | Definitive sections | Contract completed | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CORR-011-01` | `EB006-IR3-01` | none | §§35.2, 40–41 | complete criterion evidence shape, resolver and fixtures | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-011-02` | `EB006-IR3-02` | `HD-FAL-010` provenance | §§35.3–35.5 | final invocation/reviewer containers and closure discriminator | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-011-03` | `EB006-IR3-03` | none | §40 | total stdlib oracle inputs, constructors, mutations and expected bytes/hashes | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-011-04` | `EB006-IR3-04` | `HD-FAL-012` | §§36, 40.5 | deterministic successor lineage and `RECOVERY_ROOT` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-011-05` | `EB006-IR3-05` | `HD-FAL-012` | §§37, 40.5 | total card preimage, identity, publication and obstruction recovery | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-011-06` | `EB006-IR3-06` | none | §§35.4, 38, 40.4 | runtime/tool versions and resolved offline authority | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-011-07` | `EB006-IR3-07` | lineage carry-forward | §§35.6, 39.1–39.4, 40.6 | complete-lineage finding identity, lifecycle and eligibility | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-011-08` | `EB006-IR3-08` | finding identity and lineage | §§39.5–39.6, 40.6 | exact progress function and ceiling precedence | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+
+These statuses are correction-agent claims only. They are not `VERIFIED`, `CLOSED`, `PASS`,
+`FULLY COVERED` or Implementation Authorization.
+
+## 35. Final canonical boundary model
+
+### 35.1 Common rules and final payload union
+
+Section 21's JSON grammar, canonical UTF-8 serialization, hash algorithm, validation order, schema
+version and unknown-field rejection remain final. A string declared `NonEmpty` is valid only when it
+equals its own Unicode string after removal of leading/trailing ASCII space, tab, CR and LF; inputs
+are rejected rather than trimmed. No Unicode normalization is performed. A `JsonPointer` is `""` for
+the complete object or `/`-prefixed RFC 6901 tokens with only `~0` and `~1` escapes; non-minimal or
+invalid escapes are rejected. Resolution is against the canonical source object before hashing.
+`PathAbs` is an absolute normalized platform path returned by `Path.resolve(strict=True)`, serialized
+with `/`, with uppercase Windows drive letter when present and no trailing `/` except a filesystem
+root; non-canonical input is rejected.
+
+`GateRecord.payload.variant_kind` has exactly ten values: `MANIFEST`, `INVENTORY`, `EXECUTION`,
+`EVIDENCE`, `REVIEW`, `CONTROL`, `CHECKPOINT`, `ELIGIBILITY`, `CLOSURE`, `RECOVERY_ROOT`. The first
+nine use §28.1 except where this section replaces their nested types. `RECOVERY_ROOT` is §36.4.
+Exactly one same-named variant key is present. All nested objects use `additionalProperties:false`.
+
+Final command count is **17**, in this exact order:
+
+`GIT-ROOT`, `PYTHON-VERSION`, `GIT-VERSION`, `PYTEST-VERSION`, `RUFF-VERSION`,
+`GIT-HEAD-BASELINE`, `GIT-BRANCH`, `INVENTORY`, `GIT-HEAD-FINAL`, `GIT-STATUS`, `GIT-DIFF`,
+`GIT-NUMSTAT`, `SCHEMA-CHECK`, `PYTEST`, `RUFF-LINT`, `RUFF-FORMAT`, `FORGE-STATUS`.
+
+Every earlier `[13]`, “13 entries” or thirteen-command policy is replaced by this ordered set.
+`ExecutorRequest.command_ids`, `EVIDENCE.command_ids`, RunRecord validation, collectors and fixtures
+all use these 17 IDs.
+
+### 35.2 `EvidenceBinding`
+
+`EvidenceBinding` is exactly:
+
+```text
+{
+  criterion_id: CriterionId,
+  evidence_kind: "REPOSITORY_STATE" | "DIFF" | "COMMAND_RESULT" | "TEST_RESULT" |
+                 "BUILD_RESULT" | "INVENTORY" | "SCHEMA" | "REVIEW_FINDING" |
+                 "HUMAN_DECISION",
+  source_surface: SurfaceId,
+  source_record_id: NonEmpty,
+  locator: JsonPointer,
+  assertion: NonEmpty,
+  content_hash: Sha256,
+  provenance: {
+    authority: "COLLECTOR" | "REVIEWER" | "HUMAN",
+    record_id: NonEmpty,
+    record_hash: Sha256,
+    collector_id: CommandId | absent
+  }
+}
+```
+
+All fields are required except `collector_id`. It is required iff authority is `COLLECTOR` and
+forbidden otherwise. `source_record_id == provenance.record_id`. `source_surface` is one of the five
+§3 IDs. `record_hash` is the artifact hash required by FAL-002 §10. `content_hash` is SHA-256 of the
+canonical JSON bytes, without terminal LF, of the value resolved by `locator`; scalar strings are
+hashed as JSON strings, not raw text. The locator must resolve exactly once. `assertion` is reviewer-
+visible text stating the bounded proposition supported by the resolved value; it participates in
+hashes but is never treated as cryptographic semantic proof.
+
+Allowed authority/surface pairs are: COLLECTOR→RunRecord or inventory GateRecord;
+REVIEWER→ReviewerExchange; HUMAN→HumanDecisionRecord. `collector_id` must name the command whose
+canonical entry contains the resolved value, except INVENTORY for an inventory gate. Wrong surface,
+authority, ID, locator, hash, criterion, empty assertion, unknown kind/field or duplicate binding is
+`MALFORMED_BOUNDARY` or `HASH_MISMATCH` before review. Bindings sort by
+`(criterion_id UTF-8, evidence_kind UTF-8, source_record_id UTF-8, locator UTF-8)` and reject duplicate
+tuples.
+
+`ReviewerPacket.evidence_index` and `ReviewerExchange.result.criterion_evidence` contain this exact
+type. Result bindings must be byte-identical members of the packet index; a reviewer cannot rewrite
+collector identity. PASS requires at least one resolving binding and one semantic rationale for each
+criterion, and the complete-lineage finding scan in §39.4.
+
+### 35.3 Final invocation types
+
+`InvocationGrant` is exactly:
+
+```text
+{grant_id:Sha256,role:"EXECUTOR"|"REVIEWER",principal_id:NonEmpty,adapter_id:NonEmpty,
+ context_id:NonEmpty,input_record_id:NonEmpty,input_hash:Sha256,issued_by:"FORGE_CORE",
+ issued_at:Timestamp,prior_context_id:NonEmpty|absent,
+ allowed_effect:"RETURN_EXECUTOR_RESULT"|"RETURN_REVIEW_RESULT"}
+```
+
+`grant_id` is `H({"domain":"fal002-invocation-grant-v1","series_id":series_id,
+"gate_sequence":sequence,"role":role,"principal_id":principal_id,"adapter_id":adapter_id,
+"input_hash":input_hash})`. Role and allowed effect must correspond. `prior_context_id` is absent for
+a fresh reviewer and permitted only for an executor retry explicitly authorized by a decision.
+
+`ObservedInvocation` is exactly:
+
+```text
+{grant_id:Sha256,resolved_adapter_path:PathRel,adapter_content_hash:Sha256,
+ process_id:int>=1,thread_id:int>=1,object_identity:int>=1,started_at:Timestamp,
+ ended_at:Timestamp|absent,input_hash:Sha256,output_hash:Sha256|absent,
+ termination:"RETURNED"|"TIMEOUT"|"INTERRUPTED"|"ERROR"}
+```
+
+`ended_at` and `output_hash` are required iff termination is `RETURNED`; `ended_at` is required and
+`output_hash` absent for TIMEOUT/ERROR; both are absent only for INTERRUPTED. End cannot precede
+start. OS/process/object observations are evidence, not deterministic IDs.
+
+`ExecutorExchange.invocation` is finally and exclusively:
+
+`{grant:InvocationGrant,observed:ObservedInvocation}`.
+
+`ReviewerExchange.reviewer_execution` is finally and exclusively:
+
+`{grant:InvocationGrant,observed:ObservedInvocation,fresh_context_verified:true,
+ read_only_packet_verified:true,separation_checks:NonEmpty[7]}`.
+
+The seven separation checks are exact ordered literals `MANIFEST_ROLE_DISTINCT`,
+`PRINCIPAL_DISTINCT`, `ADAPTER_ENTRYPOINT_DISTINCT`, `GRANT_MATCH`, `CONTEXT_FRESH`,
+`PACKET_MINIMAL`, `NO_WRITE_CALLBACK`. Each is present once. Reviewer grant role/effect, context
+formula and observed grant/input hashes must match §29. Missing or false separation is
+`INDEPENDENCE_FAILURE`; no ReviewerExchange final is published. These shapes replace §§21.2,
+21.4 and every earlier flat/self-reported invocation shape.
+
+### 35.4 Final `RunRecord`
+
+The final top-level shape is the §21.3 common envelope plus exactly `execution_id`, `ordinal`,
+`repository`, `runtime`, `tools`, `commands`, `diff`, `build`.
+
+`runtime` is exactly `{python_implementation:"CPython",python_version:SemVer3,
+python_executable:PathAbs,python_executable_sha256:Sha256}`. `SemVer3` is three decimal integers with
+no leading zero unless zero. Inventory and execution require major/minor `3.14`; another value is
+`UNSUPPORTED_VERSION`.
+
+`tools` is exactly four objects sorted by name:
+
+```text
+{name:"git"|"python"|"pytest"|"ruff",version:NonEmpty,executable:PathAbs,
+ executable_sha256:Sha256,version_command_id:CommandId}
+```
+
+Names map one-to-one to `GIT-VERSION`, `PYTHON-VERSION`, `PYTEST-VERSION`, `RUFF-VERSION`.
+Executable is resolved before spawn, canonical absolute with symlinks resolved; SHA-256 covers exact
+executable bytes. For pytest/ruff the executable is the Python executable and the distribution
+version is observed through the exact module command. Missing executable is `COMMAND_FAILURE`;
+unparseable or unsupported Python is `UNSUPPORTED_VERSION`; other unparseable versions are
+`COMMAND_FAILURE`. Runtime/tools/commands participate in RunRecord payload and record hashes.
+
+`repository` is §21.3 plus required `offline_evidence_id:Sha256` and
+`offline_evidence_record_hash:Sha256`. CommandEntry is §21.3 with final `CommandParsed` from §28.2
+plus the four forms below:
+
+- PYTHON-VERSION: `{available:true,implementation:"CPython",version:SemVer3}`;
+- GIT-VERSION: `{available:true,version:NonEmpty}` from exactly `git version ` plus token;
+- PYTEST-VERSION: `{available:true,version:NonEmpty}` from exactly `pytest ` plus token;
+- RUFF-VERSION: `{available:true,version:NonEmpty}` from exactly `ruff ` plus token.
+
+Version commands use exact argv `[PYTHON,"--version"]`, `[git,"--version"]`,
+`[PYTHON,"-m","pytest","--version"]`, `[PYTHON,"-m","ruff","--version"]`, timeout 30 seconds,
+closed stdin and §24 environment/redaction. Exactly one trimmed line and no stderr is permitted.
+
+### 35.5 Final `HumanDecisionRecord` and closure
+
+The common envelope remains §21. Exactly one `decision_kind` discriminates the payload:
+
+- `PENDING_CARD`, status PENDING, payload `{decision_card:DecisionCard}`;
+- `RESOLUTION`, status ACCEPTED or DECLINED, payload
+  `{resolves_decision_id:DecisionId,selected_choice:NonEmpty,rationale:NonEmpty}`;
+- `CLOSURE`, status ACCEPTED, payload
+  `{eligible_gate_id:GateId,eligible_gate_hash:Sha256,review_id:ReviewId,review_hash:Sha256,
+    finding_ledger_hash:Sha256}`.
+
+`DecisionCard` is exactly `{question:NonEmpty,domain:DecisionDomain,target:DecisionTarget,
+sources:ConflictSource[0..65535],allowed_choices:NonEmpty[2..16]}`. `DecisionTarget` is one
+discriminated object: `{target_kind:"GATE",series_id:Uuid,gate_id:GateId,gate_hash:Sha256}`;
+`{target_kind:"SERIES_INTENT",series_id:Uuid,frozen_hash:Sha256}`; or
+`{target_kind:"RECOVERY_ROOT",series_id:Uuid,gate_id:"gate-00000000",
+recovery_condition_hash:Sha256}`. OFFLINE_EXECUTION requires SERIES_INTENT; RECOVERY and recovery
+conflicts require RECOVERY_ROOT; all other domains require GATE. Sources use §37 and may be empty only
+for OFFLINE_EXECUTION before gate zero. Choices must equal the domain's exact ordered array.
+
+Closure has **no `domain` field**. `decision_kind:"CLOSURE"` is its sole discriminator. The closure
+operation checks the exact accepted eligibility gate, review and complete-lineage finding-ledger
+hash. Pending card `domain` and choices use §28.3 plus `OFFLINE_EXECUTION` with exact choices
+`["AUTHORIZE_OFFLINE","DECLINE"]`, and `RECOVERY` choices are finally
+`["AUTHORIZE_RECOVERY_RESUME","ABANDON_LINEAGE"]`. Add `FINDING_DISPOSITION` with exact choices
+`["CLOSE_VERIFIED","SUPERSEDE","DECLINE"]`; CLOSE_VERIFIED requires the named finding to be
+INDEPENDENTLY_VERIFIED, while SUPERSEDE requires a replacement finding key and rationale in the
+card sources. RESOLUTION selected choice must belong to the
+referenced card. Every earlier `chosen_value`, absent-on-decline or “closure requires domain” rule is
+withdrawn.
+
+### 35.6 Finding canonical objects
+
+`FindingObservation` in ReviewerExchange.result is exactly:
+
+```text
+{finding_id:FindingId,finding_key:Sha256,assurance_property:
+ "BOUNDARY"|"EVIDENCE"|"INDEPENDENCE"|"RECOVERY"|"AUTHORITY"|"CLOSURE"|
+ "DETERMINISM"|"SCOPE"|"BUDGET",defect_locator:NonEmpty,severity:
+ "CRITICAL"|"HIGH"|"MEDIUM"|"LOW",blocking:boolean,criterion_ids:CriterionId[1..65535],
+ statement:NonEmpty,observation:"NEW"|"STILL_PRESENT"|"ABSENT_AFTER_CORRECTION"}
+```
+
+Criterion IDs sort bytewise. `defect_locator` is the canonical repository path plus `#` and a
+canonical heading or JSON pointer. `finding_key=H({"domain":"fal002-finding-key-v1",
+"assurance_property":assurance_property,"defect_locator":defect_locator,
+"criterion_ids":criterion_ids})`; `finding_id="F-"+finding_key[:20]`. Wording, severity and physical
+series ID do not affect identity. Duplicate keys in one result are invalid. Lifecycle is §39.
+
+## 36. Authoritative successor recovery lineage
+
+### 36.1 Trigger and obstruction descriptor
+
+For intended canonical final path `P`, canonical bytes `R` and `intended_record_hash`, normal
+publication occurs only when P is absent; exact bytes are idempotently adopted. A recovery obstruction
+exists when P is a readable different/malformed regular file, a non-regular path object, persistently
+unreadable stable path object, or an exclusive-create/link collision whose reread is not R. Transient
+I/O without a stable path object retries the same publication and creates no successor. An unwritable
+series root stops `AWAITING_HUMAN_EXTERNAL_REPAIR`; it cannot synthesize local authority.
+
+`ObstructionDescriptor` is exactly:
+
+```text
+{architecture_domain:"fal002-recovery-lineage-v1",origin_series_id:Uuid,
+ predecessor_series_id:Uuid,predecessor_gate_id:GateId,predecessor_gate_hash:Sha256,
+ blocked_sequence:int 0..99999999,target_path:PathRel,intended_record_hash:Sha256,
+ obstruction_kind:"CONFLICTING_FILE"|"MALFORMED_FILE"|"NONREGULAR_PATH"|"UNREADABLE_PATH",
+ observed_content_hash:Sha256|absent,path_object_kind:"REGULAR"|"SYMLINK"|"DIRECTORY"|"OTHER",
+ frozen_hash:Sha256}
+```
+
+Observed hash is required for readable regular files and absent otherwise. Path kind REGULAR is
+required for CONFLICTING/MALFORMED/UNREADABLE; NONREGULAR forbids REGULAR. The descriptor fields are
+serialized by §21 canonical JSON without terminal LF and
+`recovery_condition_hash=sha256(bytes)`. No time/process/random value participates.
+
+### 36.2 Successor identity
+
+For recovery ordinal `n>=0`, UUIDv5 name is exact UTF-8:
+
+`fal002-recovery-lineage-v1:{recovery_condition_hash}:{n}`
+
+using namespace UUID `6f1b8e9e-6a37-5e3a-9d9e-50dc93295943`. Python's RFC 4122 UUIDv5 lowercase
+hyphenated output is canonical. Candidate path is
+`.forge/fal002/series/{uuid}/gate/00000000.json`. Ordinal zero is first. A higher ordinal is eligible
+only when every lower candidate root contains a preserved stable obstruction. An absent lower root
+invalidates all higher candidates; an exact lower root is adopted. There is no ordinal ceiling.
+
+### 36.3 Carry-forward objects
+
+`FindingSnapshot` is `{finding_id,finding_key,state:"OPEN"|"ADDRESSED_AWAITING_REVIEW"|
+"INDEPENDENTLY_VERIFIED"|"CLOSED"|"SUPERSEDED",severity,blocking,
+last_transition_record_id,last_transition_hash}`.
+`DecisionRef` is `{decision_id,decision_hash,domain}`. `ProgressSnapshot` is
+`{run_id,diff_hash,progress_evidence_hash,unresolved_finding_set_hash,correction_count}`.
+Arrays sort by finding ID, decision ID and run ID respectively and reject duplicates.
+
+### 36.4 `RECOVERY_ROOT`
+
+The sequence-zero GateRecord has `record_id:"gate-00000000"`, `predecessor:null`, state
+`awaiting_human`, actor `recovery`, event `RECOVERY_SUCCESSOR`, common `frozen_hash` and inherited
+`correction_count`. Its sole variant is exactly:
+
+```text
+{recovery_root:{origin_series_id:Uuid,predecessor_series_id:Uuid,
+ predecessor_gate_id:GateId,predecessor_gate_hash:Sha256,
+ obstruction:ObstructionDescriptor,recovery_condition_hash:Sha256,
+ successor_series_id:Uuid,recovery_ordinal:int>=0,predecessor_sealed:true,
+ scope_hash:Sha256,criteria_hash:Sha256,allowed_paths_hash:Sha256,
+ command_policy_hash:Sha256,max_prior_ordinal:int 0..9999,
+ finding_ledger:FindingSnapshot[0..65535],pending_decisions:DecisionRef[0..65535],
+ no_progress_history:ProgressSnapshot[0..65535],intended_conflict_card_id:DecisionId,
+ intended_conflict_card_hash:Sha256}}
+```
+
+The record's `series_id` equals successor_series_id. Origin is the first manifest series.
+`allowed_paths_hash=H(sorted MANIFEST allowed_paths array)`. Scope, criteria, paths, policy,
+correction count, maximum ordinal, complete current finding ledger, pending cards
+and progress history must byte/hash-match the derived predecessor lineage. Missing or reduced carry-
+forward is `HASH_MISMATCH`. The cross-segment link lives inside the hashed payload; same-segment
+predecessor remains null.
+
+### 36.5 Authority, publication and sealing
+
+I/O detects/hashes the obstruction; core constructs descriptor, UUID, card and root; model validates
+identity/carry-forward; I/O stages exact card and root bytes. Root final is hard-linked first under
+§30 and reread/validated. That successful validation is the sole authority transition and instantly
+seals the predecessor against ordinary append. The card final is then linked. Executor, collector and
+reviewer provide none of the descriptor/ordinal/authority choices.
+
+Crash before root final leaves predecessor authoritative but unable to progress; replay reuses stages
+and publishes the identical candidate. Crash after root final adopts the successor and publishes an
+absent card. Same root bytes are idempotent. Invalid candidate root advances to the smallest eligible
+ordinal. If the card final becomes obstructed after root authority, that obstruction targets the card
+path and invokes this same successor algorithm from the active recovery segment.
+
+### 36.6 Discovery, forks and continuation
+
+Consumers start at the frozen origin manifest, validate that segment, derive any terminal obstruction
+and enumerate only §36.2 candidates. They follow the unique smallest-eligible valid recovery root and
+repeat. Latest gate of the resulting segment is current authority. Directory presence and every
+`current.json` are non-authoritative. Multiple eligible roots, unjustified higher ordinals, mismatched
+carry-forward or a fork is `AUTHORITY_CONFLICT` with no progression.
+
+Recovery is terminal for automation. Only an accepted HumanDecisionRecord bound to the active root
+may choose `AUTHORIZE_RECOVERY_RESUME` or `ABANDON_LINEAGE`. Resume appends within the active
+successor, preserves every frozen/correction/finding/progress value and resumes only the recorded
+pre-obstruction state. It cannot dismiss findings or create PASS/eligibility/closure. A later
+obstruction repeats this section; physical segment changes never reset logical lineage.
+
+## 37. Conflict-card identity and authority
+
+`ConflictSource` is exactly `{authority:"HUMAN"|"COLLECTOR"|"CANONICAL_MODEL"|"REVIEWER"|
+"STATE_SERIES"|"REPOSITORY_HISTORY",record_id:NonEmpty,record_hash:Sha256,locator:JsonPointer}`.
+Sources sort by UTF-8 tuple `(authority,record_id,record_hash,locator)` and reject duplicate tuples.
+
+The exact preimage is canonical JSON without terminal LF:
+
+```text
+{"domain":"fal002-conflict-card-v1","recovery_condition_hash":Sha256,
+ "successor_series_id":Uuid,"card_ordinal":0,"sources":ConflictSource[1..65535]}
+```
+
+`conflict_hash=sha256(preimage)` and
+`decision_id="DC-R-"+successor_series_id_without_hyphens[:12]+"-"+conflict_hash[:12]+"-0000"`.
+Card ordinal is zero for the one semantic card of that recovery root and is never incremented to
+evade a collision. A later successor caused by card obstruction has a different recovery condition
+and successor ID and therefore a different canonical card identity.
+
+The PENDING_CARD DecisionCard target is `{series_id:successor_series_id,gate_id:"gate-00000000",
+recovery_condition_hash}`; it does not contain the recovery-root hash, avoiding a card/root hash
+cycle. The recovery root binds the complete precomputed card hash. The card records the sorted sources,
+question, domain and allowed choices. Same ID/bytes is idempotent. Malformed/different final is
+preserved and invokes §36 after root authority. A staged/orphan/inactive-lineage card is evidence only.
+Only the exact card bound by the currently active recovery root may be resolved. No card establishes,
+selects or competes with GateRecord state authority.
+
+## 38. Collector versions and offline authority
+
+### 38.1 Offline evidence model
+
+MANIFEST `offline_evidence` is finally:
+
+```text
+{evidence_id:Sha256,decision_id:DecisionId,decision_record_hash:Sha256,
+ locator:"/payload/selected_choice",content_hash:Sha256,collected_at:Timestamp,
+ valid_until:Timestamp,command_policy_hash:Sha256}
+```
+
+Before gate zero, the human boundary create-publishes the referenced HumanDecisionRecord under the
+same series decision path. It must be a schema/hash-valid ACCEPTED RESOLUTION of a PENDING_CARD whose
+domain is `OFFLINE_EXECUTION`; selected choice must be `AUTHORIZE_OFFLINE`. Locator is the exact
+literal above and resolves to the JSON string `"AUTHORIZE_OFFLINE"`.
+`content_hash=sha256(canonical JSON bytes of that string without LF)` and
+`evidence_id=H({"domain":"fal002-offline-evidence-v1","decision_id":decision_id,
+"decision_record_hash":decision_record_hash,"locator":locator,"content_hash":content_hash,
+"command_policy_hash":command_policy_hash})`.
+`collected_at` equals the accepted resolution record's created_at.
+
+Core resolves the canonical decision path, validates the entire record, ID/hash, referenced pending
+card, locator and selected value before every spawn. It also requires collected_at ≤ start ≤
+valid_until ≤ collected_at+24h. Missing record/card/locator/value is `MISSING_EVIDENCE`; malformed or
+non-accepted/declined decision is `MALFORMED_BOUNDARY`; record/content/policy mismatch is
+`HASH_MISMATCH`; expiry is `STALE_RECORD`. Each yields PENDING_DECISION/awaiting_human before spawn.
+Arbitrary structural claims never satisfy the precondition.
+
+### 38.2 Version evidence
+
+Section 35.4 is collector-owned. I/O resolves/hashes executables and executes all four version probes
+before baseline Git evidence. Parser-produced version objects must equal the RunRecord runtime/tools
+objects byte-for-byte. Executor/reviewer prose and package metadata without the observed command
+cannot supply versions. Unsupported Python stops `UNSUPPORTED_VERSION`; absent or malformed other
+version evidence stops `COMMAND_FAILURE`. All version raw hashes, parsed values and executable hashes
+participate in RunRecord hashing and may be referenced by EvidenceBinding.
+
+## 39. Complete-lineage findings and deterministic no-progress
+
+### 39.1 Lifecycle states and authority
+
+The derived `FindingLedger` is internal canonical state inside Gate control/eligibility and
+RECOVERY_ROOT carry-forward, not a sixth surface. Each key has exactly one state:
+
+| From | Event and authority | To |
+| --- | --- | --- |
+| absent | reviewer NEW observation | `OPEN` |
+| `OPEN` | core records executor remediation claim plus changed collector facts | `ADDRESSED_AWAITING_REVIEW` |
+| `OPEN` | reviewer STILL_PRESENT | `OPEN` |
+| `ADDRESSED_AWAITING_REVIEW` | fresh reviewer ABSENT_AFTER_CORRECTION with exact evidence/rationale | `INDEPENDENTLY_VERIFIED` |
+| `ADDRESSED_AWAITING_REVIEW` | reviewer STILL_PRESENT | `OPEN` |
+| `INDEPENDENTLY_VERIFIED` | reviewer NEW/STILL_PRESENT evidence for same key | `OPEN` |
+| `INDEPENDENTLY_VERIFIED` | accepted human finding-disposition decision | `CLOSED` |
+| `OPEN`/`ADDRESSED_AWAITING_REVIEW`/`INDEPENDENTLY_VERIFIED` | accepted human supersession decision naming replacement key and rationale | `SUPERSEDED` |
+
+No other transition exists. Executor/correction agent cannot independently verify or close.
+Reviewer cannot close/supersede. Human cannot fabricate collector facts and may close only an
+independently verified finding. `CLOSED` and `SUPERSEDED` are terminal. Invalid transitions are
+`FORBIDDEN_TRANSITION`.
+
+### 39.2 Duplicates, residuals and wording
+
+Finding identity is §35.6. Same key with different wording is the same finding; latest statement is
+display text but history is retained. Duplicate key in one review is malformed. A residual at the
+same canonical locator/property/criteria keeps the key and transitions to OPEN/STILL_PRESENT. A
+distinct locator/property/criterion set is a new finding even if prose resembles an older one.
+Automatic semantic collapsing is forbidden. Supersession requires the accepted human transition.
+
+### 39.3 Ledger derivation and hashes
+
+Traverse every verified ReviewerExchange, remediation CONTROL gate, HumanDecisionRecord and
+RECOVERY_ROOT in logical-lineage order: segment order from §36 discovery, then gate sequence and
+record timestamp/ID tie-break within the causal transition. Apply only valid transitions above.
+Recovery snapshots must equal the derived predecessor ledger. The canonical current ledger is an
+array sorted by finding_id; `finding_ledger_hash=H(array)`. Unresolved means state OPEN or
+ADDRESSED_AWAITING_REVIEW. Physical successor boundaries never alter identity or state.
+
+### 39.4 PASS, eligibility and closure
+
+Before PASS/eligibility, core derives the complete ledger. PASS is forbidden when any unresolved
+finding is CRITICAL or `blocking:true`, any pending human decision exists, or any criterion lacks
+valid evidence/rationale. A review with `findings=[]` creates no transitions and cannot remove prior
+entries. Eligibility stores the exact finding-ledger hash and unresolved finding IDs. Closure
+rederives and matches that hash and requires no unresolved blocker. Missing history or mismatched
+snapshot is `HASH_MISMATCH`; attempted PASS is `BLOCKED`.
+
+### 39.5 Stable progress fingerprints
+
+For each completed reviewed run, define:
+
+- `diff_hash = RunRecord.diff.sha256`;
+- `progress_evidence_hash = H({repository:{baseline_head,final_head,status,changed_paths},
+  diff:{sha256,numstat},runtime,tools,commands:[{command_id,termination,exit_code,classification,
+  parsed_without_duration}],build})`; timestamps, process/thread/object IDs, raw text, raw hashes and
+  pytest `duration_seconds_decimal` are excluded only from this progress fingerprint and remain in
+  authoritative RunRecord hashes;
+- `unresolved_finding_set_hash=H([{finding_id,state,severity,blocking}] sorted by finding_id)` after
+  applying that review.
+
+`parsed_without_duration` equals parsed exactly except PYTEST omits duration. These exclusions avoid
+clock/duration noise while retaining observable outcomes.
+
+### 39.6 Exact no-progress function
+
+No-progress is evaluated only after a corrected run receives `CORRECTION_REQUIRED`; the initial run
+has no comparison. Previous is the immediately preceding completed reviewed run in the logical
+lineage, including predecessor physical segments. Current is the just-reviewed corrected run.
+
+```text
+diff_changed = current.diff_hash != previous.diff_hash
+evidence_changed = current.progress_evidence_hash != previous.progress_evidence_hash
+resolved_any = any previous OPEN/ADDRESSED_AWAITING_REVIEW key is now
+               INDEPENDENTLY_VERIFIED/CLOSED/SUPERSEDED
+introduced_blocker = any key absent previously is now unresolved and
+                     (severity == CRITICAL or blocking == true)
+material_progress = (diff_changed or evidence_changed) and resolved_any and not introduced_blocker
+no_progress = not material_progress
+```
+
+Addressed-but-not-independently-verified is unresolved and never satisfies `resolved_any`. Changed
+diff with identical unresolved findings is no progress. A new blocker makes no progress even if an
+older finding was verified. On CORRECTION_REQUIRED, precedence is: compute no-progress first;
+no_progress→blocked `NO_PROGRESS`; otherwise if correction_count==2→card/awaiting_human
+`CORRECTION_CEILING`; otherwise next correction increments count exactly once. RECOVERY_ROOT carries
+all ProgressSnapshots, so recovery cannot reset the window or ceiling.
+
+## 40. Independent reproducible fixture oracle
+
+### 40.1 Sole oracle and canonical algorithm
+
+The sole allowed oracle is a test-only function in `tests/test_fal002_model.py` importing only
+stdlib `json`, `hashlib`, `uuid` and `pathlib`; it imports no `forge.*`, schemas, fixtures or
+production constants. Canonical encoder is exactly `json.dumps(value,ensure_ascii=False,
+allow_nan=False,sort_keys=True,separators=(",",":"))` encoded UTF-8. Record files add one LF;
+hash preimages do not unless the defining contract explicitly hashes file bytes. UUIDv5 uses
+`uuid.uuid5` with §36 namespace/name. Unknown constructor field is an oracle failure. No randomness,
+current clock, filesystem metadata or environment input is permitted.
+
+### 40.2 Total primitive vocabulary
+
+The oracle uses only these literal primitives unless a case row overrides them:
+
+| Name | Literal |
+| --- | --- |
+| origin series | `00000000-0000-4000-8000-000000000002` |
+| time `t(n)` | `2026-08-01T00:00:00.` plus six-digit decimal `n` plus `Z` |
+| baseline/final HEAD | `7bdbc9a9afb57dcd3a6f2e878ed1dc582ff8ad68` |
+| branch/root | `main` / `.` |
+| scope/allowed path | `forge/fal002.py` |
+| criterion | `FAL2-CC-01` |
+| executor/reviewer principal | `principal-executor` / `principal-reviewer` |
+| executor/reviewer adapter | `forge/fal002_io.py#executor` / `forge/fal002_io.py#reviewer` |
+| Python | `CPython`, `3.14.0`, `C:/python/python.exe`, `H("python-exe")` |
+| tools | git `2.50.0` at `C:/Program Files/Git/cmd/git.exe` hash `HB("git-exe")`; python `3.14.0`, pytest `9.0.0`, ruff `0.12.0` at the Python executable/hash above |
+| assertion | `The criterion is supported by the resolved value.` |
+| locator | `/commands/12/parsed/schemas/0/sha256` |
+| raw fixed strings | `F`, `S`, `C`, `P`, `R`, each hashed as raw UTF-8 only where named content hash requires raw bytes |
+
+`H(value)` means SHA-256 of canonical JSON bytes without LF; `HB(text)` explicitly means SHA-256 of
+raw UTF-8 text. Common record IDs derive by §§14/36. `created_at=t(sequence)` for gates and
+`t(100+ordinal)`, `t(200+ordinal)`, `t(300+ordinal)`, `t(400+ordinal)` for executor, run, review and
+decision records. Started/ended use t(500+2*command_index) and t(501+2*command_index).
+Hashes map exactly: frozen_hash=`HB("F")`, scope_hash=`HB("S")`, criteria_hash=`HB("C")`,
+command_policy_hash=`HB("P")`, work_packet_hash=`HB("R")`, and
+allowed_paths_hash=`H(["forge/fal002.py"])`. Finding K is HIGH/blocking, assurance property EVIDENCE,
+defect locator `docs/x.md#one`, criterion FAL2-CC-01 and statement `Required evidence is missing.`;
+K2 differs only by locator `docs/x.md#two` and statement `A new blocker is present.`. Their keys/IDs
+derive only by §35.6.
+
+### 40.3 Total valid constructors
+
+`offline_authority()` returns PENDING_CARD `DC-OFFLINE-000000000000` at t(398), followed by ACCEPTED
+RESOLUTION `HD-OFFLINE-000000000000` at t(399), domain OFFLINE_EXECUTION and selected choice
+AUTHORIZE_OFFLINE; IDs, record/content hashes and gate evidence use §38 exactly. `gate0()` is the
+exact §35 MANIFEST using the literals above, all hashes recomputed, empty exemption arrays, that
+offline authority and correction_count 0. `ready()` is sequence 1
+INVENTORY with files sorted exactly `forge/__init__.py`, `forge/fal002.py`,
+`forge/fal002_inventory.py`, `forge/fal002_io.py`, `forge/fal002_model.py`. Hashes are respectively
+`HB("")` then `HB(path)`; LOC are 2,330,360,550,420; reasons are PACKAGE_INIT, ENTRYPOINT and three
+STATIC_IMPORT values; only I/O roles are `["EXECUTOR_ADAPTER","REVIEWER_ADAPTER"]`. Exact edges are
+fal002.py→`__init__.py` PACKAGE_INIT locator `/package/forge`, and fal002.py→inventory/io/model IMPORT
+locators `/imports/0`, `/imports/1`, `/imports/2`. Each `edge_id="E-"+H({source,target,kind,
+locator})[:20]`; target parent_edge equals that ID, inbound_edges is its singleton, entrypoint parent
+and inbound arrays are absent/empty as permitted. Counts are 5/1660/1/1/5; stdlib is sorted
+`["ast","dataclasses","hashlib","json","os","pathlib","subprocess","sys","uuid"]`; existing/new
+dependency, unresolved and exemption arrays are empty; disposition is PASS.
+
+`executor_request(kind,count,ordinal)` uses §28 fields, the 17 command IDs, scope/criteria/paths
+singletons above and work_packet_hash H(`{"kind":kind,"ordinal":ordinal}`). `grant(role,...)`,
+`observed(role,...)` and exchange containers use §35.3 with process/thread/object 1001/2001/3001 for
+executor and 1002/2002/3002 for reviewer, RETURNED, exact input/output object hashes and fixed adapter
+paths/content hashes HB(adapter ID).
+
+`run(ordinal)` contains §35.4 runtime/tools, clean repository, empty diff/numstat, build unavailable,
+and all 17 commands in order. Each has exact argv from §§24/35.4, cwd `.`, sorted environment keys,
+empty stderr, raw hashes of redacted bytes, PASS, parser_version 1 and the success parsed object.
+Stdout bytes by command ID are exactly:
+
+| Command | Exact UTF-8 stdout before redaction |
+| --- | --- |
+| GIT-ROOT | `C:/repo/forge-ai-sef\n` |
+| PYTHON-VERSION | `Python 3.14.0\n` |
+| GIT-VERSION | `git version 2.50.0\n` |
+| PYTEST-VERSION | `pytest 9.0.0\n` |
+| RUFF-VERSION | `ruff 0.12.0\n` |
+| GIT-HEAD-BASELINE / GIT-HEAD-FINAL | baseline literal plus `\n` |
+| GIT-BRANCH | `main\n` |
+| INVENTORY | canonical JSON of `ready().payload.inventory` plus `\n` |
+| GIT-STATUS / GIT-DIFF / GIT-NUMSTAT | empty bytes |
+| SCHEMA-CHECK | canonical JSON array of five `{schema_id,sha256:HB(schema_id)}` objects plus `\n` |
+| PYTEST | `1 passed in 0.01s\n` |
+| RUFF-LINT | `All checks passed!\n` |
+| RUFF-FORMAT | `12 files already formatted\n` |
+| FORGE-STATUS | `Project Memory Health: OK\n  fixture\nVersion Consistency Status: WARNING\n  fixture\n` |
+
+Parsed objects are exactly §§28.2/35.4; GIT-ROOT resolves to `.`, absent test categories are zero,
+schema hashes are HB(schema ID), and offline IDs/hashes use §38 literals.
+
+`binding()` references the RunRecord schema hash at the literal locator, evidence kind SCHEMA,
+collector authority, collector ID SCHEMA-CHECK and exact H(resolved JSON string). `review(outcome,
+observations)` contains one criterion, that binding byte-identically in packet/result, the literal
+rationale `The resolved schema hash supports exact model/schema consistency.`, final reviewer
+execution §35.3 and supplied §35.6 observations. `decision(kind)` uses §35.5/§37 exact forms.
+`recovery(obstruction,ordinal)` uses §36 and carries the exact derived ledger/decision/progress arrays.
+Every constructor computes payload hash, then record hash, then file bytes; no caller supplies a hash.
+
+### 40.4 Mutation operation
+
+`replace(pointer,value)`, `insert(pointer,value)` and `delete(pointer)` apply RFC 6901 to a deep copy.
+`raw(command_id,stream,hexbytes)` replaces the named pre-decode byte stream. `REHASH` recomputes all
+hash fields from inner to outer; absent REHASH preserves existing hashes. Expected valid file bytes
+are `hex(canonical_record+LF)` and expected hash is lowercase SHA-256 of the contract-defined
+preimage. Expected invalid cases publish no invalid boundary final and assert the literal reason code.
+
+### 40.5 Exact case operations
+
+The existing 19 fixture files remain the fixture set. Each row below is exhaustive together with the
+constructors above; `B` is `[offline pending card, offline accepted resolution, gate0(),ready()]`.
+
+| Fixture/case | Exact arrange and operation | Exact expected result |
+| --- | --- | --- |
+| GATE-VALID/ready | gate0; construct ready | gate0,ready bytes/hashes; state ready |
+| GATE-INVALID/missing-predecessor | ready; delete `/predecessor`; REHASH | no gate1; PREDECESSOR_GAP |
+| GATE-INVALID/unknown | ready; insert `/unknown`, integer 1; REHASH | no gate1; MALFORMED_BOUNDARY |
+| EXEC-VALID/initial | B; construct execution gate ordinal 0 and completed exchange | gate2 then exchange; executing |
+| EXEC-INVALID/pass | valid exchange; insert `/result/outcome`, string `PASS`; REHASH | no exchange; FORBIDDEN_TRANSITION |
+| RUN-VALID/all | completed executor; construct run(0), EVIDENCE gate | run then gate; evidence_ready |
+| RUN-INVALID/bad-hash | run; replace `/record_hash` with 64 `0` bytes | blocked gate; HASH_MISMATCH |
+| RUN-INVALID/unknown | run; insert `/unknown`,1; REHASH | blocked; MALFORMED_BOUNDARY |
+| RUN-INVALID/missing-executable | replace `/commands/1/termination`,`SPAWN_ERROR`; replace exit null; replace parsed with failure COMMAND_FAILURE; REHASH | blocked; COMMAND_FAILURE |
+| RUN-INVALID/timeout | replace `/commands/13/termination`,`TIMEOUT`; replace `/commands/13/exit_code`,null; replace `/commands/13/parsed` with `{available:false,failure_reason:"TIMEOUT"}`; REHASH | blocked; TIMEOUT |
+| RUN-INVALID/invalid-utf8 | raw PYTEST stdout `ff`; no record mutation | blocked; MALFORMED_BOUNDARY |
+| RUN-INVALID/malformed | raw GIT-VERSION stdout hex of `git ???\n` | blocked; COMMAND_FAILURE |
+| RUN-INVALID/ambiguous | raw PYTEST stdout hex of `1 passed in 0.01s\n1 passed in 0.01s\n` | blocked; COMMAND_FAILURE |
+| REVIEW-VALID/pass | valid run; review PASS with no NEW findings and complete binding/rationale | review gate, exchange, eligibility gate; accepted |
+| REVIEW-INVALID/missing-binding | delete `/result/criterion_evidence/0`; REHASH | blocked; MISSING_EVIDENCE |
+| REVIEW-INVALID/same-principal | replace reviewer grant principal with `principal-executor`; REHASH | no review final; card/recovery; INDEPENDENCE_FAILURE |
+| REVIEW-INVALID/inherited | insert reviewer grant `/prior_context_id`,`ctx-old`; REHASH | no review final; card/recovery; INDEPENDENCE_FAILURE |
+| DECISION-VALID/retry | pending EXECUTOR_RETRY card; accepted RETRY resolution | decision then ready gate |
+| DECISION-INVALID/missing-owner | delete `/owner`; REHASH | no decision; MALFORMED_BOUNDARY |
+| DECISION-INVALID/unknown | insert `/unknown`,1; REHASH | no decision; MALFORMED_BOUNDARY |
+| DECISION-INVALID/stale | replace target gate hash with 64 `0`; REHASH | blocked; STALE_RECORD |
+| DECISION-INVALID/declined | selected choice DECLINE, status DECLINED | decision then blocked gate |
+| HASH-ORDER/wrong | replace gate predecessor with 64 `0`; REHASH | no publication; PREDECESSOR_GAP |
+| HASH-ORDER/gap | replace gate sequence with 3 and record_id gate-00000003; REHASH | no publication; PREDECESSOR_GAP |
+| HASH-ORDER/stale | replace sequence with 0; REHASH | no publication; STALE_RECORD |
+| DUPLICATE/same | publish exact existing bytes | no new file; idempotent |
+| DUPLICATE/different | target same path with REHASH after assertion change | §36 recovery root; AUTHORITY_CONFLICT |
+| PARTIAL/five-kinds | for each boundary stage prefix `floor(len(bytes)/2)` at attempt 0000 | prefix preserved; attempt 0001 publishes exact final; normal state |
+| AUTH-CONFLICT/six-crashes | fault before stage, mid-card-stage, after-card-stage, mid-root-stage, after-root-link, after-card-link | §36 smallest eligible root; exactly one active linked card; awaiting_human |
+| REDACTED/locator | raw GIT-DIFF stdout bytes `criterion=abc token='x y'` | exact replacement `criterion=abc token='<REDACTED>'`; missing locator blocks |
+| CONDITIONAL/imports | UTF-8 source exactly `if sys.platform=='x': import forge.a\nif TYPE_CHECKING: import forge.b\n` | exact `forge/a.py`, `forge/b.py` COUNT files/edges sorted; ready |
+| DYNAMIC-LITERAL/two | UTF-8 source exactly `importlib.import_module('forge.a'); subprocess.run([sys.executable,'forge/b.py'])\n` | exact `forge/a.py`, `forge/b.py` COUNT files/edges sorted; ready |
+| DYNAMIC-COMPUTED/name | UTF-8 source exactly `importlib.import_module(name)\n` | pending card then awaiting_human |
+| HIDDEN-SURFACE/sixth | inventory schema_surfaces replace 6, REHASH | awaiting_human; LIMIT_BREACH |
+| HIDDEN-SURFACE/corrections | construct reviewed runs ordinal 0/1/2 with correction counts 0/1/2 | counts/ordinals retained across gates |
+| HIDDEN-SURFACE/no-progress | current diff/evidence/finding set equal previous | blocked; NO_PROGRESS |
+| HIDDEN-SURFACE/ceiling | material progress true with count 2 | card/awaiting_human; CORRECTION_CEILING |
+| HIDDEN-SURFACE/closure | exact eligible review/ledger plus accepted closure | decision then closed gate |
+| HIDDEN-SURFACE/closure-stage | half decision stage, then full next attempt and gate | closed after replay; prefix retained |
+
+The CORR-011 subcases below are also mandatory. Every row starts from the fresh valid constructor
+named in Arrange, performs every operation left-to-right, then REHASH unless explicitly `NO_REHASH`.
+`Z` is the 64-character zero hash. Expected file bytes/hashes are produced by §40.1 after the exact
+operation; invalid input is never published as an authoritative final.
+
+| Case ID | Arrange; exact mutation/fault | Exact expected disposition |
+| --- | --- | --- |
+| `binding-missing-kind` | review(PASS); delete `/result/criterion_evidence/0/evidence_kind` | MALFORMED_BOUNDARY; no review final/eligibility |
+| `binding-unknown-kind` | review(PASS); replace same `/evidence_kind` with `OTHER` | MALFORMED_BOUNDARY |
+| `binding-missing-assertion` | review(PASS); delete `/result/criterion_evidence/0/assertion` | MALFORMED_BOUNDARY |
+| `binding-wrong-content-hash` | review(PASS); replace `/result/criterion_evidence/0/content_hash` with Z | HASH_MISMATCH |
+| `binding-wrong-locator` | review(PASS); replace `/result/criterion_evidence/0/locator` with `/missing` | MISSING_EVIDENCE |
+| `grant-mismatch` | review(PASS); replace `/reviewer_execution/observed/grant_id` with Z | INDEPENDENCE_FAILURE; no review final |
+| `grant-input-mismatch` | review(PASS); replace `/reviewer_execution/observed/input_hash` with Z | INDEPENDENCE_FAILURE |
+| `version-python-missing` | run; delete `/tools/2`; delete command index 1 | MISSING_EVIDENCE; no RunRecord final |
+| `version-git-malformed` | raw GIT-VERSION stdout `hex(UTF8("git ???\n"))` | COMMAND_FAILURE |
+| `version-pytest-malformed` | raw PYTEST-VERSION stdout `hex(UTF8("pytest unknown extra\n"))` | COMMAND_FAILURE |
+| `version-ruff-malformed` | raw RUFF-VERSION stderr `hex(UTF8("ruff 0.12.0\n"))`, stdout empty | COMMAND_FAILURE |
+| `version-python-unsupported` | replace `/runtime/python_version` and `/commands/1/parsed/version` with `3.15.0` | UNSUPPORTED_VERSION |
+| `offline-decision-missing` | B minus both offline authority files; construct gate0 | MISSING_EVIDENCE; no gate0 authority |
+| `offline-decision-declined` | replace accepted resolution `/status` with `DECLINED` and `/payload/selected_choice` with `DECLINE`; reconstruct gate0 reference/evidence ID from that decision hash | MALFORMED_BOUNDARY for offline precondition |
+| `offline-locator-malformed` | gate0; replace `/payload/manifest/offline_evidence/locator` with `/payload/~2bad` | MALFORMED_BOUNDARY |
+| `offline-hash-mismatch` | gate0; replace `/payload/manifest/offline_evidence/content_hash` with Z | HASH_MISMATCH |
+| `recovery-conflicting-file` | B; intended execution gate2 R; put different valid canonical gate bytes at its final path | RECOVERY_ROOT ordinal 0; awaiting_human; CONFLICTING_FILE |
+| `recovery-malformed-file` | same; put raw bytes hex `7b` (`{`) at gate2 final | RECOVERY_ROOT ordinal 0; MALFORMED_FILE |
+| `recovery-nonregular` | same; path object is DIRECTORY, observed hash absent | RECOVERY_ROOT ordinal 0; NONREGULAR_PATH |
+| `recovery-unreadable` | same; regular object returns stable ACCESS_DENIED on two reads, observed hash absent | RECOVERY_ROOT ordinal 0; UNREADABLE_PATH |
+| `recovery-crash-before-root` | construct/stage card/root; fault immediately before root hard-link | predecessor remains active/unable to progress; replay publishes identical ordinal 0 root |
+| `recovery-crash-after-root` | fault immediately after root reread/validation and before card link | successor authoritative awaiting_human; replay publishes staged identical card |
+| `recovery-root-collision` | place raw `{` at ordinal-0 root final before link | preserve it; publish exact ordinal-1 root; ordinal 1 uniquely active |
+| `recovery-chain-obstruction` | active ordinal-0 root; obstruct its next gate with raw `{` | derive new descriptor from active root and publish its ordinal-0 successor; one logical lineage |
+| `card-path-conflicting` | publish root; put different schema-valid card at intended card final | preserve card; next recovery successor targets card path; only new active-root-linked card resolvable |
+| `card-path-malformed` | publish root; put raw `{` at intended card final | same successor behavior with MALFORMED_FILE |
+| `card-orphan` | publish valid staged card final but fault before any recovery root | origin remains active/unable; card is non-authoritative; replay publishes matching root |
+| `card-inactive-lineage` | put valid card beneath unjustified higher successor UUID | ignored as evidence; cannot resolve; active lineage unchanged |
+| `finding-omitted-later` | review0 NEW HIGH/blocking key K; remediation gate marks addressed; review1 result `findings=[]` | K remains ADDRESSED_AWAITING_REVIEW; PASS/eligibility blocked |
+| `finding-addressed-not-verified` | K OPEN; remediation claim only; no ABSENT_AFTER_CORRECTION observation | K ADDRESSED_AWAITING_REVIEW and unresolved |
+| `finding-duplicate` | one review contains two observations with identical finding_key K | MALFORMED_BOUNDARY; no review final |
+| `finding-residual` | review0 NEW K; review1 STILL_PRESENT with same property/locator/criteria and changed statement | same finding_id; state OPEN; both statements retained in history |
+| `finding-new` | review1 NEW with defect locator `docs/x.md#two` instead of `docs/x.md#one` | distinct key/ID; both unresolved |
+
+The no-progress truth table constructs previous hashes as HB(`d0`)/HB(`e0`) and current hashes as
+the same or HB(`d1`)/HB(`e1`). `resolved_any` is constructed by K moving from OPEN to
+INDEPENDENTLY_VERIFIED; `introduced_blocker` by adding NEW HIGH/blocking K2. These sixteen Boolean
+rows are exhaustive:
+
+| diff changed | evidence changed | resolved any | introduced blocker | Expected |
+| --- | --- | --- | --- | --- |
+| false | false | false | false | NO_PROGRESS |
+| false | false | false | true | NO_PROGRESS |
+| false | false | true | false | NO_PROGRESS |
+| false | false | true | true | NO_PROGRESS |
+| false | true | false | false | NO_PROGRESS |
+| false | true | false | true | NO_PROGRESS |
+| false | true | true | false | MATERIAL |
+| false | true | true | true | NO_PROGRESS |
+| true | false | false | false | NO_PROGRESS |
+| true | false | false | true | NO_PROGRESS |
+| true | false | true | false | MATERIAL |
+| true | false | true | true | NO_PROGRESS |
+| true | true | false | false | NO_PROGRESS |
+| true | true | false | true | NO_PROGRESS |
+| true | true | true | false | MATERIAL |
+| true | true | true | true | NO_PROGRESS |
+
+For each MATERIAL row, correction_count 0/1 permits the next correction and increments once; count 2
+produces CORRECTION_CEILING after progress evaluation. For every NO_PROGRESS row, NO_PROGRESS takes
+precedence at counts 0/1/2. Repeating a row after RECOVERY_ROOT uses the carried ProgressSnapshot and
+must produce the same result.
+
+### 40.6 Expected output and independence assertion
+
+For every case the generator emits canonical JSON containing exactly
+`{fixture_id,case_id,initial_files:[{path,bytes_hex,sha256}],operation,fault,
+expected_files:[{path,bytes_hex,sha256}],forbidden_paths,expected_state,reason_code,replay_files}`.
+Arrays sort by path then case ID. `bytes_hex` and `sha256` are computed solely by §§40.1–40.5.
+Committed fixture bytes must equal generator output before production receives the decoded boundary
+files. A test that imports production, schemas or production constants to compute any expected value
+fails the oracle-independence test.
+
+## 41. Final boundary, consistency and adversarial closure
+
+| Surface | Producer → consumer | Authority/lifecycle/recovery |
+| --- | --- | --- |
+| GateRecord | human/core/inventory/collector/recovery → all | sole state authority; canonical schema/chain; RECOVERY_ROOT is a variant; §36 lineage |
+| ExecutorExchange | core grant + executor result + I/O observation → collector/core | one complete post-return exchange; no PASS/closure; §35.3 |
+| RunRecord | collector → reviewer/core | Git/command/runtime/tool authority; 17 ordered commands; §35.4/§38 |
+| ReviewerExchange | core packet + reviewer assessment + I/O observation → core/human | semantic/finding authority only; complete EvidenceBinding and lifecycle observations |
+| HumanDecisionRecord | human boundary/core pending card → core/human | human scope/criteria/budget/recovery/closure authority; cards never state authority |
+
+All five use §21 canonical serialization, generated schema, receipt/pre-persist validation,
+create-only §30 publication, unknown-field/version rejection and full hash participation. No sixth
+surface, global pointer, new adapter/role/module/dependency or external transaction exists.
+
+The following deterministic dispositions are final: missing assertion/unknown kind→MALFORMED;
+provenance/grant mismatch→INDEPENDENCE_FAILURE; absent/malformed versions→COMMAND_FAILURE and
+unsupported Python→UNSUPPORTED_VERSION; unresolved offline authority→MISSING_EVIDENCE/
+HASH_MISMATCH/STALE_RECORD; occupied final/card→§36 recovery; crash before root→replay same candidate;
+crash after root→adopt successor; orphan card→non-authoritative; omitted earlier blocker→ledger
+unchanged and no PASS; addressed-not-verified→unresolved; duplicate/residual/new finding→§39 identity;
+repeated evidence or same blockers→NO_PROGRESS; changed diff without verified finding→NO_PROGRESS;
+recovery preserves progress/count; count two with progress→CORRECTION_CEILING.
+
+The complete-lineage ordering, exact hashes, UUID/card IDs, finding identities, progress function and
+oracle inputs leave no permitted nondeterministic choice for two conforming implementations with the
+same persisted inputs. Semantic evidence relevance remains reviewer judgment with explicit rationale,
+not cryptographic proof.
+
+## 42. Budget, scope and final correction state
+
+The selected architecture stays inside the existing four new production modules and five surfaces.
+The expected allocation remains core 330, model 420, inventory 360 and I/O 550 = 1,660 new production
+LOC. Recovery lineage/finding lifecycle/version parsers are refinements of already allocated
+state/model/I/O responsibilities; the 140-line margin to the 1,800 hard maximum remains risk reserve,
+not scope. No new dependency, module, adapter or surface is planned. Implementation must continuously
+self-inventory and stop `BUDGET AUTHORITY REQUIRED` before exceeding 1,800. `EB006-FR-07` is not
+reopened.
+
+Only EB-006 and necessary project-memory/index documents changed in CORR-011. No runtime, test,
+schema, fixture, dependency, version, Audio Recorder, FAL-002 specification or FAL-001 artifact was
+modified.
+
+`CORR-011-01` through `CORR-011-08` and `EB006-IR3-01` through `EB006-IR3-08` are each
+`ADDRESSED — AWAITING INDEPENDENT REVIEW`. No finding is independently verified, closed, accepted or
+PASS. FAL-002 remains `NOT AUTHORIZED`; FAL-001 remains permanently `TERMINATED BLOCKED` with
+correction count 2/2. The only next gate is a fresh independent read-only Standard-Assurance Review.

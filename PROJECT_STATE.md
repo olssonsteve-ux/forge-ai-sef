@@ -7,11 +7,12 @@ blocked, unaccepted and unclosed with correction count 2/2 and its complete find
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
 The fresh independent IR3 review of the `HD-FAL-010` correction returned
 `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with eight blocking findings,
-`EB006-IR3-01` through `EB006-IR3-08`. `HD-FAL-012` resolves the architecture authority gap through
-deterministic successor state-series segments forming one logical authoritative lineage. `HD-FAL-013`
-authorizes `CORR-011-01` through `CORR-011-08` as one bounded EB-006 documentation correction
-campaign; it does not implement the correction or close a finding. FAL-002 remains `NOT AUTHORIZED`
-under the unchanged 1,660 expected / 1,800 maximum LOC envelope.
+`EB006-IR3-01` through `EB006-IR3-08`. The `HD-FAL-013`-authorized CORR-011 documentation correction
+is complete: EB-006 now defines final evidence/exchange models, independently reproducible fixtures,
+the `HD-FAL-012` successor recovery lineage, total conflict cards, collector version/offline evidence,
+complete-lineage finding lifecycle and deterministic no-progress. Every IR3 finding is only
+`ADDRESSED — AWAITING INDEPENDENT REVIEW`. FAL-002 remains `NOT AUTHORIZED` under the unchanged
+1,660 expected / 1,800 maximum LOC envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -26,9 +27,9 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Execute the bounded `HD-FAL-013` CORR-011 documentation correction against EB-006 in a separate
-commit, then conduct a fresh independent read-only Standard-Assurance Review. Do not implement
-FAL-002. Manual Digital Album Authoring and Export remains unstarted and unauthorized.
+Conduct a fresh independent read-only Standard-Assurance Review of the complete CORR-011-corrected
+EB-006. Do not implement FAL-002. Manual Digital Album Authoring and Export remains unstarted and
+unauthorized.
 
 ## What Exists
 
@@ -154,6 +155,8 @@ FAL-002. Manual Digital Album Authoring and Export remains unstarted and unautho
   open and CORR-011 still required a separate authorization at that gate
 - accepted `HD-FAL-013` authorization for one bounded `CORR-011-01`–`CORR-011-08` EB-006
   documentation correction campaign; no finding closure or FAL-002 implementation authority
+- completed CORR-011 documentation correction with all eight IR3 findings only
+  `ADDRESSED — AWAITING INDEPENDENT REVIEW`
 
 ## What Does Not Exist
 
