@@ -177,9 +177,17 @@ Forge may eventually include:
   binds DecisionRequirement rather than a relocatable pending-card hash; PresentationEvidence is
   separate; DecisionApplication and offline authority independently validate semantic answer and
   current physical lineage. The stdlib-only OracleLineageState, CONTROL, RECOVERY_ROOT,
-  review-event and mutation/VFS scenarios execute without production imports. Both objectives remain
-  only `ADDRESSED — AWAITING INDEPENDENT REVIEW`; neither IR6 finding is verified or closed, and the
-  only next FAL-002 gate is independent read-only Standard-Assurance Review IR7.
+  review-event and mutation/VFS scenarios execute without production imports. Both objectives were
+  submitted as `ADDRESSED — AWAITING INDEPENDENT REVIEW`; the later IR7 disposition governs them.
+- Treat Independent IR7's canonical outcome as `FAIL — IMPLEMENTATION AUTHORIZATION NOT
+  RECOMMENDED`. Preserve `CORR-014-01`/`EB006-IR6-01` as independently `VERIFIED` but not closed.
+  Preserve `CORR-014-02`/`EB006-IR6-02` as `NOT VERIFIED`, open and blocking; IR7 created no new
+  finding. The residual is limited to active-series propagation, recovery-N/successor run-review
+  construction, complete REHASH dependency closure and total executable matrix rows.
+- Treat `HD-FAL-018` as authorization for exactly one final bounded EB-006 documentation campaign:
+  `CORR-015-01` → `EB006-IR6-02`. The correction must make §48's oracle follow the frozen production
+  model, preserve §46 decision semantics and all verified recovery/finding/hash contracts, keep five
+  surfaces and the 1,800-LOC ceiling, and leave FAL-002 implementation `NOT AUTHORIZED`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.
