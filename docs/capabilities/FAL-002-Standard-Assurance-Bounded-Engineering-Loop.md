@@ -175,7 +175,8 @@ future gate explicitly authorizes a specific operation. Model text cannot overri
 The first implementation must remain within all limits:
 
 - one repository and one active gate per invocation;
-- at most 8 attributed production modules and 1,200 counted production lines;
+- at most 8 attributed production modules and 1,800 new counted production lines; unchanged
+  attributed baseline lines are reported separately and do not consume the new-line envelope;
 - at most one executor adapter and one reviewer adapter;
 - at most 6 external/persisted schema surfaces listed in section 7;
 - sequential execution only; no agent pools, scheduler, plugin system, network or database;

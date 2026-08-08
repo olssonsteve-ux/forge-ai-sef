@@ -5,10 +5,11 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-The independent EB-006 review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION`. `HD-FAL-008`
-authorizes one further bounded documentation correction of `EB006-FR-01`–`EB006-FR-07`; correction
-has not yet begun. `EB006-R1`–`EB006-R3` remain only partially addressed, and no finding is closed or
-verified. FAL-002 implementation is `NOT AUTHORIZED`. No release or Audio Recorder work was authorized.
+The independent EB-006 review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION`. `HD-FAL-009`
+reconciles the already specified implementation scope at approximately 1,660 new production LOC
+against a maximum envelope of 1,800 and authorizes the `HD-FAL-008` bounded documentation correction
+to resume. All ten EB-006 findings remain open for fresh independent review. FAL-002 implementation
+is `NOT AUTHORIZED`. No release or Audio Recorder work was authorized.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -23,7 +24,8 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Perform only the separately bounded EB-006 documentation correction authorized by `HD-FAL-008`,
+Resume only the separately bounded EB-006 documentation correction authorized by `HD-FAL-008` and
+budget-reconciled by `HD-FAL-009`,
 then conduct a fresh independent read-only Standard-Assurance review with adversarial instructions.
 Do not implement FAL-002 without a ready review result and separate explicit Implementation
 Authorization. Manual Digital Album Authoring and Export remains unstarted.
@@ -140,6 +142,7 @@ Authorization. Manual Digital Album Authoring and Export remains unstarted.
 - human-approved FAL-002 specification with all `FAL2-HR-001`–`FAL2-HR-004` findings closed
 - `HD-FAL-006` authorization for FAL-002 Implementation Planning only
 - `HD-FAL-008` authorization for bounded EB-006 documentation correction only
+- `HD-FAL-009` reconciliation to 1,660 expected / 1,800 maximum new FAL-002 production LOC
 - bounded `EB-006` implementation plan returned for correction; implementation unauthorized
 
 ## What Does Not Exist

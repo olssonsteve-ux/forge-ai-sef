@@ -86,6 +86,10 @@ Forge may eventually include:
   `HD-FAL-008` authorizes documentation-only correction of `EB006-FR-01`–`EB006-FR-07`; it does not
   close or verify those findings or `EB006-R1`–`EB006-R3`. Stop if the correction requires changed
   specification, scope, criteria, authority, budget, dependencies or implementation experiments.
+- Treat `HD-FAL-009` as the sole budget reconciliation for the unchanged FAL-002 scope: approximately
+  1,660 expected and at most 1,800 new production LOC. The ceiling is a maximum envelope, not a
+  target; every non-LOC limit, assurance requirement and finding remains unchanged. The bounded
+  `HD-FAL-008` correction may resume, but FAL-002 implementation remains unauthorized.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

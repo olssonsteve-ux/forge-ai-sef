@@ -180,15 +180,16 @@ Any later proposal to import a FAL-001 module changes the frozen input and requi
 
 ## 9. Hard-limit budget
 
-LOC estimates are conservative maximum allocations using specification §13 physical-line semantics.
+LOC estimates are the bottom-up expected implementation using specification §13 physical-line
+semantics. The 1,800-line ceiling is a maximum envelope, not a target.
 
 | Object | Planned path/boundary | New/changed/reused | Estimated counted LOC | Normative classification | Evidence |
 | --- | --- | --- | ---: | --- | --- |
 | Package initializer | `forge/__init__.py` | reused unchanged | 2 | production module, `COUNT` | baseline file and inventory hash; first-party imports `NONE` |
-| Sequential core | `forge/fal002.py` | new | 230 | production module, `COUNT` | inventory LOC; imports `fal002_model`, `fal002_inventory`, `fal002_io` |
-| Canonical model/generator | `forge/fal002_model.py` | new | 275 | production module and generator, `COUNT` | schema-equivalence tests; first-party imports `NONE` |
-| Inventory | `forge/fal002_inventory.py` | new | 320 | production module, `COUNT` | self-inventory; imports `fal002_model` |
-| Persistence/collector/adapters | `forge/fal002_io.py` | new | 273 | production module; one executor and one reviewer adapter, `COUNT` | role inventory; imports `fal002_model` |
+| Sequential core | `forge/fal002.py` | new | 330 | production module, `COUNT` | inventory LOC; imports `fal002_model`, `fal002_inventory`, `fal002_io` |
+| Canonical model/generator | `forge/fal002_model.py` | new | 420 | production module and generator, `COUNT` | schema-equivalence tests; first-party imports `NONE` |
+| Inventory | `forge/fal002_inventory.py` | new | 360 | production module, `COUNT` | self-inventory; imports `fal002_model` |
+| Persistence/collector/adapters | `forge/fal002_io.py` | new | 550 | production module; one executor and one reviewer adapter, `COUNT` | role inventory; imports `fal002_model` |
 | Gate record | `fal002.gate-record.v1` | new boundary | 0 | one schema surface | generated schema ID/hash |
 | Executor exchange | `fal002.executor-exchange.v1` | new boundary | 0 | one schema surface | generated schema ID/hash |
 | Run record | `fal002.run-record.v1` | new boundary | 0 | one schema surface | generated schema ID/hash |
@@ -198,14 +199,16 @@ LOC estimates are conservative maximum allocations using specification §13 phys
 | Budget | Planned | Hard limit | Remaining margin |
 | --- | ---: | ---: | ---: |
 | Production modules | 5 | 8 | 3 |
-| Counted production LOC | 1,100 | 1,200 | 100 |
+| New counted production LOC | 1,660 | 1,800 | 140 |
 | Executor adapters | 1 | 1 | 0 |
 | Reviewer adapters | 1 | 1 | 0 |
 | Schema surfaces | 5 | 6 | 1 |
 | New dependencies | 0 | 0 without human decision | 0 |
 
-Adapters intentionally consume their allowed counts. Sections 14–20 are included in the revised
-conservative caps. Any module or LOC estimate breach, sixth-plus module beyond the remaining three,
+Adapters intentionally consume their allowed counts. The four new module estimates total 1,660 new
+production LOC; the unchanged two-line package initializer is reported separately and is not reusable
+implementation credit. Sections 14–20 are included in the bottom-up estimate. Any module or LOC
+hard-limit breach, sixth-plus module beyond the remaining three,
 sixth schema surface, second
 adapter for either role or dependency change stops `AWAITING_HUMAN` before implementation continues.
 
@@ -240,7 +243,7 @@ adapter for either role or dependency change stops `AWAITING_HUMAN` before imple
 | Human-only closure | model/core/I/O | role/atomicity/repeat fixtures | executor/reviewer/generic close, pending finding | only accepted human record closes | closure record | any other close → `blocked` |
 | Forbidden operations | core/I/O | adversarial command fixtures | push/tag/merge/release/etc. | all rejected before execution | policy event | attempt → `blocked` |
 | Implementation review event | reviewer adapter | provenance inspection | fresh read-only Standard-Assurance review with adversarial instructions | exact truthful provenance and PASS required | sealed reviewer exchange | missing provenance → no eligibility |
-| Hard-limit total | inventory | canonical self-inventory | planned implementation tree | ≤5 modules, ≤1,100 LOC, 1/1 adapters, 5 surfaces, 0 deps | final inventory output | any planned cap exceeded → `awaiting_human` |
+| Hard-limit total | inventory | canonical self-inventory | planned implementation tree | ≤5 modules, expected ≤1,660 and maximum ≤1,800 new LOC, 1/1 adapters, 5 surfaces, 0 deps | final inventory output | any maximum exceeded → `awaiting_human` |
 
 Planned tests are not implementation authorization. Expected results must be independently literal;
 tests must not derive every expectation from production constants.
@@ -276,7 +279,8 @@ Release and album work remain separate gates.
 
 ## 13. Risks and rollback
 
-- LOC concentration: enforce per-module ceilings continuously; stop before 1,200 total.
+- LOC concentration: enforce the bottom-up module estimates continuously; stop before 1,800 new
+  production LOC and never treat unused margin as implementation scope.
 - Schema compression: preserve five actual atomic boundary units; do not hide independent payloads.
 - FAL-001 contamination: prohibit runtime import and inventory every reachable first-party module.
 - False assurance: retain exact Standard-Assurance review name and provenance.
