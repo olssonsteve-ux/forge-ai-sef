@@ -11,30 +11,16 @@ Forge's motto is: Build software with intention.
 ## Current Repository State
 
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
-correct, accept, close or restart it. The FAL-002 specification is approved for Implementation
-Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. Independent IR6 of the
-CORR-013-corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified
-CORR-013-03/IR5-03 and CORR-013-04/IR5-04, partially verified CORR-013-02/IR5-02, did not verify
-CORR-013-01/IR5-01 and recorded two open blocking residual findings, `EB006-IR6-01` and
-`EB006-IR6-02`. Independent IR7 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`.
-It independently verified `CORR-014-01`/`EB006-IR6-01`, did not verify
-`CORR-014-02`/`EB006-IR6-02`, and created no new finding. `HD-FAL-018` authorized exactly one final
-bounded `CORR-015-01` EB-006 fixture-oracle documentation correction. Independent IR8 returned
-`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: CORR-015 is `PARTIALLY VERIFIED`,
-`EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorized exactly
-one bounded `CORR-016-01` final §48 oracle-totality correction. Independent IR9 returned
-`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: CORR-016 is `PARTIALLY VERIFIED`,
-`EB006-IR6-02` remains `NOT VERIFIED`, and IR9 created no new finding. IR9 preserved the matrix,
-eligibility, recovery, successor, semantic-answer and five-surface regressions but demonstrated one
-remaining standalone PublicationSlot REHASH/self-check defect. `HD-FAL-020` authorizes exactly one
-bounded `CORR-017-01` Option-B documentation correction to prohibit the unused standalone operation
-and strengthen executable dispatch/dependency coverage. CORR-017 is documentation-complete and only
-`ADDRESSED — AWAITING INDEPENDENT REVIEW`: direct and alternate standalone mutations reject,
-NO_REHASH exposes stale identity, dispatch gaps fail self-check and the GateRecord path plus all IR9
-regressions remain green. `EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains
-open, and FAL-002 remains `NOT AUTHORIZED`. The
-`HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800 new production LOC; the
-album capability remains unstarted.
+correct, accept, close or restart it. Independent IR10 of the CORR-017 baseline at
+`88e53fcbaa31ace83740699cd531f74f2d7e88b6` returned
+`PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
+`EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and completed
+Standard-Assurance planning. `HD-FAL-021` authorizes FAL-002 implementation strictly under that
+reviewed EB-006 contract. FAL-002 is `Implementation Ready`; implementation has not begun. Both
+IR6 findings remain `INDEPENDENTLY VERIFIED — NOT CLOSED`. Preserve exactly five surfaces, four new
+production modules, two adapters, zero dependencies and the approximately 1,660 expected / 1,800
+maximum production-LOC envelope. Stop for governance on any frozen-contract or hard-limit breach.
+No IR11 is required absent material baseline change. The album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -226,13 +212,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 step is one fresh independent read-only Standard-Assurance Review of the
-dedicated CORR-017 correction baseline. Verify Option-B standalone PublicationSlot prohibition,
-NO_REHASH stale-state evidence, explicit dispatch/derived coverage and synthetic gap detection while
-preserving the GateRecord publication-intent path and all IR9-verified matrix, eligibility, recovery
-depth-three, successor, semantic-answer, finding-governance, `EB006-IR6-01`, five-surface and budget
-results. Keep `EB006-IR6-02` open. Do not implement FAL-002, close a finding or infer Implementation
-Authorization.
+Implement FAL-002 according to EB-006 in a separate implementation change from the authorized
+post-`HD-FAL-021` baseline. Preserve every frozen contract and budget, add the production tests,
+schemas and fixtures authorized by EB-006, and stop for governance on any binding stop condition.
+After implementation, perform a fresh independent implementation review. Do not infer FAL-002
+acceptance, closure or release from implementation completion.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

@@ -230,6 +230,17 @@ Forge may eventually include:
   illegal-fallback and missing-coverage registries fail; the actual 23-rule/5-handler registry,
   24-row matrix, eligibility, recovery, successor, semantic-answer and finding/governance
   regressions pass. `EB006-IR6-02` remains open pending independent review.
+- Treat Independent IR10's canonical outcome as
+  `PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
+  `EB006-IR6-02` and preserved `EB006-IR6-01`, created no blocker and completed Standard-Assurance
+  planning for `88e53fcbaa31ace83740699cd531f74f2d7e88b6`. Both findings remain independently
+  verified but not closed; no IR11 is required absent material baseline change.
+- Treat `HD-FAL-021` as the accepted FAL-002 Implementation Authorization. FAL-002 is
+  `Implementation Ready`; EB-006 at `88e53fcbaa31ace83740699cd531f74f2d7e88b6` is the locked
+  implementation contract. Preserve exactly five surfaces, four new production modules, two
+  adapters, zero dependencies and the 1,660 expected / 1,800 maximum LOC envelope. Any binding stop
+  condition returns to governance. Implementation and its later independent review require separate
+  changes; neither acceptance nor closure is inferred.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

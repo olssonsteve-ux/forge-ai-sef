@@ -1,6 +1,6 @@
 # FAL-002 Reuse Matrix
 
-Status: Proposed with FAL-002 specification; implementation not authorized
+Status: Accepted for FAL-002 implementation under `HD-FAL-021`
 
 Source baseline: FAL-001 at `efd532f`, disposition `DISP-FAL-001`
 

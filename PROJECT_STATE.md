@@ -5,27 +5,16 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-Independent IR6 of the CORR-013-corrected EB-006 returned
-`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified CORR-013-03/EB006-IR5-03 and
-CORR-013-04/EB006-IR5-04, partially verified CORR-013-02/EB006-IR5-02, did not verify
-CORR-013-01/EB006-IR5-01 and recorded two open blocking residual findings, `EB006-IR6-01` and
-`EB006-IR6-02`. Independent IR7 of CORR-014 returned
-`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-014-01`/`EB006-IR6-01` is independently
-`VERIFIED`, while `CORR-014-02`/`EB006-IR6-02` is `NOT VERIFIED` and remains open and blocking. IR7
-created no new finding. `HD-FAL-018` authorized exactly one final bounded `CORR-015-01` oracle
-documentation correction mapped to `EB006-IR6-02`. Independent IR8 returned
-`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-015-01` is `PARTIALLY VERIFIED`,
-`EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorized exactly
-one bounded `CORR-016-01` §48 oracle-totality correction mapped to `EB006-IR6-02`. Independent IR9
-returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-016-01` is `PARTIALLY
-VERIFIED`, `EB006-IR6-02` remains `NOT VERIFIED`, and IR9 created no new finding. IR9 preserved all
-matrix, eligibility, recovery, successor, semantic-answer and five-surface regressions but proved
-that standalone PublicationSlot REHASH retains stale target path/slot identity and accepts wrong
-context. `HD-FAL-020` authorizes exactly one bounded `CORR-017-01` Option-B correction to prohibit
-that unused standalone operation and make dispatch/dependency self-checks executable. CORR-017 is
-documentation-complete and only `ADDRESSED — AWAITING INDEPENDENT REVIEW`. `EB006-IR6-01` remains
-independently verified, `EB006-IR6-02` remains open, and no finding is closed. FAL-002 remains `NOT
-AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC envelope.
+Independent IR10 of the CORR-017 baseline at
+`88e53fcbaa31ace83740699cd531f74f2d7e88b6` returned
+`PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
+`EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and concluded that
+Standard-Assurance planning is complete. `HD-FAL-021` accepts that evidence and authorizes FAL-002
+implementation strictly under the reviewed EB-006 contract. FAL-002 is `Implementation Ready`;
+implementation has not begun. The five-surface boundary, four-module/two-adapter/zero-dependency
+inventory and 1,660 expected / 1,800 maximum production-LOC envelope remain binding. Both IR6
+findings are `INDEPENDENTLY VERIFIED — NOT CLOSED`. No IR11 is required absent material baseline
+change.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -40,11 +29,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct one fresh independent read-only Standard-Assurance Review of the dedicated CORR-017
-correction baseline. Verify Option-B standalone PublicationSlot prohibition, executable dispatch
-and dependency-gap checks, and every preserved IR9 regression. Keep `EB006-IR6-02` open pending that
-review. Do not implement FAL-002. Manual Digital Album Authoring and Export remains unstarted and
-unauthorized.
+Implement FAL-002 according to the EB-006 contract locked at
+`88e53fcbaa31ace83740699cd531f74f2d7e88b6` in a separate implementation change. Stop for governance
+on any `HD-FAL-021` hard-limit or frozen-contract breach, then perform a fresh independent
+implementation review. Manual Digital Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -239,6 +227,12 @@ unauthorized.
   derived-coverage gaps fail self-check. The actual 23-rule/5-handler registry, 24-row matrix and all
   IR9 regressions pass. Status is only `ADDRESSED — AWAITING INDEPENDENT REVIEW`;
   `EB006-IR6-02` remains open
+- independent IR10 outcome `PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`; `CORR-017-01`,
+  `EB006-IR6-02` and preserved `EB006-IR6-01` are independently verified, no planning blocker
+  remains and Standard-Assurance planning is complete at `88e53fcbaa31ace83740699cd531f74f2d7e88b6`
+- accepted `HD-FAL-021` authorization to implement FAL-002 strictly under the reviewed EB-006
+  contract; FAL-002 is `Implementation Ready`, implementation has not begun, both IR6 findings
+  remain verified but not closed, and a fresh independent implementation review remains mandatory
 
 ## What Does Not Exist
 
@@ -372,7 +366,7 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Conduct one fresh independent read-only Standard-Assurance Review of the dedicated CORR-017
-   correction baseline.
-2. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending that review,
-   FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.
+1. Implement FAL-002 according to EB-006 in a separate implementation change from the authorized
+   post-`HD-FAL-021` baseline, stopping for governance on any binding stop condition.
+2. Perform a fresh independent implementation review after implementation. Keep both IR6 findings
+   verified but not closed, FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.
