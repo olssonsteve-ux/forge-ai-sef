@@ -223,6 +223,13 @@ Forge may eventually include:
   publication-intent path remains supported. Dispatch/dependency self-checks must detect missing
   handlers and unauthorized fallback. FAL-002 remains `NOT AUTHORIZED`; no architecture, production
   semantic, surface, dependency or budget change is authorized.
+- Treat CORR-017 as documentation-complete and only `ADDRESSED — AWAITING INDEPENDENT REVIEW`.
+  Final §48 prohibits standalone PublicationSlot REHASH across all paths, retains stale-state
+  NO_REHASH evidence, separates nested GateRecord publication handling, and binds each registry rule
+  to one executable handler plus declared derived coverage. Synthetic missing-handler,
+  illegal-fallback and missing-coverage registries fail; the actual 23-rule/5-handler registry,
+  24-row matrix, eligibility, recovery, successor, semantic-answer and finding/governance
+  regressions pass. `EB006-IR6-02` remains open pending independent review.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

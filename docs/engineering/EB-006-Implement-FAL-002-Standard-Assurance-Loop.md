@@ -9,7 +9,8 @@ Owner: Chief Architect
 Decision basis: `HD-FAL-006`
 
 Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`, `HD-FAL-012`,
-`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`, `HD-FAL-017`, `HD-FAL-018`, `HD-FAL-019`
+`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`, `HD-FAL-017`, `HD-FAL-018`, `HD-FAL-019`,
+`HD-FAL-020`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -2003,6 +2004,14 @@ oracle-totality correction:
 | Objective | Source | Authority | Final sections | Consolidated model and completion evidence | Status |
 | --- | --- | --- | --- | --- | --- |
 | `CORR-016-01` | `EB006-IR6-02` | `HD-FAL-019` | §§48–50 | executable supported/context/prohibited REHASH dispatch and dependency self-check; 24-row affected-matrix gate; carried-checkpoint eligibility with addressed/empty-review, CRITICAL, verified and recovery cases; preserved recovery depth three, successor and semantic-answer regressions | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+
+IR9 partially verified `CORR-016-01`, left `EB006-IR6-02` `NOT VERIFIED`, created no new finding and
+preserved every matrix, eligibility, recovery, successor, semantic-answer and five-surface result.
+`HD-FAL-020` authorizes only the remaining standalone PublicationSlot policy/self-check correction:
+
+| Objective | Source | Authority | Final sections | Consolidated model and completion evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CORR-017-01` | `EB006-IR6-02` | `HD-FAL-020` | §§48–50 | Option B prohibition of unused standalone PublicationSlot REHASH; explicit rule-to-handler dispatch; executable missing-handler, illegal-fallback and derived-coverage self-checks; preserved GateRecord publication path and all IR9 regressions | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 44. Final universal canonical bytes and hash contract
 
@@ -4070,6 +4079,11 @@ def remove(value,pointer):
 REHASH_SUPPORTED="REHASH_SUPPORTED"
 REHASH_REQUIRES_CONTEXT="REHASH_REQUIRES_CONTEXT"
 REHASH_PROHIBITED="REHASH_PROHIBITED"
+HANDLER_REJECT="REJECT"
+HANDLER_GENERIC="GENERIC_REHASH"
+HANDLER_DECISION_BINDING="DECISION_BINDING_CONTEXT"
+HANDLER_GATE_PUBLICATION="GATE_PUBLICATION_CONTEXT"
+HANDLER_GATE_FINDINGS="GATE_FINDINGS_CONTEXT"
 
 DERIVED_DEPENDENCIES={
   "semantic_payload_hash":("semantic_input",),
@@ -4106,41 +4120,66 @@ DERIVED_DEPENDENCIES={
 
 REHASH_RULES=(
   {"family":"DecisionRequirement","prefix":"/semantic_input","policy":REHASH_SUPPORTED,
-   "context":()},
+   "context":(),"handler":HANDLER_GENERIC,
+   "descendants":("semantic_payload_hash","decision_identity","decision_requirement_hash")},
   {"family":"DecisionBinding","prefix":"/binding_generation",
    "policy":REHASH_REQUIRES_CONTEXT,
-   "context":("requirement","pending_record","predecessor_binding","obstruction_hash","series")},
-  {"family":"DecisionBinding","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"DecisionResolution","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"DecisionApplication","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"PendingDecisionCard","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"EvidenceBinding","prefix":"/content_hash","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"EvidenceBinding","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+   "context":("requirement","pending_record","predecessor_binding","obstruction_hash","series"),
+   "handler":HANDLER_DECISION_BINDING,
+   "descendants":("pending_card_record_hash","binding_key")},
+  {"family":"DecisionBinding","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"DecisionResolution","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"DecisionApplication","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"PendingDecisionCard","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"EvidenceBinding","prefix":"/content_hash","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"EvidenceBinding","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
   {"family":"FindingEvent","prefix":"/payload/evidence_bindings","policy":REHASH_PROHIBITED,
-   "context":()},
-  {"family":"FindingEvent","prefix":"/payload","policy":REHASH_SUPPORTED,"context":()},
+   "context":(),"handler":HANDLER_REJECT,"descendants":()},
+  {"family":"FindingEvent","prefix":"/payload","policy":REHASH_SUPPORTED,"context":(),
+   "handler":HANDLER_GENERIC,"descendants":("event_hash","event_id")},
   {"family":"FindingEvent","prefix":"/previous_event_hash","policy":REHASH_SUPPORTED,
-   "context":()},
-  {"family":"RemediationEvidence","prefix":"/","policy":REHASH_SUPPORTED,"context":()},
-  {"family":"FindingCheckpoint","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
+   "context":(),"handler":HANDLER_GENERIC,"descendants":("event_hash","event_id")},
+  {"family":"RemediationEvidence","prefix":"/","policy":REHASH_SUPPORTED,"context":(),
+   "handler":HANDLER_GENERIC,"descendants":("remediation_evidence_hash",)},
+  {"family":"FindingCheckpoint","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
   {"family":"GateRecord","prefix":"/payload/publication_intent/slot/target_record_id",
    "policy":REHASH_REQUIRES_CONTEXT,
-   "context":("lineage","target_record","source_record","stage_attempt")},
+   "context":("lineage","target_record","source_record","stage_attempt"),
+   "handler":HANDLER_GATE_PUBLICATION,
+   "descendants":("slot_target_path","slot_id","intent_commitment_hash","payload_hash",
+     "record_hash")},
   {"family":"GateRecord","prefix":"/payload/publication_intent/intended_record_hash",
    "policy":REHASH_REQUIRES_CONTEXT,
-   "context":("lineage","target_record","source_record","stage_attempt")},
+   "context":("lineage","target_record","source_record","stage_attempt"),
+   "handler":HANDLER_GATE_PUBLICATION,
+   "descendants":("intent_commitment_hash","payload_hash","record_hash")},
   {"family":"GateRecord","prefix":"/payload/control/finding_events",
-   "policy":REHASH_REQUIRES_CONTEXT,"context":("lineage",)},
+   "policy":REHASH_REQUIRES_CONTEXT,"context":("lineage",),
+   "handler":HANDLER_GATE_FINDINGS,
+   "descendants":("finding_history_hash","finding_ledger_hash","finding_checkpoint",
+     "payload_hash","record_hash")},
   {"family":"GateRecord","prefix":"/payload/manifest/scope_hash",
-   "policy":REHASH_SUPPORTED,"context":()},
+   "policy":REHASH_SUPPORTED,"context":(),"handler":HANDLER_GENERIC,
+   "descendants":("payload_hash","record_hash")},
   {"family":"GateRecord","prefix":"/payload/recovery_root",
-   "policy":REHASH_PROHIBITED,"context":()},
-  {"family":"GateRecord","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"PublicationSlot","prefix":"/","policy":REHASH_REQUIRES_CONTEXT,
-   "context":("origin_series_id","predecessor","target_surface","target_id","reconstruction")},
-  {"family":"RecoveryDerived","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"ProgressFingerprint","prefix":"/","policy":REHASH_PROHIBITED,"context":()},
-  {"family":"OfflineEvidence","prefix":"/","policy":REHASH_PROHIBITED,"context":()})
+   "policy":REHASH_PROHIBITED,"context":(),"handler":HANDLER_REJECT,"descendants":()},
+  {"family":"GateRecord","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"PublicationSlot","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"RecoveryDerived","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"ProgressFingerprint","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()},
+  {"family":"OfflineEvidence","prefix":"/","policy":REHASH_PROHIBITED,"context":(),
+   "handler":HANDLER_REJECT,"descendants":()})
 
 def normalized_pointer(pointer):
     return "/"+"/".join(x.replace("~","~0").replace("/","~1")
@@ -4196,11 +4235,38 @@ def apply_mutation(value,pointer,operation,replacement=None):
     if operation=="remove": return remove(value,pointer)
     raise OracleDefinitionError("REHASH_UNSUPPORTED_MUTATION_OPERATION")
 
-def dependency_self_check():
+def dependency_self_check(rules=REHASH_RULES,dispatch=None):
+    dispatch=REHASH_DISPATCH if dispatch is None else dispatch
     allowed={REHASH_SUPPORTED,REHASH_REQUIRES_CONTEXT,REHASH_PROHIBITED}
-    assert all(x["policy"] in allowed for x in REHASH_RULES)
-    assert all(x["context"] for x in REHASH_RULES
-      if x["policy"]==REHASH_REQUIRES_CONTEXT)
+    identities=[(x["family"],x["prefix"]) for x in rules]
+    if len(identities)!=len(set(identities)):
+        raise OracleDefinitionError("REHASH_DUPLICATE_RULE")
+    for rule in rules:
+        if rule["policy"] not in allowed:
+            raise OracleDefinitionError("REHASH_UNSUPPORTED_POLICY")
+        handler=rule.get("handler")
+        if handler not in dispatch:
+            raise OracleDefinitionError("REHASH_DISPATCH_HANDLER_MISSING")
+        spec=REHASH_HANDLER_SPECS.get(handler)
+        if spec is None:
+            raise OracleDefinitionError("REHASH_DISPATCH_HANDLER_MISSING")
+        if rule["policy"] in (REHASH_REQUIRES_CONTEXT,REHASH_PROHIBITED) and spec["generic"]:
+            raise OracleDefinitionError("REHASH_ILLEGAL_GENERIC_FALLBACK")
+        if rule["policy"] not in spec["policies"]:
+            raise OracleDefinitionError("REHASH_DISPATCH_POLICY_MISMATCH")
+        if rule["policy"]==REHASH_REQUIRES_CONTEXT and (not rule["context"] or
+          handler not in REHASH_CONTEXT_VALIDATORS or
+          REHASH_CONTEXT_VALIDATORS[handler] is not dispatch[handler] or
+          not spec["recompute"]):
+            raise OracleDefinitionError("REHASH_CONTEXT_HANDLER_INCOMPLETE")
+        if rule["policy"]==REHASH_PROHIBITED and handler!=HANDLER_REJECT:
+            raise OracleDefinitionError("REHASH_PROHIBITED_HANDLER_MISSING")
+        descendants=set(rule.get("descendants",()))
+        if rule["policy"]!=REHASH_PROHIBITED:
+            if not descendants or not descendants.issubset(spec["coverage"]):
+                raise OracleDefinitionError("REHASH_DERIVED_COVERAGE_MISSING")
+            if not descendants.issubset(DERIVED_DEPENDENCIES):
+                raise OracleDefinitionError("REHASH_DERIVED_NODE_UNDECLARED")
     graph={k:tuple(x for x in v if x in DERIVED_DEPENDENCIES)
       for k,v in DERIVED_DEPENDENCIES.items()}
     temporary=set(); complete=set()
@@ -4211,8 +4277,13 @@ def dependency_self_check():
         for dependency in graph[node]: visit(dependency)
         temporary.remove(node); complete.add(node)
     for node in graph: visit(node)
+    if set(dispatch)!=set(REHASH_HANDLER_SPECS) or \
+       set(dispatch)!={x["handler"] for x in rules}:
+        raise OracleDefinitionError("REHASH_UNREACHABLE_HANDLER")
     return {"derived_field_count":len(DERIVED_DEPENDENCIES),
-      "rule_count":len(REHASH_RULES),"disposition":"VALID"}
+      "rule_count":len(rules),"handler_count":len(dispatch),
+      "generic_rule_count":sum(x["handler"]==HANDLER_GENERIC for x in rules),
+      "disposition":"VALID"}
 
 def rehash_value(value):
     if isinstance(value,list): return [rehash_value(x) for x in value]
@@ -4255,49 +4326,93 @@ def rehash_value(value):
           out["created_at"],fields)[0]
     return out
 
+def dispatch_reject(value,pointer,operation,replacement,rule,context):
+    raise OracleDefinitionError("REHASH_PROHIBITED")
+
+def dispatch_generic(value,pointer,operation,replacement,rule,context):
+    return rehash_value(apply_mutation(value,pointer,operation,replacement))
+
+def dispatch_decision_binding(value,pointer,operation,replacement,rule,context):
+    work=apply_mutation(value,pointer,operation,replacement)
+    requirement=context["requirement"]; previous=context["predecessor_binding"]
+    generation=work["binding_generation"]
+    if value!=previous or generation!=previous["binding_generation"]+1 or context["series"]!= \
+       context["pending_record"]["series_id"]:
+        raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+    expected,pending=rebound_bundle(requirement,context["series"],generation,previous,
+      context["obstruction_hash"])
+    if pending!=context["pending_record"]:
+        raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+    return expected
+
+def dispatch_gate_publication(value,pointer,operation,replacement,rule,context):
+    work=apply_mutation(value,pointer,operation,replacement)
+    lineage=context["lineage"]; target=context["target_record"]
+    source=context["source_record"]; attempt=context["stage_attempt"]
+    if validate_surface_hash(value)!="VALID" or \
+       value["predecessor"]!=lineage["active_gate"]["record_hash"] or \
+       target["series_id"]!=lineage["active_series_id"] or \
+       source["series_id"]!=lineage["active_series_id"]:
+        raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+    if rule["prefix"].endswith("target_record_id") and \
+       work["payload"]["publication_intent"]["slot"]["target_record_id"]!=target["record_id"]:
+        raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+    if rule["prefix"].endswith("intended_record_hash") and \
+       work["payload"]["publication_intent"]["intended_record_hash"]!=target["record_hash"]:
+        raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+    rebuilt=publication_intent(lineage,target,source,attempt)[0]
+    if rebuilt["sequence"]!=value["sequence"] or rebuilt["series_id"]!=value["series_id"]:
+        raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+    return rebuilt
+
+def dispatch_gate_findings(value,pointer,operation,replacement,rule,context):
+    lineage=context["lineage"]
+    if value["series_id"]!=lineage["active_series_id"] or \
+       value["predecessor"]!=lineage["active_gate"]["record_hash"] or \
+       value["payload"]["variant_kind"]!="CONTROL":
+        raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
+    work=apply_mutation(value,pointer,operation,replacement)
+    delta=work["payload"]["control"]["finding_events"]
+    history=copy.deepcopy(lineage["finding_events"])+copy.deepcopy(delta)
+    work["payload"]["control"]["finding_checkpoint"]=checkpoint(history)
+    return rehash_value(work)
+
+REHASH_DISPATCH={HANDLER_REJECT:dispatch_reject,HANDLER_GENERIC:dispatch_generic,
+  HANDLER_DECISION_BINDING:dispatch_decision_binding,
+  HANDLER_GATE_PUBLICATION:dispatch_gate_publication,
+  HANDLER_GATE_FINDINGS:dispatch_gate_findings}
+
+REHASH_CONTEXT_VALIDATORS={HANDLER_DECISION_BINDING:dispatch_decision_binding,
+  HANDLER_GATE_PUBLICATION:dispatch_gate_publication,
+  HANDLER_GATE_FINDINGS:dispatch_gate_findings}
+
+REHASH_HANDLER_SPECS={
+  HANDLER_REJECT:{"policies":{REHASH_PROHIBITED},"generic":False,
+    "recompute":False,"coverage":set()},
+  HANDLER_GENERIC:{"policies":{REHASH_SUPPORTED},"generic":True,
+    "recompute":True,
+    "coverage":{"semantic_payload_hash","decision_identity","decision_requirement_hash",
+      "remediation_evidence_hash","event_hash","event_id","evidence_id","payload_hash",
+      "record_hash"}},
+  HANDLER_DECISION_BINDING:{"policies":{REHASH_REQUIRES_CONTEXT},"generic":False,
+    "recompute":True,
+    "coverage":{"pending_card_record_hash","binding_key"}},
+  HANDLER_GATE_PUBLICATION:{"policies":{REHASH_REQUIRES_CONTEXT},"generic":False,
+    "recompute":True,
+    "coverage":{"slot_target_path","slot_id","intent_commitment_hash","payload_hash",
+      "record_hash"}},
+  HANDLER_GATE_FINDINGS:{"policies":{REHASH_REQUIRES_CONTEXT},"generic":False,
+    "recompute":True,
+    "coverage":{"finding_history_hash","finding_ledger_hash","finding_checkpoint",
+      "payload_hash","record_hash"}}}
+
 def REHASH(value,pointer,operation,replacement=None,context=None):
-    rule=resolve_rehash_rule(value,pointer)
-    if rule["policy"]==REHASH_PROHIBITED:
-        raise OracleDefinitionError("REHASH_PROHIBITED")
-    context={} if context is None else context
+    rule=resolve_rehash_rule(value,pointer); context={} if context is None else context
     missing=[x for x in rule["context"] if x not in context]
     if missing: raise OracleDefinitionError("REHASH_CONTEXT_REQUIRED")
-    work=apply_mutation(value,pointer,operation,replacement)
-    family=rule["family"]
-    if family=="DecisionBinding":
-        requirement=context["requirement"]; previous=context["predecessor_binding"]
-        generation=work["binding_generation"]
-        if value!=previous or generation!=previous["binding_generation"]+1 or context["series"]!= \
-           context["pending_record"]["series_id"]:
-            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
-        expected,pending=rebound_bundle(requirement,context["series"],generation,previous,
-          context["obstruction_hash"])
-        if pending!=context["pending_record"]:
-            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
-        return expected
-    if family=="GateRecord" and rule["prefix"].startswith("/payload/publication_intent"):
-        lineage=context["lineage"]; target=context["target_record"]
-        source=context["source_record"]; attempt=context["stage_attempt"]
-        if validate_surface_hash(value)!="VALID" or \
-           value["predecessor"]!=lineage["active_gate"]["record_hash"] or \
-           target["series_id"]!=lineage["active_series_id"] or \
-           source["series_id"]!=lineage["active_series_id"]:
-            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
-        if rule["prefix"].endswith("target_record_id") and \
-           work["payload"]["publication_intent"]["slot"]["target_record_id"]!=target["record_id"]:
-            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
-        if rule["prefix"].endswith("intended_record_hash") and \
-           work["payload"]["publication_intent"]["intended_record_hash"]!=target["record_hash"]:
-            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
-        rebuilt=publication_intent(lineage,target,source,attempt)[0]
-        if rebuilt["sequence"]!=value["sequence"] or rebuilt["series_id"]!=value["series_id"]:
-            raise OracleDefinitionError("REHASH_CONTEXT_MISMATCH")
-        return rebuilt
-    if family=="GateRecord" and rule["prefix"]=="/payload/control/finding_events":
-        lineage=context["lineage"]; delta=work["payload"]["control"]["finding_events"]
-        history=copy.deepcopy(lineage["finding_events"])+copy.deepcopy(delta)
-        work["payload"]["control"]["finding_checkpoint"]=checkpoint(history)
-    return rehash_value(work)
+    handler=REHASH_DISPATCH.get(rule["handler"])
+    if handler is None: raise OracleDefinitionError("REHASH_DISPATCH_HANDLER_MISSING")
+    return handler(value,pointer,operation,replacement,rule,context)
 
 def NO_REHASH(value,pointer,operation,replacement=None):
     return apply_mutation(value,pointer,operation,replacement)
@@ -4328,12 +4443,19 @@ def validate_surface_hash(record):
 ```
 
 `REHASH_RULES` is executable dispatch policy, not descriptive metadata. Longest normalized pointer
-prefix wins. `REHASH` rejects unsupported, prohibited, missing-context and mismatched-context cases
-before returning an object. Supported generic families are rebuilt innermost-to-outermost;
-contextful binding and publication-intent paths use their total constructors. DecisionResolution,
-DecisionApplication, PendingDecisionCard, FindingCheckpoint, recovery, progress and offline-evidence
-mutation use their total constructors and prohibit generic REHASH. `dependency_self_check()` rejects
-cycles and incomplete context declarations. No generic fallback exists.
+prefix wins. Every rule names one handler and all descendants rebuilt by a successful operation.
+`REHASH_DISPATCH` is the only route from a resolved rule to execution: reject handlers run before
+mutation, generic handlers are permitted only for `REHASH_SUPPORTED`, and context handlers perform
+their semantic validation and total construction themselves. Standalone PublicationSlot uses
+Option B and is always `REHASH_PROHIBITED`; the nested GateRecord publication-intent path remains a
+different family with its verified context-aware constructor.
+
+`dependency_self_check()` rejects duplicate rules, unknown policy, absent handler, policy/handler
+mismatch, incomplete context handler, illegal generic fallback, missing descendant coverage,
+undeclared derived node, dependency cycle and unreachable handler. Synthetic registries reproduce
+the IR9 missing-handler and illegal-fallback failures. DecisionResolution, DecisionApplication,
+PendingDecisionCard, FindingCheckpoint, recovery, progress and offline-evidence mutation remain
+prohibited. No context-required or prohibited rule can reach generic rehash.
 `HB(CF(record))` is computed only when the rehashed record is placed in the VFS/output. A required
 ancestor context that is absent is `OracleDefinitionError`, never implementer discretion.
 
@@ -4611,6 +4733,74 @@ def scenario_rehash_publication_slot():
       "REHASH_disposition":"VALID","NO_REHASH_disposition":"HASH_MISMATCH",
       "disposition":"VALID"}
 
+def validate_publication_slot(value,origin_series_id,predecessor,target_surface,target_id,
+  reconstruction):
+    expected=slot(origin_series_id,predecessor,target_surface,target_id,reconstruction)
+    return "VALID" if value==expected else "IDENTITY_MISMATCH"
+
+def scenario_standalone_publication_slot_policy():
+    state=oracle_lineage_state(); _,rv0,_,_,_,_=scenario_review_binding()
+    predecessor=state["active_gate"]
+    base=slot(state["origin_series_id"],predecessor,rv0["schema_id"],rv0["record_id"],
+      "COMMITTED")
+    direct=[]
+    for pointer,replacement in (("/target_record_id","review-standalone-mutated"),
+      ("/target_surface","fal002.run-record.v1")):
+        try: REHASH(base,pointer,"replace",replacement)
+        except OracleDefinitionError as error:
+            assert str(error)=="REHASH_PROHIBITED"; direct.append("REHASH_PROHIBITED")
+        else: raise AssertionError("standalone PublicationSlot REHASH was accepted")
+    stale=NO_REHASH(base,"/target_record_id","replace","review-standalone-mutated")
+    assert stale["target_path"]==base["target_path"] and stale["slot_id"]==base["slot_id"]
+    assert validate_publication_slot(stale,state["origin_series_id"],predecessor,
+      rv0["schema_id"],"review-standalone-mutated","COMMITTED")=="IDENTITY_MISMATCH"
+    misleading_context={"origin_series_id":"wrong","predecessor":"wrong",
+      "target_surface":"wrong","target_id":"wrong","reconstruction":"wrong"}
+    try: REHASH(base,"/target_record_id","replace","review-standalone-mutated",
+      misleading_context)
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_PROHIBITED"; fallback="REHASH_PROHIBITED"
+    else: raise AssertionError("prohibited PublicationSlot reached generic fallback")
+    return {"base":base,"direct":direct[0],"alternate":direct[1],"NO_REHASH":stale,
+      "NO_REHASH_disposition":"IDENTITY_MISMATCH","generic_fallback":fallback,
+      "disposition":"VALID"}
+
+def scenario_dispatch_gap_self_check():
+    actual=dependency_self_check()
+    missing=copy.deepcopy(list(REHASH_RULES))
+    slot_rule=next(x for x in missing if x["family"]=="PublicationSlot")
+    slot_rule.update({"policy":REHASH_REQUIRES_CONTEXT,
+      "context":("origin_series_id","predecessor","target_surface","target_id",
+        "reconstruction"),"handler":"MISSING_PUBLICATION_SLOT_CONTEXT",
+      "descendants":("slot_target_path","slot_id")})
+    try: dependency_self_check(tuple(missing))
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_DISPATCH_HANDLER_MISSING"
+        missing_result="REHASH_DISPATCH_HANDLER_MISSING"
+    else: raise AssertionError("registry entry without handler passed self-check")
+    fallback=copy.deepcopy(list(REHASH_RULES))
+    slot_rule=next(x for x in fallback if x["family"]=="PublicationSlot")
+    slot_rule.update({"policy":REHASH_REQUIRES_CONTEXT,
+      "context":("origin_series_id","predecessor","target_surface","target_id",
+        "reconstruction"),"handler":HANDLER_GENERIC,
+      "descendants":("slot_target_path","slot_id")})
+    try: dependency_self_check(tuple(fallback))
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_ILLEGAL_GENERIC_FALLBACK"
+        fallback_result="REHASH_ILLEGAL_GENERIC_FALLBACK"
+    else: raise AssertionError("context-required family reached generic fallback")
+    coverage=copy.deepcopy(list(REHASH_RULES))
+    rule=next(x for x in coverage if x["family"]=="DecisionRequirement")
+    rule["descendants"]=("semantic_payload_hash","slot_id")
+    try: dependency_self_check(tuple(coverage))
+    except OracleDefinitionError as error:
+        assert str(error)=="REHASH_DERIVED_COVERAGE_MISSING"
+        coverage_result="REHASH_DERIVED_COVERAGE_MISSING"
+    else: raise AssertionError("missing derived coverage passed self-check")
+    return {"actual":actual,"missing_handler":missing_result,
+      "illegal_generic_fallback":fallback_result,"missing_derived_coverage":coverage_result,
+      "disposition":"VALID"}
+
 def scenario_rehash_evidence_binding():
     rr,_,_,_,_,_=scenario_review_binding(); base=binding(rr)
     pointer="/content_hash"; replacement="0"*64
@@ -4855,6 +5045,8 @@ def execute_affected_matrix():
 def scenario_adversarial_self_check():
     binding_case=scenario_rehash_decision_binding()
     slot_case=scenario_rehash_publication_slot()
+    standalone=scenario_standalone_publication_slot_policy()
+    dispatch=scenario_dispatch_gap_self_check()
     evidence_case=scenario_rehash_evidence_binding()
     missing_intent=scenario_intent_required_missing()
     crash=scenario_recovery_crash_after_root()
@@ -4866,12 +5058,21 @@ def scenario_adversarial_self_check():
       "wrong_binding_context":binding_case["context_mismatch"],
       "publication_context_missing":slot_case["missing_context"],
       "stale_slot_no_rehash":slot_case["NO_REHASH_disposition"],
+      "standalone_slot_prohibited":standalone["direct"],
+      "standalone_slot_alternate":standalone["alternate"],
+      "standalone_slot_no_rehash":standalone["NO_REHASH_disposition"],
+      "prohibited_generic_attempt":standalone["generic_fallback"],
+      "dispatch_missing_handler":dispatch["missing_handler"],
+      "dispatch_illegal_fallback":dispatch["illegal_generic_fallback"],
+      "dispatch_missing_coverage":dispatch["missing_derived_coverage"],
       "missing_intent":missing_intent["disposition"],
       "crash_restart":crash["disposition"],"addressed_blocker":addressed["denied"],
       "addressed_blocker_recovery":recovered["denied"],
       "critical_blocker":critical["disposition"]}
     assert set(results.values())=={"REHASH_PROHIBITED","REHASH_CONTEXT_REQUIRED",
-      "REHASH_CONTEXT_MISMATCH","HASH_MISMATCH","FORBIDDEN_TRANSITION","VALID",
+      "REHASH_CONTEXT_MISMATCH","HASH_MISMATCH","IDENTITY_MISMATCH",
+      "REHASH_DISPATCH_HANDLER_MISSING","REHASH_ILLEGAL_GENERIC_FALLBACK",
+      "REHASH_DERIVED_COVERAGE_MISSING","FORBIDDEN_TRANSITION","VALID",
       "ELIGIBILITY_BLOCKED_UNRESOLVED_FINDING"}
     return {"case_count":len(results),"results":results,"disposition":"VALID"}
 
@@ -4886,6 +5087,7 @@ def execute_normative_oracle():
       "nested_no_rehash":scenario_rehash_decision_requirement()["NO_REHASH"],
       "decision_binding_policy":scenario_rehash_decision_binding(),
       "publication_slot_policy":scenario_rehash_publication_slot(),
+      "standalone_publication_slot_policy":scenario_standalone_publication_slot_policy(),
       "evidence_binding_policy":scenario_rehash_evidence_binding(),
       "vfs_create_only":scenario_vfs_create_only(),
       "resolution_relocation_recovery_n":scenario_resolution_relocation_recovery_n(),
@@ -4895,6 +5097,7 @@ def execute_normative_oracle():
       "eligibility_recovery":scenario_eligibility_historical_blocker(True),
       "eligibility_critical":scenario_eligibility_critical(),
       "dependency_self_check":dependency_self_check(),
+      "dispatch_gap_self_check":scenario_dispatch_gap_self_check(),
       "adversarial_self_check":scenario_adversarial_self_check()}
 
 def case_environment():
@@ -4923,7 +5126,16 @@ def case_environment():
       "mutation":scenario_mutation(),**decision}
 ```
 
-### 48.10 Exact CORR-016 fixture matrix
+The CORR-017 necessity audit found zero pre-existing normative fixture, matrix or entrypoint callers
+that require successful direct standalone PublicationSlot REHASH. The only new direct caller is the
+negative-test entrypoint `scenario_standalone_publication_slot_policy()`: direct and alternate-field
+REHASH reject, NO_REHASH exposes stale identity, and even key-complete misleading context cannot
+bypass prohibition. It does not require or receive successful standalone mutation capability and
+does not change the frozen affected-matrix membership. `scenario_dispatch_gap_self_check()` proves
+missing handler, illegal generic fallback and missing descendant coverage are each rejected. The
+GateRecord-contained scenario remains unchanged.
+
+### 48.10 Exact CORR-017 fixture matrix
 
 Every row begins independently with `e=case_environment()`. The rows changed by CORR-015/CORR-016 use exact
 Python syntax naming the constructor, mutation or VFS operation to execute; unchanged historical
@@ -5170,6 +5382,10 @@ The following final results are mandatory:
   and publication-target mutation independently reproduce binding/slot/parent identities;
 - all 24 CORR-015/CORR-016-affected matrix rows execute through one exact matrix gate with their
   declared dispositions and no unexpected KeyError or ambient state;
+- standalone PublicationSlot direct and alternate-field REHASH → REHASH_PROHIBITED before mutation;
+  NO_REHASH → IDENTITY_MISMATCH; the GateRecord-contained publication path remains VALID;
+- missing dispatch handler, illegal context/prohibited generic fallback and incomplete derived
+  coverage → exact self-check failure; the actual 23-rule/5-handler registry → VALID;
 - ADDRESSED_AWAITING_REVIEW plus empty review and every unresolved effective CRITICAL blocker deny
   eligibility before and after recovery; exact independent absence follows the frozen §47 fold; and
 - no-progress and ceiling operate after complete-lineage derivation and survive recovery.
@@ -5184,7 +5400,7 @@ hash, recovery locator, decision lookup, finding evolution and fixture statement
 force. Sections 44–48 explicitly incorporate only named unchanged structures, parser rules and raw
 fixture inputs. No competing normative answer remains.
 
-## 50. Final budget, scope and CORR-016 state
+## 50. Final budget, scope and CORR-017 state
 
 The corrected design retains four new production modules plus unchanged `forge/__init__.py`
 attribution, one executor adapter, one reviewer adapter, five schema surfaces and zero new dependency.
@@ -5194,14 +5410,14 @@ decision binding and finding derivation refine responsibilities already allocate
 they add no module or surface. Implementation inventory must continuously prove the limit and stop
 `BUDGET AUTHORITY REQUIRED` on contrary concrete evidence. `EB006-FR-07` is not reopened.
 
-Only EB-006 and necessary documentation index/project-memory text may change in CORR-016. Runtime,
+Only EB-006 and necessary documentation index/project-memory text may change in CORR-017. Runtime,
 tests, schemas, committed fixture implementation, dependencies, versions, Audio Recorder,
 FAL-002 specification, FAL-001 and unrelated artifacts remain unchanged.
 
-`CORR-016-01`, mapped to `EB006-IR6-02`, is `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only
+`CORR-017-01`, mapped to `EB006-IR6-02`, is `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only
 the correction agent's remediation claim: `EB006-IR6-02` remains open and is not independently
-verified, closed, accepted or PASS. IR8 created no new finding. Its preservation of
+verified, closed, accepted or PASS. IR9 created no new finding. Its preservation of
 `EB006-IR6-01` as independently verified is not reopened; that finding is not closed.
 FAL-002 remains `NOT AUTHORIZED`; no runtime implementation occurred. FAL-001 remains permanently
 `TERMINATED BLOCKED`, unaccepted and unclosed, correction count 2/2. The only next gate is a fresh
-independent read-only Standard-Assurance Review against the dedicated CORR-016 commit.
+independent read-only Standard-Assurance Review against the dedicated CORR-017 commit.

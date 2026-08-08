@@ -28,9 +28,11 @@ one bounded `CORR-016-01` final §48 oracle-totality correction. Independent IR9
 eligibility, recovery, successor, semantic-answer and five-surface regressions but demonstrated one
 remaining standalone PublicationSlot REHASH/self-check defect. `HD-FAL-020` authorizes exactly one
 bounded `CORR-017-01` Option-B documentation correction to prohibit the unused standalone operation
-and strengthen executable dispatch/dependency coverage. Status is `AUTHORIZED — NOT STARTED`.
-`EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains open, and FAL-002 remains
-`NOT AUTHORIZED`. The
+and strengthen executable dispatch/dependency coverage. CORR-017 is documentation-complete and only
+`ADDRESSED — AWAITING INDEPENDENT REVIEW`: direct and alternate standalone mutations reject,
+NO_REHASH exposes stale identity, dispatch gaps fail self-check and the GateRecord path plus all IR9
+regressions remain green. `EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains
+open, and FAL-002 remains `NOT AUTHORIZED`. The
 `HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800 new production LOC; the
 album capability remains unstarted.
 
@@ -224,14 +226,13 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 step is execution of the single `HD-FAL-020`-authorized `CORR-017-01`
-final-§48 documentation correction in one separate commit, followed by one fresh independent
-read-only Standard-Assurance Review. Select only Option B: prohibit unused standalone
-PublicationSlot REHASH, retain the verified GateRecord publication-intent path, and make dispatch
-and dependency self-checks detect missing handlers and unauthorized fallback. Preserve all IR9-
-verified matrix, eligibility, recovery depth-three, successor, semantic-answer, finding-governance,
-`EB006-IR6-01`, five-surface and budget results. Keep `EB006-IR6-02` open. Do not implement FAL-002,
-close a finding or infer Implementation Authorization.
+The next permitted FAL-002 step is one fresh independent read-only Standard-Assurance Review of the
+dedicated CORR-017 correction baseline. Verify Option-B standalone PublicationSlot prohibition,
+NO_REHASH stale-state evidence, explicit dispatch/derived coverage and synthetic gap detection while
+preserving the GateRecord publication-intent path and all IR9-verified matrix, eligibility, recovery
+depth-three, successor, semantic-answer, finding-governance, `EB006-IR6-01`, five-surface and budget
+results. Keep `EB006-IR6-02` open. Do not implement FAL-002, close a finding or infer Implementation
+Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
