@@ -194,6 +194,16 @@ Forge may eventually include:
   inner-to-outer, preserves stale hashes under NO_REHASH, and exercises create-only VFS behavior.
   `EB006-IR6-02` remains open and blocking until a fresh independent read-only review; no finding is
   closed and `EB006-IR6-01` remains independently verified.
+- Treat IR8's canonical outcome as `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`.
+  `CORR-015-01` is `PARTIALLY VERIFIED`; `EB006-IR6-02` is `NOT VERIFIED`, open and blocking; no
+  new finding was created. Preserve IR8's verified recovery depth-three, successor Run/Review,
+  review-event binding, DecisionRequirement REHASH/NO_REHASH, semantic relocation and five-surface
+  results.
+- Treat `HD-FAL-019` as authorization for exactly one bounded `CORR-016-01` → `EB006-IR6-02`
+  documentation correction. It may correct only final §48's executable REHASH policy/closure,
+  affected matrix rows and eligibility-oracle fidelity to frozen §47. It may not change production
+  semantics, specification, architecture, runtime, five surfaces, dependencies or budget, and it
+  leaves FAL-002 `NOT AUTHORIZED`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

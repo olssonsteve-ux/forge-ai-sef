@@ -19,8 +19,11 @@ CORR-013-01/IR5-01 and recorded two open blocking residual findings, `EB006-IR6-
 `EB006-IR6-02`. Independent IR7 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`.
 It independently verified `CORR-014-01`/`EB006-IR6-01`, did not verify
 `CORR-014-02`/`EB006-IR6-02`, and created no new finding. `HD-FAL-018` authorized exactly one final
-bounded `CORR-015-01` EB-006 fixture-oracle documentation correction. The correction is complete and
-only `ADDRESSED — AWAITING INDEPENDENT REVIEW`; `EB006-IR6-02` remains open. FAL-002 implementation remains
+bounded `CORR-015-01` EB-006 fixture-oracle documentation correction. Independent IR8 returned
+`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: CORR-015 is `PARTIALLY VERIFIED`,
+`EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorizes exactly
+one bounded `CORR-016-01` final §48 oracle-totality correction; it is `AUTHORIZED — NOT STARTED`.
+`EB006-IR6-01` remains independently verified, `EB006-IR6-02` remains open, and FAL-002 remains
 `NOT AUTHORIZED`. The
 `HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800 new production LOC; the
 album capability remains unstarted.
@@ -215,12 +218,13 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 step is one fresh independent read-only Standard-Assurance Review of the
-dedicated `CORR-015-01` correction baseline. The corrected final §48 executes active-series
-recovery-N, successor Run/Review/FindingEvent binding, inner-to-outer DecisionRequirement REHASH,
-stale-hash NO_REHASH and create-only VFS cases. Preserve `EB006-IR6-01` as independently verified
-but not closed; keep `EB006-IR6-02` open pending that review. Do not implement FAL-002, close a
-finding or infer Implementation Authorization.
+The next permitted FAL-002 step is execution of the single `HD-FAL-019`-authorized bounded
+`CORR-016-01` final §48 documentation correction in one separate commit, followed by one fresh
+independent read-only Standard-Assurance Review. Correct only executable REHASH policy/closure,
+the IR8-failing matrix rows and eligibility-oracle fidelity to frozen §47. Preserve recovery depth
+three, successor Run/Review/FindingEvent binding, DecisionRequirement REHASH/NO_REHASH, semantic
+answer relocation, `EB006-IR6-01`, five surfaces and budget. Keep `EB006-IR6-02` open. Do not
+implement FAL-002, close a finding or infer Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

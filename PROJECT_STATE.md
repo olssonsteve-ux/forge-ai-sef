@@ -13,8 +13,11 @@ CORR-013-01/EB006-IR5-01 and recorded two open blocking residual findings, `EB00
 `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-014-01`/`EB006-IR6-01` is independently
 `VERIFIED`, while `CORR-014-02`/`EB006-IR6-02` is `NOT VERIFIED` and remains open and blocking. IR7
 created no new finding. `HD-FAL-018` authorized exactly one final bounded `CORR-015-01` oracle
-documentation correction mapped to `EB006-IR6-02`. That correction is documentation-complete and
-`ADDRESSED — AWAITING INDEPENDENT REVIEW`; `EB006-IR6-02` remains open and blocking. No finding is
+documentation correction mapped to `EB006-IR6-02`. Independent IR8 returned
+`FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-015-01` is `PARTIALLY VERIFIED`,
+`EB006-IR6-02` is `NOT VERIFIED`, and no new finding was created. `HD-FAL-019` authorizes exactly
+one bounded `CORR-016-01` §48 oracle-totality correction mapped to `EB006-IR6-02`; it is
+`AUTHORIZED — NOT STARTED`. `EB006-IR6-01` remains independently verified, and no finding is
 closed. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC
 envelope.
 
@@ -31,10 +34,11 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct one fresh independent read-only Standard-Assurance Review of the dedicated `CORR-015-01`
-correction baseline. Preserve `EB006-IR6-01` as independently verified but not closed and keep
-`EB006-IR6-02` open pending that review. Do not implement FAL-002. Manual Digital Album Authoring
-and Export remains unstarted and unauthorized.
+Execute the single `HD-FAL-019`-authorized bounded `CORR-016-01` final §48 documentation correction
+in a separate commit, followed by one fresh independent read-only Standard-Assurance Review.
+Preserve every IR8-verified recovery, successor, decision and five-surface contract; keep
+`EB006-IR6-02` open. Do not implement FAL-002. Manual Digital Album Authoring and Export remains
+unstarted and unauthorized.
 
 ## What Exists
 
@@ -204,6 +208,11 @@ and Export remains unstarted and unauthorized.
   use the actual lineage, DecisionRequirement REHASH is inner-to-outer, NO_REHASH fails on stale
   nested hashes, and create-only VFS behavior is executable. Status is only
   `ADDRESSED — AWAITING INDEPENDENT REVIEW`; `EB006-IR6-02` remains open
+- independent IR8 outcome `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`; it partially
+  verified CORR-015, preserved `EB006-IR6-01`, created no new finding and demonstrated residual
+  REHASH-policy, affected-matrix and eligibility-oracle failures under `EB006-IR6-02`
+- accepted `HD-FAL-019` authorization for exactly one bounded `CORR-016-01` final §48 oracle-totality
+  documentation correction; status is `AUTHORIZED — NOT STARTED`, with no implementation authority
 
 ## What Does Not Exist
 
@@ -337,7 +346,8 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Conduct one fresh independent read-only Standard-Assurance Review of the dedicated
-   `CORR-015-01` correction commit.
-2. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending that review,
+1. Execute the single bounded `CORR-016-01` final §48 documentation correction in one separate
+   commit under `HD-FAL-019`.
+2. Conduct one fresh independent read-only Standard-Assurance Review of that correction baseline.
+3. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending that review,
    FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.
