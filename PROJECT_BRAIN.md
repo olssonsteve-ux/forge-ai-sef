@@ -157,6 +157,12 @@ Forge may eventually include:
   event and severity-fold contracts, not add another avoidable precedence layer. HD-FAL-012/014,
   five surfaces, verified hash/recovery contracts and the 1,800-LOC ceiling remain unchanged.
   FAL-002 implementation remains `NOT AUTHORIZED`; only IR6 may verify the correction.
+- Treat EB-006 §§44–50 as the completed CORR-013 remediation claim. The final consolidated model
+  separates pending cards from accepted resolutions and GateRecord application, persists finding
+  deltas/checkpoints in GateRecord, folds severity/blocking with human epochs, and provides a
+  stdlib-only executable fixture/VFS oracle. These changes preserve the independently verified
+  CORR-012-01 hash and CORR-012-03 recovery/discovery contracts. All four CORR-013 objectives remain
+  only `ADDRESSED — AWAITING INDEPENDENT REVIEW`; IR6 alone may verify them.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

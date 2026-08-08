@@ -8,7 +8,8 @@ Owner: Chief Architect
 
 Decision basis: `HD-FAL-006`
 
-Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`, `HD-FAL-013`
+Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`, `HD-FAL-012`,
+`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -43,6 +44,10 @@ Residual finding status:
 | `EB006-IR3-06` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR3-07` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR3-08` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR5-01` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR5-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR5-03` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR5-04` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 1. Purpose and gate
 
@@ -1941,7 +1946,7 @@ modified.
 PASS. FAL-002 remains `NOT AUTHORIZED`; FAL-001 remains permanently `TERMINATED BLOCKED` with
 correction count 2/2. The only next gate is a fresh independent read-only Standard-Assurance Review.
 
-## 43. CORR-012 authority, final precedence and traceability
+## 43. CORR-012 preserved authority and CORR-013 traceability
 
 `HD-FAL-012` and `HD-FAL-014` are binding architecture. `HD-FAL-015` authorizes one inseparable
 documentation correction containing `CORR-012-01` through `CORR-012-05`. Sections 44–50 are the sole
@@ -1957,9 +1962,20 @@ are final only where sections 44–49 expressly incorporate them.
 | `CORR-012-04` | `EB006-IR4-04` | `HD-FAL-014`, `HD-FAL-015` | §§46, 48–49 | complete-logical-lineage HumanDecisionRecord/offline resolver |
 | `CORR-012-05` | `EB006-IR4-05` | `HD-FAL-015` | §§47–49 | canonical severity/blocking/remediation/current-state derivation |
 
-Every status after this correction is only `ADDRESSED — AWAITING INDEPENDENT REVIEW`. These are
-correction-agent claims, not independent verification, finding closure, PASS, acceptance or
-Implementation Authorization.
+The table records the original CORR-012 completion claims. It does not itself close a finding,
+create PASS, acceptance or Implementation Authorization.
+
+`CORR-012-01` and `CORR-012-03` were independently verified before CORR-013. Their canonical hash
+contract (§44) and publication/recovery/discovery contract (§45) are preserved unchanged. The
+following inseparable residual correction is authorized by `HD-FAL-012`, `HD-FAL-014` and
+`HD-FAL-016`; its rows are remediation claims pending IR6, not verification:
+
+| Objective | Source | Authority | Final sections | Consolidated model and completion evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CORR-013-01` | `EB006-IR5-01` | `HD-FAL-016` | §§48–49 | total stdlib oracle, closed constructors, VFS mutation DSL and decision/finding/progress cases | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-013-02` | `EB006-IR5-02` | `HD-FAL-012`, `HD-FAL-014`, `HD-FAL-016` | §§44.6, 45.8, 46, 48–49 | separate immutable requirement, pending card, resolution, binding and GateRecord application; one lineage resolver | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-013-03` | `EB006-IR5-03` | `HD-FAL-016` | §§45.8, 47, 48–49 | GateRecord CONTROL deltas, exact FindingEvent/RemediationEvidence and restart checkpoints | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-013-04` | `EB006-IR5-04` | `HD-FAL-016` | §§47–49 | exact severity epochs, blocking latch, lifecycle fold, PASS and no-progress inputs | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 44. Final universal canonical bytes and hash contract
 
@@ -2105,8 +2121,10 @@ Every prior one-argument `H(...)` formula is withdrawn and replaced as follows:
 - `decision_identity = "D-" + H("fal002-decision-identity-v1", DecisionSemanticInput)[:32]`;
 - `decision_requirement_hash = H("fal002-decision-requirement-v1", DecisionRequirement without
   decision_requirement_hash)`;
-- `binding_key = H("fal002-decision-binding-v1", binding projection without binding_key and
-  expected_record_hash)`;
+- `binding_key = H("fal002-decision-binding-v1", {binding_object_kind:"PENDING_BINDING",
+  value:DecisionBinding without binding_key and pending_card_record_hash})`;
+- `application_key = H("fal002-decision-binding-v1", {binding_object_kind:
+  "RESOLUTION_APPLICATION",value:DecisionApplication without application_key})`;
 - `finding_key = H("fal002-finding-key-v1", FindingIdentityInput)` and
   `finding_id="F-"+finding_key[:20]`;
 - `remediation_evidence_hash = H("fal002-remediation-evidence-v1", RemediationEvidence without its
@@ -2138,8 +2156,10 @@ always use `CF`.
 ### 45.1 Final GateRecord variants and assurance-state retention
 
 The final GateRecord payload union has exactly eleven variants: the ten historical §35.1 variants
-plus `PUBLICATION_INTENT`. `PUBLICATION_INTENT` and `RECOVERY_ROOT` are GateRecord forms under
-`fal002.gate-record.v1`, never separate surfaces.
+plus `PUBLICATION_INTENT`. The exact MANIFEST and CONTROL shapes are replaced by §§46.4 and 47.4;
+the exact RECOVERY_ROOT shape is §45.8. Other variants retain the expressly incorporated §35 shape.
+`PUBLICATION_INTENT` and `RECOVERY_ROOT` are GateRecord forms under `fal002.gate-record.v1`, never
+separate surfaces.
 
 `PUBLICATION_INTENT` appends a GateRecord sequence and changes state authority, but retains the prior
 logical assurance/business state in both envelope `state` and payload `retained_state`. Its event is
@@ -2299,12 +2319,12 @@ replaced by exactly:
  scope_hash:Sha256,criteria_hash:Sha256,allowed_paths_hash:Sha256,
  command_policy_hash:Sha256,frozen_hash:Sha256,correction_count:int 0..2,
  max_prior_ordinal:int 0..9999,
- finding_ledger:CurrentFindingState[0..65535],
- finding_ledger_hash:Sha256,
- pending_decisions:DecisionRequirement[0..65535],
- active_decision_bindings:ActiveDecisionBinding[0..65535],
- no_progress_history:ProgressSnapshot[0..65535],
- intended_decision_record_id:NonEmpty,
+  finding_checkpoint:FindingCheckpoint,
+  pending_decisions:DecisionRequirement[0..65535],
+  active_decision_bindings:DecisionBinding[0..65535],
+  applied_decisions:DecisionApplication[0..65535],
+  no_progress_history:ProgressSnapshot[0..65535],
+  intended_decision_record_id:NonEmpty,
  intended_decision_record_hash:Sha256}}
 ```
 
@@ -2357,83 +2377,159 @@ Choices retain domain order. Sources sort by `(authority,record_id,record_hash,l
 reject duplicates. `decision_identity="D-"+H("fal002-decision-identity-v1", input)[:32]` and is
 stable across physical segments, record locations, recovery ordinals and binding generations.
 
-`DecisionRequirement` is exactly:
+The final `DecisionDomain` vocabulary is exactly `SCOPE`, `CRITERIA`, `BUDGET`,
+`AUTHORITY_CONFLICT`, `EXECUTOR_RETRY`, `REVIEWER_RETRY`, `RECOVERY`, `OFFLINE_EXECUTION`,
+`FINDING_DISPOSITION` and `FINDING_RECLASSIFICATION`. Their exact ordered choices are respectively
+`["AUTHORIZE_NEW_SERIES","DECLINE"]`, `["AUTHORIZE_NEW_SERIES","DECLINE"]`,
+`["AUTHORIZE_BUDGET_CHANGE","DECLINE"]`,
+`["SELECT_SOURCE_A","SELECT_SOURCE_B","ABANDON_SERIES"]`, `["RETRY","DECLINE"]`,
+`["RETRY","DECLINE"]`, `["AUTHORIZE_RECOVERY_RESUME","ABANDON_LINEAGE"]`,
+`["AUTHORIZE_OFFLINE","DECLINE"]`, `["CLOSE_VERIFIED","SUPERSEDE","DECLINE"]`, and
+`["SET_LOW_NONBLOCKING","SET_LOW_BLOCKING","SET_MEDIUM_NONBLOCKING","SET_MEDIUM_BLOCKING",
+"SET_HIGH_NONBLOCKING","SET_HIGH_BLOCKING","SET_CRITICAL_BLOCKING","DECLINE"]`.
+`FINDING_RECLASSIFICATION` has the current GateRecord as semantic target and its semantic sources
+must name the finding key, occurrence and current
+event hash. The applied selected choice must map one-to-one to the HUMAN_RECLASSIFICATION payload;
+no choice permits CRITICAL/nonblocking. `FINDING_DISPOSITION` retains §35.5 choices.
+
+`DecisionRequirement` is immutable and exactly:
 
 ```text
 {decision_identity:NonEmpty,semantic_input:DecisionSemanticInput,
- semantic_payload_hash:Sha256,state:"PENDING"|"RESOLUTION_PRESENT_AWAITING_APPLICATION"|
- "APPLIED_ACCEPTED"|"APPLIED_DECLINED",
- introduced_gate_id:GateId,introduced_gate_hash:Sha256,
+ semantic_payload_hash:Sha256,required_authority:"HUMAN",
+ originating_series_id:Uuid,originating_gate_id:GateId,
+ originating_gate_hash:Sha256,created_at:Timestamp,
  decision_requirement_hash:Sha256}
 ```
 
 Semantic payload hash is `H("fal002-json-content-v1", semantic_input)`. Requirement hash uses §44.6.
-Applied states are permitted only after an authoritative GateRecord validates and applies a matching
-resolution. HumanDecisionRecord alone never changes state.
+Pending/applied state is derived from DecisionBinding and DecisionApplication events; it is not a
+mutable field of the requirement. A HumanDecisionRecord alone never changes GateRecord state.
 
-### 46.2 Active physical binding
+### 46.2 Pending-card binding and accepted-resolution application
 
-`ActiveDecisionBinding` is exactly:
+`DecisionBinding` binds only the immutable pending question and is exactly:
 
 ```text
 {decision_identity:NonEmpty,decision_requirement_hash:Sha256,
  binding_generation:int 0..9999,binding_series_id:Uuid,
- decision_record_id:NonEmpty,decision_locator:PathRel,
- expected_record_hash:Sha256,previous_binding_key:Sha256|absent,
+ pending_card_record_id:NonEmpty,pending_card_locator:PathRel,
+ pending_card_record_hash:Sha256,previous_binding_key:Sha256|absent,
  obstruction_evidence_hash:Sha256|absent,binding_key:Sha256}
 ```
 
-Generation zero has both optional fields absent. Generation n>0 equals previous+1, requires the
-previous binding key, and requires obstruction evidence hash when rebinding followed a path
-obstruction.
-Record ID is exactly `{decision_identity}-b{binding_generation:04d}` and locator is
-`.forge/fal002/series/{binding_series_id}/decisions/{decision_record_id}.json`. Binding key uses
-§44.6 and deliberately excludes `expected_record_hash`; the enclosing GateRecord authenticates the
-complete binding, including that expected hash. This makes record construction acyclic without
-weakening the authoritative binding. Bindings sort by `(decision_identity,binding_generation)` and
-reject gaps, duplicates or two bindings for the same identity/generation.
+Generation zero has both optional fields absent. Generation n>0 is previous+1, requires the previous
+binding key and requires obstruction evidence when rebinding follows path obstruction. Pending record
+ID is exactly `{decision_identity}-pending-b{binding_generation:04d}` and locator is
+`.forge/fal002/series/{binding_series_id}/decisions/{pending_card_record_id}.json`. Binding key is the
+§44.6 PENDING_BINDING projection and excludes the pending record hash to avoid a cycle; the enclosing
+GateRecord authenticates the complete binding including that hash.
 
-The latest valid binding along the active GateRecord lineage is the only physical lookup authority.
-Earlier records remain immutable history. Same semantic identity/payload is mandatory across
-generations; a changed question/domain/choices/target is a new governance question requiring its own
-decision identity, never a collision workaround.
+`ResolutionSemanticInput` is exactly:
 
-### 46.3 Final HumanDecisionRecord additions
+```text
+{decision_identity:NonEmpty,decision_requirement_hash:Sha256,
+ pending_card_record_hash:Sha256,selected_choice:NonEmpty,rationale:NonEmpty,
+ human_owner:NonEmpty,human_provenance:{source:NonEmpty,locator:NonEmpty,
+ content_hash:Sha256},decided_at:Timestamp}
+```
 
-The final HumanDecisionRecord incorporates the §35.5 envelope/payload variants and adds required
-top-level `decision_identity:NonEmpty` and `binding_generation:int 0..9999`. `record_id`, `series_id`
-and locator must equal the current binding. PENDING_CARD payload additionally contains
-`decision_requirement_hash`, `binding_key` and the exact semantic input. RESOLUTION payload
-contains `resolves_decision_identity`, `resolves_binding_generation`, `resolves_record_hash`,
-`selected_choice`, `rationale`; CLOSURE additionally binds the same identity/generation semantics.
+`resolution_semantic_hash=H("fal002-json-content-v1", ResolutionSemanticInput)`. A physical
+DecisionResolution record ID is
+`{decision_identity}-resolution-b{binding_generation:04d}` and its locator uses the same decisions
+directory rule. Recovered copies retain byte-identical ResolutionSemanticInput and semantic hash;
+only binding generation, series, physical ID/locator, envelope timestamp and record hash may differ.
 
-A rebound PENDING_CARD retains semantic input/identity and changes only series, physical record ID,
- generation, binding keys, created_at derived from the new root and physical target fields. Its
-record hash is precomputed and bound by RECOVERY_ROOT without a cycle: the record targets discovery
-key and recovery-condition hash, not root record hash; root binds its complete record hash.
+`DecisionApplication` is the GateRecord-owned state effect and is exactly:
+
+```text
+{decision_identity:NonEmpty,decision_requirement_hash:Sha256,
+ binding_generation:int 0..9999,binding_key:Sha256,
+ pending_card_record_id:NonEmpty,pending_card_record_hash:Sha256,
+ resolution_record_id:NonEmpty,resolution_locator:PathRel,
+ resolution_record_hash:Sha256,resolution_semantic_hash:Sha256,
+ selected_choice:NonEmpty,application_ordinal:int 0..9999,
+ previous_application_key:Sha256|absent,application_key:Sha256}
+```
+
+Application ordinal zero has no previous key; a later idempotent physical relocation increments it
+and requires the prior key while retaining the same resolution semantic hash and selected choice.
+Different semantic hashes or choices for one decision identity are `AUTHORITY_CONFLICT`. Same
+resolution record bytes are idempotent. An individually valid orphan, stale binding or unapplied
+resolution is evidence only.
+
+### 46.3 Final HumanDecisionRecord variants
+
+HumanDecisionRecord retains the §35.5 envelope and requires top-level `decision_identity` and
+`binding_generation`. Its exact variants are:
+
+- PENDING_CARD, status PENDING, physical ID/series/locator equal the current DecisionBinding, payload
+  `{decision_requirement_hash,binding_key,semantic_input:DecisionSemanticInput}`;
+- RESOLUTION, status ACCEPTED or DECLINED, physical ID
+  `{decision_identity}-resolution-b{binding_generation:04d}`, payload
+  `{resolution_semantic_input:ResolutionSemanticInput,resolution_semantic_hash:Sha256}`; and
+- CLOSURE, status ACCEPTED, with the existing closure payload plus decision identity and generation.
+
+PENDING_CARD and RESOLUTION are separate create-only files. Neither may replace or mutate the other.
+A resolution is eligible for application only when its pending-card hash, requirement hash, selected
+choice, human owner/provenance and semantic hash validate. A valid HumanDecisionRecord without a
+matching DecisionApplication has no GateRecord state effect.
+
+Pending-card obstruction advances binding generation through §45 recovery with identical semantic
+input. Resolution obstruction uses PUBLICATION_INTENT because human response bytes are COMMITTED;
+recovery advances binding generation, creates the canonical rebound pending card and stages a
+resolution whose ResolutionSemanticInput is byte-identical to the obstructed response. Replay adopts
+the same semantic hash. A different response for the same identity fails `AUTHORITY_CONFLICT`.
 
 ### 46.4 Complete logical-lineage lookup
 
 For one semantic decision identity, core performs exactly:
 
-1. start at the frozen origin manifest GateRecord;
-2. validate every GateRecord and each successor by §45, in logical-lineage order;
-3. apply DecisionRequirement and ActiveDecisionBinding events in gate sequence;
-4. require binding generation zero then contiguous increments; any gap/fork/conflict is
-   `AUTHORITY_CONFLICT`;
-5. select the latest binding reached on the unique active lineage;
-6. read only its exact `decision_locator`, never enumerate a decisions directory;
-7. validate CF bytes, schema, payload/record hashes, series/record locator, decision identity,
-   requirement hash, generation, owner, provenance, status, target and allowed choice;
-8. reject absent as `MISSING_EVIDENCE`, malformed as `MALFORMED_BOUNDARY`, hash mismatch as
-   `HASH_MISMATCH`, inactive/orphan/forked as `STALE_RECORD` or `AUTHORITY_CONFLICT`;
-9. accept a prior-segment immutable resolution only when the current recovery root/binding explicitly
-   carries its exact record ID/hash and the active GateRecord applies it; and
-10. replay the same binding/record idempotently; never synthesize a default or new identity.
+1. start at and validate the origin MANIFEST GateRecord;
+2. traverse only valid §45 successor roots and every gate in logical-lineage order;
+3. collect DecisionRequirement, DecisionBinding and DecisionApplication objects from the exact
+   MANIFEST, CONTROL and RECOVERY_ROOT carriers in §§46.4.1, 47.4 and 45.8;
+4. require one immutable requirement and reject changed semantic input/hash as `AUTHORITY_CONFLICT`;
+5. require binding generation zero followed by contiguous increments with valid previous keys;
+6. select the greatest valid active-lineage binding and read only its pending-card locator;
+7. validate pending-card CF/schema/hash/ID/series/generation/requirement/binding/owner/provenance;
+8. collect applications by ordinal; require zero then contiguous increments and one stable resolution
+   semantic hash/choice;
+9. for the latest application, read only its exact resolution locator and validate CF/schema/hash,
+   physical ID, decision identity, generation, semantic input/hash, human owner/provenance, pending
+   card hash, status and allowed choice;
+10. return ACCEPTED or DECLINED only from that applied resolution; a pending card or unapplied
+    resolution returns PENDING;
+11. reject absent as `MISSING_EVIDENCE`, malformed as `MALFORMED_BOUNDARY`, mismatched hash as
+    `HASH_MISMATCH`, and stale/orphan/forked/conflicting records as `STALE_RECORD` or
+    `AUTHORITY_CONFLICT`; and
+12. replay identical bindings, resolutions and applications idempotently; never enumerate a decision
+    directory, synthesize a default or mint a new semantic identity.
 
-An obstructed current decision path leaves its requirement pending, invokes §45 successor recovery,
-and creates generation+1 in the new segment. The old record/path remains evidence only. Exactly one
-active binding can satisfy the requirement.
+An obstructed pending or resolution path leaves the requirement pending at its last applied state and
+invokes §45. Pending obstruction advances binding generation. Resolution obstruction additionally
+retains one semantic response hash and advances physical resolution/application ordinals. Exactly one
+applied semantic answer can satisfy a requirement.
+
+### 46.4.1 Exact MANIFEST decision carrier
+
+Final MANIFEST replaces the historical §28.1 object with exactly:
+
+```text
+{scope_hash:Sha256,criteria_hash:Sha256,allowed_paths:PathRel[1..65535],
+ command_policy_hash:Sha256,executor_principal_id:NonEmpty,
+ reviewer_principal_id:NonEmpty,executor_adapter_id:NonEmpty,
+ reviewer_adapter_id:NonEmpty,decision_requirements:DecisionRequirement[0..16],
+ decision_bindings:DecisionBinding[0..16],
+ decision_applications:DecisionApplication[0..16],
+ finding_checkpoint:FindingCheckpoint,offline_evidence:OfflineEvidence|absent}
+```
+
+Arrays sort by decision identity then generation/ordinal and reject duplicates. Gate zero may contain
+the pre-gate offline requirement, binding and accepted application together; otherwise all four
+decision/offline fields are empty/absent. Every referenced HumanDecisionRecord must already exist and
+validate before MANIFEST publication. This is the only bootstrap exception to normal later CONTROL
+application, and MANIFEST authenticates the complete initial state.
 
 ### 46.5 Offline authority
 
@@ -2442,23 +2538,26 @@ Final MANIFEST `offline_evidence` is exactly:
 ```text
 {evidence_id:Sha256,decision_identity:NonEmpty,
  decision_requirement_hash:Sha256,binding_generation:int 0..9999,
- decision_record_id:NonEmpty,decision_record_hash:Sha256,
- decision_locator:PathRel,locator:"/payload/selected_choice",
+ binding_key:Sha256,pending_card_record_id:NonEmpty,
+ pending_card_record_hash:Sha256,resolution_record_id:NonEmpty,
+ resolution_record_hash:Sha256,resolution_locator:PathRel,
+ locator:"/payload/resolution_semantic_input/selected_choice",
  content_hash:Sha256,collected_at:Timestamp,valid_until:Timestamp,
  command_policy_hash:Sha256}
 ```
 
-The origin MANIFEST is the initial active-lineage binding for its pre-gate offline requirement.
-Before every spawn, core runs §46.4 across the complete current logical lineage, not a “same series”
-path. The active record must be an ACCEPTED RESOLUTION of the OFFLINE_EXECUTION requirement with
-choice `AUTHORIZE_OFFLINE`. `content_hash=H("fal002-json-content-v1","AUTHORIZE_OFFLINE")` and
+The origin MANIFEST carries the exact initial requirement, pending binding and accepted application.
+Before every spawn, core runs §46.4 across the complete current logical lineage. A pending card alone
+never authorizes offline execution. The applied record must be an ACCEPTED DecisionResolution of the
+OFFLINE_EXECUTION requirement with choice `AUTHORIZE_OFFLINE`.
+`content_hash=H("fal002-json-content-v1","AUTHORIZE_OFFLINE")` and
 `evidence_id=H("fal002-offline-evidence-v1", offline_evidence without evidence_id)`.
 
-The record identity/hash, active binding, exact locator, selected value, owner/provenance and policy
-hash must agree. `collected_at` equals resolution created_at and
+The requirement, binding key, pending-card hash, applied resolution ID/hash/locator, selected value,
+human owner/provenance and policy hash must agree. `collected_at` equals resolution created_at and
 `collected_at <= spawn_start <= valid_until <= collected_at+24h`. Recovery may rebind the same
-decision identity; semantic authority is unchanged, but MANIFEST evidence must resolve through the
-latest binding or explicit carried accepted-resolution reference. Missing → `MISSING_EVIDENCE`;
+decision identity; semantic authority is unchanged, but evidence must resolve through the latest
+binding and its explicit applied-resolution reference. Missing → `MISSING_EVIDENCE`;
 malformed/nonaccepted/declined → `MALFORMED_BOUNDARY`; mismatch → `HASH_MISMATCH`; expired →
 `STALE_RECORD`. Each stops awaiting human before spawn.
 
@@ -2510,67 +2609,126 @@ OPEN→ADDRESSED_AWAITING_REVIEW occurs only when core validates this object, ch
 allowed paths and frozen contract. Missing/incomplete/mismatched evidence leaves OPEN and emits
 `MISSING_EVIDENCE` or `HASH_MISMATCH`. A correction claim never verifies or closes.
 
-### 47.4 Final event vocabulary
+### 47.4 Final persisted event vocabulary and GateRecord carrier
 
-`FindingEvent` is one discriminated object:
+`FindingEvent` has this common envelope:
 
-- `REVIEW_OBSERVATION`: `{event_kind,finding_id,finding_key,occurrence,observation:
-  "NEW"|"STILL_PRESENT"|"ABSENT_AFTER_CORRECTION",severity,blocking,statement,criterion_ids,
-  reviewer_record_id,reviewer_record_hash,evidence_bindings,rationale,recurs_after_event_hash|absent}`;
-- `REMEDIATION_CLAIM`: `{event_kind,control_gate_id,control_gate_hash,
-  remediation:RemediationEvidence}`;
-- `HUMAN_RECLASSIFICATION`: `{event_kind,finding_id,occurrence,new_severity,new_blocking,
-  decision_id,decision_hash,rationale}`;
-- `HUMAN_DISPOSITION`: `{event_kind,finding_id,occurrence,disposition:"CLOSE_VERIFIED"|
-  "SUPERSEDE",replacement_finding_key:Sha256|absent,decision_id,decision_hash,rationale}`.
+```text
+{event_id:NonEmpty,event_ordinal:int 0..99999999,event_kind:
+ "REVIEW_OBSERVATION"|"REMEDIATION_CLAIM"|"HUMAN_RECLASSIFICATION"|
+ "HUMAN_DISPOSITION",finding_id:FindingId,finding_key:Sha256,
+ occurrence:int>=0,created_at:Timestamp,source_authority:
+ "REVIEWER"|"CORRECTION_AGENT"|"HUMAN",source_record_id:NonEmpty,
+ source_record_hash:Sha256,previous_event_hash:Sha256|absent,
+ payload:FindingEventPayload,event_hash:Sha256}
+```
 
-Every event has `event_hash=H("fal002-finding-observation-v1", event without event_hash)` for review,
-the remediation evidence hash for remediation, or the governing HumanDecisionRecord hash for human
-events. Events order by logical segment, gate sequence, causal surface order
-`ReviewerExchange < CONTROL < HumanDecisionRecord < GateRecord`, then created_at and record ID.
-Ties that remain are `AUTHORITY_CONFLICT`.
+`FindingEventPayload` is exactly one discriminated object:
 
-The observations carried inside ReviewerExchange do not contain the enclosing ReviewerExchange
-record ID/hash. After that record is final, core materializes REVIEW_OBSERVATION events with its
-ID/hash in the next GateRecord. Likewise, RemediationEvidence does not contain its enclosing CONTROL
-GateRecord hash; after that gate is final, core may materialize the REMEDIATION_CLAIM event with the
-gate ID/hash in the next GateRecord. These are deterministic derived events, not a sixth persisted
-surface, and remove all self-hash cycles.
+- REVIEW_OBSERVATION:
+  `{observation:"NEW"|"STILL_PRESENT"|"ABSENT_AFTER_CORRECTION",
+    observed_severity:"LOW"|"MEDIUM"|"HIGH"|"CRITICAL",observed_blocking:boolean,
+    statement:NonEmpty,criterion_ids:CriterionId[1..65535],
+    evidence_bindings:EvidenceBinding[1..65535],rationale:NonEmpty,
+    recurs_after_event_hash:Sha256|absent}`;
+- REMEDIATION_CLAIM: `{remediation:RemediationEvidence}`;
+- HUMAN_RECLASSIFICATION:
+  `{new_effective_severity:"LOW"|"MEDIUM"|"HIGH"|"CRITICAL",
+    new_blocking:boolean,rationale:NonEmpty,decision_application_key:Sha256}`;
+- HUMAN_DISPOSITION:
+  `{disposition:"CLOSE_VERIFIED"|"SUPERSEDE",replacement_finding_key:Sha256|absent,
+    rationale:NonEmpty,decision_application_key:Sha256}`.
 
-### 47.5 Severity and blocking evolution
+Fields not named by the selected payload variant are forbidden. Criterion/evidence arrays use their
+declared canonical order. First event for an occurrence has no previous hash; every later event binds
+the immediately preceding event for that finding occurrence. `event_id="FE-"+event_hash[:20]` and
+`event_hash=H("fal002-finding-observation-v1", complete event without event_id and event_hash)`.
+Event ordinal is the zero-based count of all finding events encountered before this event across the
+logical lineage. Duplicate ID/hash is idempotent only when byte-identical; reused ID, ordinal or
+previous hash with different content is `AUTHORITY_CONFLICT`.
 
-Reviewer authority may retain or escalate severity. For an unresolved occurrence, current severity
-is the maximum of its valid reviewer observations and any accepted human reclassification. A lower
-reviewer observation is retained as a downgrade proposal but cannot lower current severity; it
-creates a pending `FINDING_RECLASSIFICATION` decision. Only an accepted HumanDecisionRecord may lower
-severity. Reclassification never verifies, resolves or closes the finding.
+Final CONTROL replaces the historical §28.1 object with exactly:
 
-Reviewer `blocking:true` latches blocking true for the occurrence. Reviewer `false` cannot clear a
-latched true value. Current blocking is
-`current_severity == CRITICAL or latched_reviewer_blocking or human_blocking_override_true`.
-Only an accepted HUMAN_RECLASSIFICATION may clear the latch, and only when current severity after
-that decision is below CRITICAL. A correction agent has no severity/blocking authority. Invalid
-actor, unbound decision or CRITICAL+false combination is `FORBIDDEN_TRANSITION`.
+```text
+{ordinal:int 0..9999,correction_count:int 0..2,diff_hash:Sha256,
+ evidence_hash:Sha256,finding_ids:FindingId[0..65535],
+ progress:"MATERIAL"|"NONE"|"CEILING",
+ decision_requirements:DecisionRequirement[0..65535],
+ decision_bindings:DecisionBinding[0..65535],
+ decision_applications:DecisionApplication[0..65535],
+ finding_events:FindingEvent[0..65535],finding_checkpoint:FindingCheckpoint}
+```
+
+CONTROL carries only new immutable decision/finding deltas since its predecessor. Review observations
+are copied from one already-final ReviewerExchange with that record as source. Remediation uses the
+already-final RunRecord as source. Human events use the already-final accepted DecisionResolution and
+its applied DecisionApplication key. Thus no event references its enclosing CONTROL hash and no
+self-hash cycle exists.
+
+`FindingCheckpoint` is exactly
+`{event_count:int>=0,finding_history_hash:Sha256,current_findings:CurrentFindingState[0..65535],
+finding_ledger_hash:Sha256}`. MANIFEST contains the zero-event checkpoint whose history hash covers
+`[]`. Every CONTROL checkpoint is derived after applying its deltas. Every other ordinary gate
+inherits the prior checkpoint implicitly through its predecessor. RECOVERY_ROOT carries the exact
+checkpoint fields/current array from its predecessor and adds no event. This delta strategy is the
+only permitted persistence strategy; complete-history duplication in each gate is forbidden.
+
+### 47.5 Exact effective-severity and blocking fold
+
+Observed severity is immutable reviewer evidence. Effective severity is the governance value derived
+by this exact fold. Each occurrence begins with `severity_epoch=0`, baseline and effective severity
+equal the first NEW observation, and `blocking_latch=observed_blocking`. Apply ordered events:
+
+```text
+REVIEW_OBSERVATION:
+  if observed_severity > effective_severity: effective_severity = observed_severity
+  if observed_blocking: blocking_latch = true
+  if observed_severity < effective_severity: retain as downgrade proposal only
+
+HUMAN_RECLASSIFICATION:
+  require an applied FINDING_RECLASSIFICATION DecisionResolution
+  severity_epoch += 1
+  epoch_baseline_severity = new_effective_severity
+  effective_severity = new_effective_severity
+  blocking_latch = new_blocking
+  reject new_effective_severity == CRITICAL and new_blocking == false
+
+current_blocking = (effective_severity == CRITICAL) or blocking_latch
+```
+
+Thus MEDIUM→reviewer HIGH yields HIGH; HIGH→reviewer MEDIUM remains HIGH; HIGH→human MEDIUM yields
+MEDIUM in a new epoch; human MEDIUM→reviewer HIGH yields HIGH; human MEDIUM→reviewer LOW remains
+MEDIUM; equal observations retain the value. A reviewer downgrade proposal creates a pending
+reclassification requirement but cannot itself lower severity/blocking. A later reviewer true
+relatches blocking. Reclassification never verifies, resolves or closes. Invalid actor/application,
+epoch discontinuity or CRITICAL+false is `FORBIDDEN_TRANSITION`.
 
 ### 47.6 State transition algorithm
 
-For each `(finding_key,occurrence)` start absent and apply events:
+`fold_finding_events(events)` first validates increasing global event ordinal, per-occurrence previous
+hashes and identity/occurrence rules, then performs exactly:
 
-| From | Valid event | To |
-| --- | --- | --- |
-| absent | reviewer NEW | OPEN |
-| OPEN | reviewer STILL_PRESENT | OPEN |
-| OPEN | valid REMEDIATION_CLAIM | ADDRESSED_AWAITING_REVIEW |
-| ADDRESSED_AWAITING_REVIEW | reviewer STILL_PRESENT | OPEN |
-| ADDRESSED_AWAITING_REVIEW | reviewer ABSENT_AFTER_CORRECTION with exact evidence/rationale | INDEPENDENTLY_VERIFIED |
-| INDEPENDENTLY_VERIFIED | reviewer NEW/STILL_PRESENT | OPEN |
-| INDEPENDENTLY_VERIFIED | accepted human CLOSE_VERIFIED | CLOSED |
-| OPEN/ADDRESSED_AWAITING_REVIEW/INDEPENDENTLY_VERIFIED | accepted human SUPERSEDE with replacement key | SUPERSEDED |
-| CLOSED/SUPERSEDED | reviewer NEW/STILL_PRESENT with terminal hash | new occurrence OPEN |
+```text
+absent + REVIEW NEW                              -> OPEN
+OPEN + REVIEW STILL_PRESENT                      -> OPEN
+OPEN + valid REMEDIATION_CLAIM                   -> ADDRESSED_AWAITING_REVIEW
+ADDRESSED_AWAITING_REVIEW + REVIEW STILL_PRESENT -> OPEN
+ADDRESSED_AWAITING_REVIEW + REVIEW ABSENT_AFTER_CORRECTION
+                                                  -> INDEPENDENTLY_VERIFIED
+INDEPENDENTLY_VERIFIED + REVIEW NEW/STILL_PRESENT -> OPEN, same occurrence
+INDEPENDENTLY_VERIFIED + HUMAN CLOSE_VERIFIED     -> CLOSED
+OPEN/ADDRESSED_AWAITING_REVIEW/INDEPENDENTLY_VERIFIED + HUMAN SUPERSEDE
+                                                  -> SUPERSEDED
+CLOSED/SUPERSEDED + REVIEW NEW/STILL_PRESENT with terminal previous hash
+                                                  -> occurrence+1 OPEN
+```
 
-Reclassification changes current severity/blocking but not lifecycle state. An empty later findings
-array creates no event. Any other transition is `FORBIDDEN_TRANSITION`; missing event history,
-noncontiguous occurrence, invalid ordering or mismatched snapshot is `HASH_MISMATCH` and blocks PASS.
+At each event apply §47.5 after lifecycle validation, except remediation changes no severity/blocking.
+A new occurrence initializes a fresh severity epoch from its NEW observation. A moved locator is a
+new finding key and requires human SUPERSEDE to relate it; wording change alone retains the key. An
+empty later findings array creates no event. Any other transition, missing history, noncontiguous
+ordinal/occurrence, wrong previous hash, invalid source authority or mismatched checkpoint is
+`HASH_MISMATCH`/`FORBIDDEN_TRANSITION` and blocks PASS.
 
 ### 47.7 `CurrentFindingState`
 
@@ -2578,6 +2736,7 @@ noncontiguous occurrence, invalid ordering or mismatched snapshot is `HASH_MISMA
 {finding_id:FindingId,finding_key:Sha256,occurrence:int>=0,
  state:"OPEN"|"ADDRESSED_AWAITING_REVIEW"|"INDEPENDENTLY_VERIFIED"|
        "CLOSED"|"SUPERSEDED",
+ severity_epoch:int>=0,epoch_baseline_severity:"LOW"|"MEDIUM"|"HIGH"|"CRITICAL",
  current_severity:"LOW"|"MEDIUM"|"HIGH"|"CRITICAL",
  current_blocking:boolean,latest_statement:NonEmpty,
  criterion_ids:CriterionId[1..65535],last_event_hash:Sha256,
@@ -2586,14 +2745,21 @@ noncontiguous occurrence, invalid ordering or mismatched snapshot is `HASH_MISMA
 ```
 
 Current array sorts by `(finding_id,occurrence)`. Unresolved is OPEN or
-ADDRESSED_AWAITING_REVIEW. `finding_history_hash` and `finding_ledger_hash` use §44.6. Recovery roots
-must carry byte-identical current state and hashes derived from the predecessor logical lineage.
+ADDRESSED_AWAITING_REVIEW. `finding_history_hash` hashes the complete ordered event array and
+`finding_ledger_hash` hashes the current array under §44.6. Recovery roots must carry byte-identical
+checkpoint/current state and hashes derived from the predecessor logical lineage.
 
 PASS/eligibility is forbidden when any unresolved current occurrence has CRITICAL severity or
 current_blocking true, when any pending human decision exists, when history is malformed/incomplete,
 or when any criterion lacks valid binding/rationale. ADDRESSED_AWAITING_REVIEW is unresolved. A later
 empty review cannot erase it. Closure rederives the identical ledger and requires the existing human-
 only closure decision; executor, correction agent and reviewer cannot close.
+
+A fresh consumer reconstructs by validating origin, traversing every authoritative gate/successor,
+collecting CONTROL finding-event deltas, checking global ordinals and previous hashes, folding through
+§§47.5–47.6, recomputing history/ledger hashes at every CONTROL/RECOVERY_ROOT checkpoint and rejecting
+any mismatch. Replay of identical gates/events is idempotent. This algorithm is identical before and
+after restart and across any recovery depth.
 
 ### 47.8 Deterministic no-progress operands
 
@@ -2607,8 +2773,9 @@ progress_evidence_hash = H("fal002-progress-evidence-v1",
   build})
 
 unresolved_finding_set_hash = H("fal002-unresolved-findings-v1",
- [{finding_id,occurrence,state,current_severity,current_blocking,
-   remediation_evidence_hash_or_absent} sorted by finding_id,occurrence])
+ [{finding_id,occurrence,state,severity_epoch,epoch_baseline_severity,
+    current_severity,current_blocking,last_event_hash,
+    remediation_evidence_hash_or_absent} sorted by finding_id,occurrence])
 ```
 
 Previous/current window remains consecutive completed reviewed runs across the complete logical
@@ -2629,7 +2796,9 @@ material_progress = history_valid and (diff_changed or evidence_changed) and res
 no_progress = not material_progress
 ```
 
-Severity decrease or blocking clear without accepted human reclassification makes history invalid.
+Severity epoch/baseline change or blocking clear without an applied human reclassification makes
+history invalid. A reviewer-only lower observation leaves the fingerprint unchanged except for the
+history/last-event hash; a human reclassification changes epoch, baseline and current state.
 Remediation evidence change alone never satisfies resolved_any. Residual blocker does not by itself
 force no-progress if another finding is independently resolved and evidence changes, but it continues
 to prohibit PASS. Malformed history always yields `NO_PROGRESS` plus `HASH_MISMATCH`/blocked.
@@ -2650,6 +2819,12 @@ canonicalization, hashing, validation, recovery or ledger helpers.
 The independent functions are exactly:
 
 ```python
+import copy
+import hashlib
+import json
+import pathlib
+import uuid
+
 def cj(value):
     return json.dumps(value, ensure_ascii=False, allow_nan=False,
                       sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -2674,7 +2849,7 @@ def surface_hashes(schema_id, payload_input, record_without_hash):
 ```
 
 Unknown constructor parameter, missing parameter, implicit default, environment read, current clock,
-random value or production import is an oracle failure. Dictionary insertion order never supplies
+random value or production import is an oracle failure. Dictionary insertion order never determines
 semantic order. Expected boundary file bytes are `cf(record)`; structured hashes use `h`; raw-byte
 hashes use `hb`. This code is the only fixture byte/hash rule.
 
@@ -2706,6 +2881,23 @@ Unless a case row gives an exact replacement, constructors use only:
 | remediation claim | `The authorized EB section now defines the missing evidence.` |
 | raw stage source | exact `cf(target_record)` |
 
+The names used by the executable constructors are assigned exactly:
+
+```python
+ORIGIN="00000000-0000-4000-8000-000000000002"
+NAMESPACE="6f1b8e9e-6a37-5e3a-9d9e-50dc93295943"
+HEAD="7bdbc9a9afb57dcd3a6f2e878ed1dc582ff8ad68"
+FROZEN=hb(b"F")
+SCOPE=h("fal002-scope-v1",["forge/fal002.py"])
+CRITERIA=h("fal002-criteria-v1",["FAL2-CC-01"])
+COMMAND_IDS=["GIT-ROOT","PYTHON-VERSION","GIT-VERSION","PYTEST-VERSION","RUFF-VERSION",
+ "GIT-HEAD-BASELINE","GIT-BRANCH","INVENTORY","GIT-HEAD-FINAL","GIT-STATUS",
+ "GIT-DIFF","GIT-NUMSTAT","SCHEMA-CHECK","PYTEST","RUFF-LINT","RUFF-FORMAT","FORGE-STATUS"]
+POLICY=h("fal002-command-policy-v1",COMMAND_IDS)
+ENV=["PATH","PYTHONIOENCODING","PYTHONUTF8","SYSTEMROOT","TEMP","TMP"]
+def t(n): return "2026-08-01T00:00:00."+f"{n:06d}"+"Z"
+```
+
 `COMMAND_IDS` is the exact §35.1 ordered 17-ID array. This final section expressly incorporates the
 exact argv, timeouts, environment/redaction and success parser rules of historical §24 for its 13
 non-version commands and historical §35.4 for the four version commands; every old hash convention
@@ -2720,171 +2912,819 @@ are `hb(stdout_bytes)`/`hb(b"")`. The exact parsed success objects are the final
 
 ### 48.3 Complete record constructor
 
-`make_record(schema_id,record_id,series_id,created_at,surface_fields,payload_input)` creates exactly:
+The executable oracle uses these closed field sets; a missing or extra field raises
+`OracleDefinitionError`:
 
-```text
-{schema_id,schema_version:1,record_id,series_id,created_at,
- <every and only key/value in surface_fields>}
+```python
+SURFACE_FIELDS = {
+ "fal002.gate-record.v1": {"sequence","predecessor","state","actor","event","payload"},
+ "fal002.executor-exchange.v1": {"run_id","ordinal","request","result","invocation"},
+ "fal002.run-record.v1": {"execution_id","ordinal","repository","runtime","tools",
+                           "commands","diff","build"},
+ "fal002.reviewer-exchange.v1": {"run_id","ordinal","packet","result",
+                                  "reviewer_execution"},
+ "fal002.human-decision.v1": {"decision_identity","binding_generation","decision_kind",
+                                "status","owner","provenance","payload"},
+}
+
+def make_record(schema_id, record_id, series_id, created_at, fields):
+    assert set(fields) == SURFACE_FIELDS[schema_id]
+    body = {"schema_id":schema_id,"schema_version":1,"record_id":record_id,
+            "series_id":series_id,"created_at":created_at,**copy.deepcopy(fields)}
+    if schema_id == "fal002.gate-record.v1": payload_input=body["payload"]
+    elif schema_id == "fal002.executor-exchange.v1":
+        payload_input={k:body[k] for k in ("request","result","invocation")}
+    elif schema_id == "fal002.run-record.v1":
+        payload_input={k:body[k] for k in ("repository","runtime","tools","commands","diff","build")}
+    elif schema_id == "fal002.reviewer-exchange.v1":
+        payload_input={k:body[k] for k in ("packet","result","reviewer_execution")}
+    else:
+        payload_input={k:body[k] for k in ("decision_identity","binding_generation",
+          "decision_kind","status","owner","provenance","payload")}
+    return surface_hashes(schema_id,payload_input,body)
+
+def gate(sequence,state,actor,event,variant_kind,variant,predecessor,count=0,series=ORIGIN):
+    assert (sequence == 0) == (predecessor is None)
+    payload={"frozen_hash":FROZEN,"correction_count":count,
+             "variant_kind":variant_kind,variant_kind.lower():copy.deepcopy(variant)}
+    return make_record("fal002.gate-record.v1",f"gate-{sequence:08d}",series,t(sequence),
+      {"sequence":sequence,"predecessor":predecessor,"state":state,"actor":actor,
+       "event":event,"payload":payload})
 ```
 
-then calls `surface_hashes`. Optional absent fields are omitted. No caller supplies any payload,
-record or file hash.
-
-`gate(sequence,state,actor,event,variant_kind,variant,predecessor,correction_count=0,
-series_id=ORIGIN)` sets record ID `gate-{sequence:08d}`, common payload
-`{frozen_hash:FROZEN,correction_count,variant_kind,<lowercase variant_kind>:variant}` and uses that
-payload as payload input. `created_at=t(sequence)`. Predecessor is null only for sequence zero;
-otherwise it is the exact prior gate record hash supplied by the constructor chain.
+Payload, record and file hashes are derived only by `make_record`. Every constructor below returns the record object,
+its exact `CF` bytes and its `HB(CF)` file hash from `make_record`.
 
 ### 48.4 Exact base decision and manifest constructors
 
-`offline_pending()` has semantic input:
+The bootstrap constructor is executable and has no implicit fields:
 
-```text
-{domain:"OFFLINE_EXECUTION",question:"May the bounded collector execute offline?",
- allowed_choices:["AUTHORIZE_OFFLINE","DECLINE"],
- original_target:{target_kind:"SERIES_INTENT",origin_series_id:ORIGIN,
-                  target_record_id:"gate-00000000",target_semantic_hash:FROZEN},
- semantic_sources:[]}
+```python
+def offline_bundle():
+    semantic={"domain":"OFFLINE_EXECUTION",
+      "question":"May the bounded collector execute offline?",
+      "allowed_choices":["AUTHORIZE_OFFLINE","DECLINE"],
+      "original_target":{"target_kind":"SERIES_INTENT","origin_series_id":ORIGIN,
+        "target_record_id":"gate-00000000","target_semantic_hash":FROZEN},
+      "semantic_sources":[]}
+    did="D-"+h("fal002-decision-identity-v1",semantic)[:32]
+    req={"decision_identity":did,"semantic_input":semantic,
+      "semantic_payload_hash":h("fal002-json-content-v1",semantic),
+      "required_authority":"HUMAN","originating_series_id":ORIGIN,
+      "originating_gate_id":"gate-00000000","originating_gate_hash":"0"*64,
+      "created_at":t(397)}
+    req["decision_requirement_hash"]=h("fal002-decision-requirement-v1",req)
+    pid=did+"-pending-b0000"
+    ploc=f".forge/fal002/series/{ORIGIN}/decisions/{pid}.json"
+    bp={"decision_identity":did,"decision_requirement_hash":req["decision_requirement_hash"],
+      "binding_generation":0,"binding_series_id":ORIGIN,"pending_card_record_id":pid,
+      "pending_card_locator":ploc}
+    bkey=h("fal002-decision-binding-v1",
+      {"binding_object_kind":"PENDING_BINDING","value":bp})
+    pending=make_record("fal002.human-decision.v1",pid,ORIGIN,t(398),
+      {"decision_identity":did,"binding_generation":0,"decision_kind":"PENDING_CARD",
+       "status":"PENDING","owner":"human-product-owner",
+       "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+                     "content_hash":hb(b"human-authority")},
+       "payload":{"decision_requirement_hash":req["decision_requirement_hash"],
+                  "binding_key":bkey,"semantic_input":semantic}})[0]
+    binding={**bp,"pending_card_record_hash":pending["record_hash"],
+             "binding_key":bkey}
+    rsi={"decision_identity":did,"decision_requirement_hash":req["decision_requirement_hash"],
+      "pending_card_record_hash":pending["record_hash"],"selected_choice":"AUTHORIZE_OFFLINE",
+      "rationale":"Offline execution is authorized for this fixture.",
+      "human_owner":"human-product-owner",
+      "human_provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+                          "content_hash":hb(b"human-authority")},"decided_at":t(399)}
+    rsh=h("fal002-json-content-v1",rsi)
+    rid=did+"-resolution-b0000"
+    rloc=f".forge/fal002/series/{ORIGIN}/decisions/{rid}.json"
+    resolution=make_record("fal002.human-decision.v1",rid,ORIGIN,t(399),
+      {"decision_identity":did,"binding_generation":0,"decision_kind":"RESOLUTION",
+       "status":"ACCEPTED","owner":"human-product-owner",
+       "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+                     "content_hash":hb(b"human-authority")},
+       "payload":{"resolution_semantic_input":rsi,"resolution_semantic_hash":rsh}})[0]
+    application={"decision_identity":did,"decision_requirement_hash":req["decision_requirement_hash"],
+      "binding_generation":0,"binding_key":bkey,"pending_card_record_id":pid,
+      "pending_card_record_hash":pending["record_hash"],"resolution_record_id":rid,
+      "resolution_locator":rloc,"resolution_record_hash":resolution["record_hash"],
+      "resolution_semantic_hash":rsh,"selected_choice":"AUTHORIZE_OFFLINE",
+      "application_ordinal":0}
+    application["application_key"]=h("fal002-decision-binding-v1",
+      {"binding_object_kind":"RESOLUTION_APPLICATION","value":application})
+    evidence={"decision_identity":did,"decision_requirement_hash":req["decision_requirement_hash"],
+      "binding_generation":0,"binding_key":bkey,"pending_card_record_id":pid,
+      "pending_card_record_hash":pending["record_hash"],"resolution_record_id":rid,
+      "resolution_record_hash":resolution["record_hash"],"resolution_locator":rloc,
+      "locator":"/payload/resolution_semantic_input/selected_choice",
+      "content_hash":h("fal002-json-content-v1","AUTHORIZE_OFFLINE"),"collected_at":t(399),
+      "valid_until":"2026-08-02T00:00:00.000399Z","command_policy_hash":POLICY}
+    evidence["evidence_id"]=h("fal002-offline-evidence-v1",evidence)
+    return req,binding,pending,resolution,application,evidence
+
+def gate0():
+    req,binding,pending,resolution,application,evidence=offline_bundle()
+    empty={"event_count":0,"finding_history_hash":h("fal002-finding-history-v1",[]),
+           "current_findings":[],"finding_ledger_hash":h("fal002-finding-ledger-v1",[])}
+    manifest={"scope_hash":SCOPE,"criteria_hash":CRITERIA,
+      "allowed_paths":["forge/fal002.py"],"command_policy_hash":POLICY,
+      "executor_principal_id":"principal-executor","reviewer_principal_id":"principal-reviewer",
+      "executor_adapter_id":"forge/fal002_io.py#executor",
+      "reviewer_adapter_id":"forge/fal002_io.py#reviewer","decision_requirements":[req],
+      "decision_bindings":[binding],"decision_applications":[application],
+      "finding_checkpoint":empty,"offline_evidence":evidence}
+    return gate(0,"draft","human","INITIALIZE","MANIFEST",manifest,None)
 ```
 
-Its decision identity derives by §46.1. Requirement is PENDING, introduced gate ID
-`gate-00000000`, introduced gate hash `64*"0"` solely for this pre-gate bootstrap form, and exact
-requirement hash. Binding generation is zero, series ORIGIN, record ID
-`{decision_identity}-b0000`, exact decision locator, expected record hash computed after the record
-body is assembled, optional binding fields absent. To avoid a self-hash cycle, the pending record
-contains only the acyclic `binding_key`; the MANIFEST carries the complete binding, including the
-record's final expected hash. The record kind is PENDING_CARD, status PENDING, owner primitive above,
-human provenance above and payload
-`{decision_requirement_hash,binding_key:h("fal002-decision-binding-v1",
-binding_without_expected_and_binding_key),decision_card:semantic_input}`.
-
-`offline_resolution()` uses decision identity above, binding generation zero, record ID
-`HD-OFFLINE-000000000000`, status ACCEPTED, owner/provenance primitives and payload
-`{resolves_decision_identity, resolves_binding_generation:0,
-resolves_record_hash:offline_pending.record_hash,selected_choice:"AUTHORIZE_OFFLINE",
-rationale:"Offline execution is authorized for this fixture."}`. Created times are t(398)/t(399).
-
-`offline_evidence()` uses §46.5 exact fields, the accepted resolution ID/hash and locator, content
-hash `h("fal002-json-content-v1","AUTHORIZE_OFFLINE")`, collected_at t(399), valid_until
-`2026-08-02T00:00:00.000399Z`, and policy hash primitive. Evidence ID is computed last.
-
-`gate0()` is sequence zero, draft/human/INITIALIZE, predecessor null, MANIFEST:
-
-```text
-{scope_hash:SCOPE,criteria_hash:CRITERIA,allowed_paths:["forge/fal002.py"],
- command_policy_hash:POLICY,executor_principal_id:"principal-executor",
- reviewer_principal_id:"principal-reviewer",
- executor_adapter_id:"forge/fal002_io.py#executor",
- reviewer_adapter_id:"forge/fal002_io.py#reviewer",
- offline_evidence:offline_evidence()}
-```
+The all-zero originating gate hash is permitted only inside this pre-gate bootstrap requirement; the
+published MANIFEST authenticates the complete requirement, binding and application.
 
 ### 48.5 Exact inventory and request constructors
 
-`ready()` is sequence one ready/core/INVENTORY_COMPLETE, predecessor gate0 record hash, INVENTORY:
+```python
+def edge(target,kind,locator):
+    value={"source":"forge/fal002.py","target":target,"kind":kind,"locator":locator}
+    return {"edge_id":"E-"+h("fal002-json-content-v1",value)[:20],**value}
 
-- entrypoint `forge/fal002.py`, baseline commit primitive, Python `3.14`;
-- files in exact path order `forge/__init__.py`, `forge/fal002.py`,
-  `forge/fal002_inventory.py`, `forge/fal002_io.py`, `forge/fal002_model.py`;
-- content hashes respectively `hb(b"")` then `hb(UTF8(path))`;
-- counted LOC 2, 330, 360, 550, 420; all classification COUNT;
-- reasons PACKAGE_INIT for init, ENTRYPOINT for fal002.py, STATIC_IMPORT for remaining files;
-- roles empty except I/O exact ordered `["EXECUTOR_ADAPTER","REVIEWER_ADAPTER"]`;
-- exact edge objects are source fal002.py to init/inventory/io/model, kinds PACKAGE_INIT then IMPORT,
-  locators `/package/forge`, `/imports/0`, `/imports/1`, `/imports/2`; each edge ID is
-  `"E-"+h("fal002-json-content-v1",{source,target,kind,locator})[:20]`;
-- init/inventory/io/model parent edge is its edge ID and inbound edges its singleton; entrypoint
-  parent is absent and inbound empty;
-- exemptions and unresolved targets are empty;
-- counts are modules 5, new production LOC 1660, executor adapters 1, reviewer adapters 1,
-  schema surfaces 5;
-- dependencies are stdlib sorted
-  `["ast","dataclasses","hashlib","json","os","pathlib","subprocess","sys","uuid"]`, empty
-  existing/new direct/new transitive arrays, manifest hash `hb(b"pyproject")`, lock hash absent; and
-- disposition PASS.
+def ready():
+    g0=gate0()[0]
+    edges=[edge("forge/__init__.py","PACKAGE_INIT","/package/forge"),
+      edge("forge/fal002_inventory.py","IMPORT","/imports/0"),
+      edge("forge/fal002_io.py","IMPORT","/imports/1"),
+      edge("forge/fal002_model.py","IMPORT","/imports/2")]
+    by_target={e["target"]:e["edge_id"] for e in edges}
+    files=[]
+    specs=[("forge/__init__.py",2,"PACKAGE_INIT",[]),
+      ("forge/fal002.py",330,"ENTRYPOINT",[]),
+      ("forge/fal002_inventory.py",360,"STATIC_IMPORT",[]),
+      ("forge/fal002_io.py",550,"STATIC_IMPORT",["EXECUTOR_ADAPTER","REVIEWER_ADAPTER"]),
+      ("forge/fal002_model.py",420,"STATIC_IMPORT",[])]
+    for path,loc,reason,roles in specs:
+        item={"path":path,"content_hash":hb(b"") if path=="forge/__init__.py" else
+          hb(path.encode("utf-8")),"inbound_edges":([] if path=="forge/fal002.py" else
+          [by_target[path]]),"reason":reason,"classification":"COUNT","counted_loc":loc,
+          "roles":roles}
+        if path!="forge/fal002.py": item["parent_edge"]=by_target[path]
+        files.append(item)
+    inventory={"entrypoint":"forge/fal002.py","baseline_commit":HEAD,"python_version":"3.14",
+      "files":files,"edges":edges,"exemptions":[],
+      "counts":{"modules":5,"new_production_loc":1660,"executor_adapters":1,
+                "reviewer_adapters":1,"schema_surfaces":5},
+      "dependencies":{"stdlib":["ast","dataclasses","hashlib","json","os","pathlib",
+          "subprocess","sys","uuid"],"existing_third_party":[],"new_direct":[],
+          "new_transitive":[],"manifest_hash":hb(b"pyproject")},
+      "unresolved_targets":[],"disposition":"PASS"}
+    return gate(1,"ready","core","INVENTORY_COMPLETE","INVENTORY",inventory,g0["record_hash"])
 
-`executor_request(kind,count,ordinal)` has exact §28 request fields, 17 command IDs, singleton
-scope/criteria/paths, correction count and work packet hash
-`h("fal002-work-packet-v1",{"kind":kind,"ordinal":ordinal})`; nested and gate request kind agree.
+def executor_request(kind,count,ordinal):
+    assert kind in ("INITIAL","CORRECTION") and 0 <= count <= 2
+    return {"frozen_hash":FROZEN,"scope":["forge/fal002.py"],
+      "criteria":["FAL2-CC-01"],"allowed_paths":["forge/fal002.py"],
+      "command_ids":COMMAND_IDS,"correction_count":count,
+      "work_packet_hash":h("fal002-work-packet-v1",{"kind":kind,"ordinal":ordinal}),
+      "request_kind":kind}
+```
 
 ### 48.6 Exact invocation, exchange and run constructors
 
-`grant(role,input_record_id,input_hash,sequence)` uses the role principal/adapter/context primitives,
-issued_by FORGE_CORE, issued_at t(90+sequence), prior context absent, role-matching allowed effect and
-§44.6 grant hash. `observed(role,grant,input_hash,output_hash)` uses resolved adapter path, adapter
-content `hb(UTF8(adapter_id))`, executor process/thread/object 1001/2001/3001 or reviewer
-1002/2002/3002, t(600)/t(601) or t(602)/t(603), RETURNED and exact hashes.
+```python
+def ids(ordinal):
+    o=f"{ordinal:04d}"
+    run="run-"+o+"-"+hashlib.sha256(f"{ORIGIN}:{o}:{FROZEN}".encode()).hexdigest()[:12]
+    exe="exec-"+o+"-"+hashlib.sha256((run+":executor").encode()).hexdigest()[:12]
+    rev="review-"+o+"-"+hashlib.sha256((run+":reviewer").encode()).hexdigest()[:12]
+    return run,exe,rev
 
-`executor_exchange(ordinal=0)` uses exact final §35 top-level/request/result shapes, result
-`{status:"COMPLETED",changed_paths:["forge/fal002.py"],summary:"Bounded work completed."}` with
-error_code absent, and final grant/observation. IDs derive by §14 from run ID and frozen hash.
+def grant(role,input_record_id,input_hash,sequence):
+    principal="principal-executor" if role=="EXECUTOR" else "principal-reviewer"
+    adapter="forge/fal002_io.py#executor" if role=="EXECUTOR" else "forge/fal002_io.py#reviewer"
+    value={"series_id":ORIGIN,"gate_sequence":sequence,"role":role,"principal_id":principal,
+           "adapter_id":adapter,"input_hash":input_hash}
+    return {"grant_id":h("fal002-invocation-grant-v1",value),"role":role,
+      "principal_id":principal,"adapter_id":adapter,
+      "context_id":"ctx-executor-0000" if role=="EXECUTOR" else "ctx-reviewer-0000",
+      "input_record_id":input_record_id,"input_hash":input_hash,"issued_by":"FORGE_CORE",
+      "issued_at":t(90+sequence),"allowed_effect":"RETURN_EXECUTOR_RESULT" if role=="EXECUTOR"
+      else "RETURN_REVIEW_RESULT"}
 
-`command(i)` uses §48.2 and exact command-specific parsed object. `run(ordinal=0)` has:
+def observed(role,g,input_hash,output_hash):
+    ex=((1001,2001,3001,t(600),t(601)) if role=="EXECUTOR" else
+        (1002,2002,3002,t(602),t(603)))
+    return {"grant_id":g["grant_id"],"resolved_adapter_path":g["adapter_id"],
+      "adapter_content_hash":hb(g["adapter_id"].encode()),"process_id":ex[0],"thread_id":ex[1],
+      "object_identity":ex[2],"started_at":ex[3],"ended_at":ex[4],"input_hash":input_hash,
+      "output_hash":output_hash,"termination":"RETURNED"}
 
-- repository root `.`, branch main, equal baseline/final HEAD, empty status/changed paths, and exact
-  offline evidence ID/resolution record hash;
-- runtime and four sorted tools exactly §48.2;
-- all 17 `command(i)` entries;
-- diff `{redacted_text:"",sha256:hb(b""),numstat:[]}`; and
-- build `{status:"not_available",reason:"packaging_forbidden"}`.
+def executor_exchange(ordinal=0):
+    run_id,execution_id,_=ids(ordinal); req=executor_request("INITIAL",0,ordinal)
+    result={"status":"COMPLETED","changed_paths":["forge/fal002.py"],
+            "summary":"Bounded work completed."}
+    ih=h("fal002-json-content-v1",req); oh=h("fal002-json-content-v1",result)
+    g=grant("EXECUTOR",execution_id,ih,2)
+    return make_record("fal002.executor-exchange.v1",execution_id,ORIGIN,t(100+ordinal),
+      {"run_id":run_id,"ordinal":ordinal,"request":req,"result":result,
+       "invocation":{"grant":g,"observed":observed("EXECUTOR",g,ih,oh)}})
 
-Run created_at is t(200+ordinal). Execution ID and ordinal are exact. No other field is present.
+SCHEMAS=["fal002.executor-exchange.v1","fal002.gate-record.v1",
+ "fal002.human-decision.v1","fal002.reviewer-exchange.v1","fal002.run-record.v1"]
+PY="C:/python/python.exe"; GIT="C:/Program Files/Git/cmd/git.exe"
+ARGV={
+ "GIT-ROOT":[GIT,"rev-parse","--show-toplevel"],
+ "PYTHON-VERSION":[PY,"--version"],"GIT-VERSION":[GIT,"--version"],
+ "PYTEST-VERSION":[PY,"-m","pytest","--version"],
+ "RUFF-VERSION":[PY,"-m","ruff","--version"],
+ "GIT-HEAD-BASELINE":[GIT,"rev-parse","HEAD"],
+ "GIT-BRANCH":[GIT,"branch","--show-current"],
+ "INVENTORY":[PY,"-m","forge.fal002","inventory","--manifest",
+   ".forge/fal002/series/"+ORIGIN+"/gate/00000000.json","--output","-"],
+ "GIT-HEAD-FINAL":[GIT,"rev-parse","HEAD"],
+ "GIT-STATUS":[GIT,"status","--porcelain=v1","-z","--untracked-files=all"],
+ "GIT-DIFF":[GIT,"diff","--no-ext-diff","--binary",HEAD,"--"],
+ "GIT-NUMSTAT":[GIT,"diff","--no-ext-diff","--numstat","-z",HEAD,"--"],
+ "SCHEMA-CHECK":[PY,"-m","forge.fal002","schemas","--output-root","schemas/fal002","--check"],
+ "PYTEST":[PY,"-m","pytest","-q"],"RUFF-LINT":[PY,"-m","ruff","check","."],
+ "RUFF-FORMAT":[PY,"-m","ruff","format","--check","."],
+ "FORGE-STATUS":[PY,"-m","forge","status"]}
+PHASE={**{x:"preflight" for x in COMMAND_IDS[:5]},
+ "GIT-HEAD-BASELINE":"pre-execution","GIT-BRANCH":"pre-execution","INVENTORY":"pre-execution",
+ "GIT-HEAD-FINAL":"post-executor","GIT-STATUS":"post-executor","GIT-DIFF":"post-executor",
+ "GIT-NUMSTAT":"post-executor",**{x:"verification" for x in COMMAND_IDS[12:]}}
+TIMEOUT={x:(900 if x=="PYTEST" else 300 if x.startswith("RUFF") else
+  120 if x in ("INVENTORY","SCHEMA-CHECK","FORGE-STATUS") else 30) for x in COMMAND_IDS}
+
+def command(i,inventory):
+    cid=COMMAND_IDS[i]
+    schemas=[{"schema_id":s,"sha256":hb(s.encode())} for s in SCHEMAS]
+    stdout={"GIT-ROOT":b"C:/repo/forge-ai-sef\n","PYTHON-VERSION":b"Python 3.14.0\n",
+      "GIT-VERSION":b"git version 2.50.0\n","PYTEST-VERSION":b"pytest 9.0.0\n",
+      "RUFF-VERSION":b"ruff 0.12.0\n","GIT-HEAD-BASELINE":(HEAD+"\n").encode(),
+      "GIT-BRANCH":b"main\n","INVENTORY":cf(inventory),
+      "GIT-HEAD-FINAL":(HEAD+"\n").encode(),"GIT-STATUS":b"","GIT-DIFF":b"",
+      "GIT-NUMSTAT":b"","SCHEMA-CHECK":cf(schemas),"PYTEST":b"1 passed in 0.01s\n",
+      "RUFF-LINT":b"All checks passed!\n","RUFF-FORMAT":b"12 files already formatted\n",
+      "FORGE-STATUS":b"Project Memory Health: OK\n  fixture\nVersion Consistency Status: WARNING\n  fixture\n"}[cid]
+    parsed={"GIT-ROOT":{"available":True,"root":"."},
+      "PYTHON-VERSION":{"available":True,"implementation":"CPython","version":"3.14.0"},
+      "GIT-VERSION":{"available":True,"version":"2.50.0"},
+      "PYTEST-VERSION":{"available":True,"version":"9.0.0"},
+      "RUFF-VERSION":{"available":True,"version":"0.12.0"},
+      "GIT-HEAD-BASELINE":{"available":True,"head":HEAD,"kind":"BASELINE"},
+      "GIT-BRANCH":{"available":True,"branch":"main"},
+      "INVENTORY":{"available":True,"inventory_hash":h("fal002-json-content-v1",inventory),
+        "disposition":"PASS","counts":inventory["counts"]},
+      "GIT-HEAD-FINAL":{"available":True,"head":HEAD,"kind":"FINAL"},
+      "GIT-STATUS":{"available":True,"entries":[],"changed_paths":[]},
+      "GIT-DIFF":{"available":True,"redacted_content_hash":hb(b""),"byte_count":0},
+      "GIT-NUMSTAT":{"available":True,"entries":[]},
+      "SCHEMA-CHECK":{"available":True,"schemas":schemas},
+      "PYTEST":{"available":True,"passed":1,"failed":0,"skipped":0,"xfailed":0,
+        "xpassed":0,"errors":0,"warnings":0,"duration_seconds_decimal":"0.01"},
+      "RUFF-LINT":{"available":True,"status":"PASS"},
+      "RUFF-FORMAT":{"available":True,"status":"PASS"},
+      "FORGE-STATUS":{"available":True,"categories":[
+        {"name":"Project Memory Health","status":"OK","evidence_lines":["fixture"]},
+        {"name":"Version Consistency Status","status":"WARNING","evidence_lines":["fixture"]}]}}[cid]
+    return {"command_id":cid,"phase":PHASE[cid],"argv":ARGV[cid],"cwd":".",
+      "environment_keys":ENV,"started_at":t(500+2*i),"ended_at":t(501+2*i),"exit_code":0,
+      "termination":"EXITED","stdout_sha256":hb(stdout),"stderr_sha256":hb(b""),
+      "stdout_text":stdout.decode(),"stderr_text":"","redaction_count":0,"parser_version":1,
+      "parsed":parsed,"classification":"PASS"}
+
+def run(ordinal=0):
+    run_id,execution_id,_=ids(ordinal); inv=ready()[0]["payload"]["inventory"]
+    _,_,_,resolution,_,evidence=offline_bundle()
+    runtime={"python_implementation":"CPython","python_version":"3.14.0",
+      "python_executable":PY,"python_executable_sha256":hb(b"python-exe")}
+    tools=[{"name":"git","version":"2.50.0","executable":GIT,
+       "executable_sha256":hb(b"git-exe"),"version_command_id":"GIT-VERSION"},
+      {"name":"pytest","version":"9.0.0","executable":PY,
+       "executable_sha256":hb(b"python-exe"),"version_command_id":"PYTEST-VERSION"},
+      {"name":"python","version":"3.14.0","executable":PY,
+       "executable_sha256":hb(b"python-exe"),"version_command_id":"PYTHON-VERSION"},
+      {"name":"ruff","version":"0.12.0","executable":PY,
+       "executable_sha256":hb(b"python-exe"),"version_command_id":"RUFF-VERSION"}]
+    return make_record("fal002.run-record.v1",run_id,ORIGIN,t(200+ordinal),
+      {"execution_id":execution_id,"ordinal":ordinal,
+       "repository":{"root":".","branch":"main","baseline_head":HEAD,"final_head":HEAD,
+         "status":[],"changed_paths":[],"offline_evidence_id":evidence["evidence_id"],
+         "offline_evidence_record_hash":resolution["record_hash"]},
+       "runtime":runtime,"tools":tools,"commands":[command(i,inv) for i in range(17)],
+       "diff":{"redacted_text":"","sha256":hb(b""),"numstat":[]},
+       "build":{"status":"not_available","reason":"packaging_forbidden"}})
+
+def execution_gate(ordinal=0,count=0):
+    predecessor=ready()[0]; run_id,execution_id,_=ids(ordinal)
+    request=executor_request("INITIAL" if ordinal==0 else "CORRECTION",count,ordinal)
+    request_hash=h("fal002-json-content-v1",request)
+    value={"execution_id":execution_id,"run_id":run_id,"ordinal":ordinal,
+      "request_kind":request["request_kind"],"request":request,"request_hash":request_hash,
+      "invocation_grant":grant("EXECUTOR",predecessor["record_id"],request_hash,
+        predecessor["sequence"]+1)}
+    return gate(predecessor["sequence"]+1,"executing","core","START_EXECUTION",
+      "EXECUTION",value,predecessor["record_hash"],count)
+
+def evidence_gate(ordinal=0,count=0):
+    predecessor=execution_gate(ordinal,count)[0]; rr=run(ordinal)[0]
+    value={"run_id":rr["record_id"],"run_record_hash":rr["record_hash"],
+      "execution_id":rr["execution_id"],"command_ids":COMMAND_IDS,
+      "evidence_hash":h("fal002-json-content-v1",
+        {"run_record_id":rr["record_id"],"run_record_hash":rr["record_hash"]})}
+    return gate(predecessor["sequence"]+1,"evidence_ready","collector","COLLECT_COMPLETE",
+      "EVIDENCE",value,predecessor["record_hash"],count)
+
+def review_gate(ordinal=0,count=0):
+    predecessor=evidence_gate(ordinal,count)[0]; rr=run(ordinal)[0]
+    packet={"frozen_hash":FROZEN,"run_record_id":rr["record_id"],
+      "run_record_hash":rr["record_hash"],"criterion_ids":["FAL2-CC-01"],
+      "evidence_index":[binding(rr)],"instructions_hash":hb(b"adversarial-review-v1")}
+    _,_,review_id=ids(ordinal); packet_hash=h("fal002-json-content-v1",packet)
+    value={"review_id":review_id,"run_id":rr["record_id"],"ordinal":ordinal,
+      "packet":packet,"packet_hash":packet_hash,
+      "invocation_grant":grant("REVIEWER",rr["record_id"],packet_hash,
+        predecessor["sequence"]+1)}
+    return gate(predecessor["sequence"]+1,"reviewing","core","START_REVIEW",
+      "REVIEW",value,predecessor["record_hash"],count)
+
+def checkpoint_gate(predecessor):
+    value={"reason_code":"INTERRUPTED","source_record_ids":[predecessor["record_id"]],
+      "source_hashes":[predecessor["record_hash"]],"interruption_id":"interrupt-0000",
+      "resume_state":"ready"}
+    return gate(predecessor["sequence"]+1,"awaiting_human","recovery","CHECKPOINT_CREATED",
+      "CHECKPOINT",value,predecessor["record_hash"],predecessor["payload"]["correction_count"])
+
+def eligibility_gate(ordinal=0):
+    predecessor=review_gate(ordinal)[0]; rv=review("PASS",[],ordinal)[0]
+    value={"review_id":rv["record_id"],"review_hash":rv["record_hash"],
+      "criterion_ids":["FAL2-CC-01"],"finding_ids":[],"eligible":True}
+    return gate(predecessor["sequence"]+1,"accepted","core","REVIEW_PASS",
+      "ELIGIBILITY",value,predecessor["record_hash"],0)
+
+def closure_bundle(ordinal=0):
+    eligible=eligibility_gate(ordinal)[0]; did="D-"+hb(b"fixture-closure")[:32]
+    decision=make_record("fal002.human-decision.v1",did+"-closure-b0000",ORIGIN,t(900),
+      {"decision_identity":did,"binding_generation":0,"decision_kind":"CLOSURE",
+       "status":"ACCEPTED","owner":"human-product-owner",
+       "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+        "content_hash":hb(b"human-authority")},
+       "payload":{"eligible_gate_id":eligible["record_id"],
+        "eligible_gate_hash":eligible["record_hash"],"review_id":ids(ordinal)[2],
+        "review_hash":review("PASS",[],ordinal)[0]["record_hash"],
+        "finding_ledger_hash":h("fal002-finding-ledger-v1",[])}})[0]
+    value={"decision_id":decision["record_id"],"decision_hash":decision["record_hash"],
+      "eligible_gate_id":eligible["record_id"],"eligible_gate_hash":eligible["record_hash"]}
+    closed=gate(eligible["sequence"]+1,"accepted","human","HUMAN_CLOSURE",
+      "CLOSURE",value,eligible["record_hash"],0)
+    return decision,closed
+```
 
 ### 48.7 Exact evidence, review and finding constructors
 
-`binding(run_record)` is exactly §35.2 with criterion FAL2-CC-01, kind SCHEMA, RunRecord surface/ID,
-locator `/commands/12/parsed/schemas/0/sha256`, assertion primitive, content hash
-`h("fal002-json-content-v1",resolved_schema_hash_string)`, and COLLECTOR provenance containing the
-run record ID/hash and collector ID SCHEMA-CHECK.
+The following code is the complete constructor and fold library. It has no delegated shape or caller-
+selected value; test cases may alter its results only through §48.9.
 
-`finding_observation(key_locator="docs/x.md#one",severity="HIGH",blocking=True,
-observation="NEW",occurrence=0)` uses EVIDENCE property, one criterion, statement primitive, exact
-key/ID §44.6, the reviewed RunRecord binding, evidence and rationale. It is the exact observation
-inside ReviewerExchange and therefore contains no enclosing reviewer record ID/hash.
+```python
+def binding(rr=None):
+    rr=run()[0] if rr is None else rr
+    value=rr["commands"][12]["parsed"]["schemas"][0]["sha256"]
+    return {"criterion_id":"FAL2-CC-01","evidence_kind":"SCHEMA",
+      "source_surface":"fal002.run-record.v1","source_record_id":rr["record_id"],
+      "locator":"/commands/12/parsed/schemas/0/sha256",
+      "assertion":"The resolved schema hash supports the criterion.",
+      "content_hash":h("fal002-json-content-v1",value),
+      "provenance":{"authority":"COLLECTOR","record_id":rr["record_id"],
+        "record_hash":rr["record_hash"],"collector_id":"SCHEMA-CHECK"}}
 
-`review(outcome,observations)` contains one criterion, the binding byte-identically in packet/result,
-instructions hash `hb(b"adversarial-review-v1")`, semantic rationale primitive, exact final reviewer
-grant/observation and observations sorted by finding ID/occurrence. PASS with no unresolved blocker
-constructs eligibility; any invalid case publishes no review final.
+def finding_observation(severity="HIGH",blocking=True,observation="NEW"):
+    identity={"assurance_property":"EVIDENCE","defect_locator":"docs/x.md#one",
+              "criterion_ids":["FAL2-CC-01"]}
+    key=h("fal002-finding-key-v1",identity)
+    return {"finding_id":"F-"+key[:20],"finding_key":key,
+      "assurance_property":"EVIDENCE","defect_locator":"docs/x.md#one",
+      "severity":severity,"blocking":blocking,"criterion_ids":["FAL2-CC-01"],
+      "statement":"Required evidence is missing.","observation":observation}
 
-After `review()` is final, `review_event(review_record,observation)` adds that record's ID/hash and
-computes the event hash. The event is carried by the next GateRecord, never by its source review.
+def review(outcome="CORRECTION_REQUIRED",observations=None,ordinal=0):
+    observations=[finding_observation()] if observations is None else observations
+    rr=run(ordinal)[0]; run_id,_,review_id=ids(ordinal); eb=binding(rr)
+    packet={"frozen_hash":FROZEN,"run_record_id":rr["record_id"],
+      "run_record_hash":rr["record_hash"],"criterion_ids":["FAL2-CC-01"],
+      "evidence_index":[eb],"instructions_hash":hb(b"adversarial-review-v1")}
+    result={"outcome":outcome,"findings":sorted(observations,
+      key=lambda x:(x["finding_id"],x["observation"])),"criterion_evidence":[eb],
+      "semantic_rationale":[{"criterion_id":"FAL2-CC-01",
+        "rationale":"The resolved schema hash supports exact model and schema consistency."}]}
+    ih=h("fal002-json-content-v1",packet); oh=h("fal002-json-content-v1",result)
+    g=grant("REVIEWER",rr["record_id"],ih,4)
+    execution={"grant":g,"observed":observed("REVIEWER",g,ih,oh),
+      "fresh_context_verified":True,"read_only_packet_verified":True,
+      "separation_checks":["MANIFEST_ROLE_DISTINCT","PRINCIPAL_DISTINCT",
+       "ADAPTER_ENTRYPOINT_DISTINCT","GRANT_MATCH","CONTEXT_FRESH","PACKET_MINIMAL",
+       "NO_WRITE_CALLBACK"]}
+    return make_record("fal002.reviewer-exchange.v1",review_id,ORIGIN,t(300+ordinal),
+      {"run_id":run_id,"ordinal":ordinal,"packet":packet,"result":result,
+       "reviewer_execution":execution})
 
-`remediation(finding,run,content_value)` uses objective `CORR-012-05`, authorization ID `HD-FAL-015`,
-authorization decision hash `hb(b"hd-fal-015")`, artifact path EB-006, locator
-`docs/engineering/EB-006-Implement-FAL-002-Standard-Assurance-Loop.md#47`, content hash
-`h("fal002-json-content-v1",content_value)`, baseline primitive, result head absent, correction actor,
-fixed claim, t(700), source RunRecord ID/hash and §44.6 evidence hash. After its CONTROL gate is
-final, `remediation_event(gate,remediation)` adds the gate ID/hash for carriage by the next GateRecord.
+def review_event(review_record,observation,event_ordinal=0,previous=None,
+                 occurrence=0,recurs_after=None):
+    payload={"observation":observation["observation"],
+      "observed_severity":observation["severity"],
+      "observed_blocking":observation["blocking"],"statement":observation["statement"],
+      "criterion_ids":observation["criterion_ids"],"evidence_bindings":[binding()],
+      "rationale":"The resolved schema hash supports exact model and schema consistency."}
+    if recurs_after is not None: payload["recurs_after_event_hash"]=recurs_after
+    event={"event_ordinal":event_ordinal,"event_kind":"REVIEW_OBSERVATION",
+      "finding_id":observation["finding_id"],"finding_key":observation["finding_key"],
+      "occurrence":occurrence,"created_at":t(650+event_ordinal),
+      "source_authority":"REVIEWER","source_record_id":review_record["record_id"],
+      "source_record_hash":review_record["record_hash"],"payload":payload}
+    if previous is not None: event["previous_event_hash"]=previous["event_hash"]
+    eh=h("fal002-finding-observation-v1",event)
+    return {"event_id":"FE-"+eh[:20],**event,"event_hash":eh}
 
-`current_finding(events)` applies §47.6 without shortcuts. `progress(run,current_findings)` uses §47.8
-exact objects and hashes.
+def remediation(finding,rr=None):
+    rr=run()[0] if rr is None else rr
+    value={"finding_id":finding["finding_id"],"finding_key":finding["finding_key"],
+      "occurrence":0,"correction_objective_id":"CORR-013-03",
+      "authorization_decision_id":"HD-FAL-016",
+      "authorization_decision_hash":hb(b"hd-fal-016"),
+      "corrected_artifact_path":"docs/engineering/EB-006-Implement-FAL-002-Standard-Assurance-Loop.md",
+      "corrected_locator":"#47-final-finding-events-current-state-pass-and-no-progress",
+      "corrected_content_hash":h("fal002-json-content-v1","final finding model"),
+      "correction_baseline_head":HEAD,"correction_actor":"CORRECTION_AGENT",
+      "claim":"ADDRESSED_AWAITING_REVIEW","created_at":t(700),
+      "source_run_id":rr["record_id"],"source_run_hash":rr["record_hash"]}
+    return {**value,"remediation_evidence_hash":h("fal002-remediation-evidence-v1",value)}
+
+def remediation_event(finding,previous,event_ordinal=1):
+    rem=remediation(finding)
+    value={"event_ordinal":event_ordinal,"event_kind":"REMEDIATION_CLAIM",
+      "finding_id":finding["finding_id"],"finding_key":finding["finding_key"],
+      "occurrence":0,"created_at":t(650+event_ordinal),
+      "source_authority":"CORRECTION_AGENT","source_record_id":rem["source_run_id"],
+      "source_record_hash":rem["source_run_hash"],
+      "previous_event_hash":previous["event_hash"],"payload":{"remediation":rem}}
+    eh=h("fal002-finding-observation-v1",value)
+    return {"event_id":"FE-"+eh[:20],**value,"event_hash":eh}
+
+def human_event(kind,finding,previous,requirement,resolution,application,event_ordinal,payload):
+    assert kind in ("HUMAN_RECLASSIFICATION","HUMAN_DISPOSITION")
+    assert requirement["semantic_input"]["domain"]==(
+      "FINDING_RECLASSIFICATION" if kind=="HUMAN_RECLASSIFICATION" else "FINDING_DISPOSITION")
+    assert resolution["decision_kind"]=="RESOLUTION" and resolution["status"]=="ACCEPTED"
+    assert application["resolution_record_hash"]==resolution["record_hash"]
+    value={"event_ordinal":event_ordinal,"event_kind":kind,
+      "finding_id":finding["finding_id"],"finding_key":finding["finding_key"],
+      "occurrence":0,"created_at":t(650+event_ordinal),"source_authority":"HUMAN",
+      "source_record_id":resolution["record_id"],"source_record_hash":resolution["record_hash"],
+      "previous_event_hash":previous["event_hash"],"payload":copy.deepcopy(payload)}
+    assert payload["decision_application_key"]==application["application_key"]
+    choice=resolution["payload"]["resolution_semantic_input"]["selected_choice"]
+    if kind=="HUMAN_RECLASSIFICATION":
+        expected="SET_"+payload["new_effective_severity"]+("_BLOCKING" if payload["new_blocking"]
+          else "_NONBLOCKING")
+        assert choice==expected
+    else: assert choice==payload["disposition"]
+    eh=h("fal002-finding-observation-v1",value)
+    return {"event_id":"FE-"+eh[:20],**value,"event_hash":eh}
+
+SEVERITY={"LOW":0,"MEDIUM":1,"HIGH":2,"CRITICAL":3}
+UNRESOLVED={"OPEN","ADDRESSED_AWAITING_REVIEW"}
+
+def fold_finding_events(events):
+    states={}; last={}
+    for i,e in enumerate(events):
+        assert e["event_ordinal"]==i
+        key=(e["finding_key"],e["occurrence"])
+        assert (key not in last and "previous_event_hash" not in e) or \
+               (key in last and e["previous_event_hash"]==last[key])
+        state=states.get(key)
+        if e["event_kind"]=="REVIEW_OBSERVATION":
+            p=e["payload"]
+            if state is None:
+                if e["occurrence"]==0:
+                    assert p["observation"]=="NEW" and "recurs_after_event_hash" not in p
+                else:
+                    prior=states[(e["finding_key"],e["occurrence"]-1)]
+                    assert prior["state"] in ("CLOSED","SUPERSEDED")
+                    assert p["observation"] in ("NEW","STILL_PRESENT")
+                    assert p["recurs_after_event_hash"]==prior["last_event_hash"]
+                state={"finding_id":e["finding_id"],"finding_key":e["finding_key"],
+                  "occurrence":e["occurrence"],"state":"OPEN","severity_epoch":0,
+                  "epoch_baseline_severity":p["observed_severity"],
+                  "current_severity":p["observed_severity"],
+                  "current_blocking":p["observed_blocking"] or
+                    p["observed_severity"]=="CRITICAL","latest_statement":p["statement"],
+                  "criterion_ids":p["criterion_ids"],"last_event_hash":e["event_hash"]}
+            else:
+                if SEVERITY[p["observed_severity"]]>SEVERITY[state["current_severity"]]:
+                    state["current_severity"]=p["observed_severity"]
+                state["current_blocking"]=(state["current_blocking"] or
+                  p["observed_blocking"] or state["current_severity"]=="CRITICAL")
+                if p["observation"]=="STILL_PRESENT": state["state"]="OPEN"
+                if p["observation"]=="ABSENT_AFTER_CORRECTION":
+                    assert state["state"]=="ADDRESSED_AWAITING_REVIEW"
+                    state["state"]="INDEPENDENTLY_VERIFIED"
+                state["latest_statement"]=p["statement"]
+                state["last_event_hash"]=e["event_hash"]
+        elif e["event_kind"]=="REMEDIATION_CLAIM":
+            assert state["state"]=="OPEN"
+            state["state"]="ADDRESSED_AWAITING_REVIEW"
+            state["remediation_evidence_hash"]=e["payload"]["remediation"]["remediation_evidence_hash"]
+            state["last_event_hash"]=e["event_hash"]
+        elif e["event_kind"]=="HUMAN_RECLASSIFICATION":
+            p=e["payload"]; assert not (p["new_effective_severity"]=="CRITICAL" and not p["new_blocking"])
+            state["severity_epoch"]+=1
+            state["epoch_baseline_severity"]=p["new_effective_severity"]
+            state["current_severity"]=p["new_effective_severity"]
+            state["current_blocking"]=p["new_blocking"] or p["new_effective_severity"]=="CRITICAL"
+            state["last_event_hash"]=e["event_hash"]
+        else:
+            p=e["payload"]
+            if p["disposition"]=="CLOSE_VERIFIED":
+                assert state["state"]=="INDEPENDENTLY_VERIFIED"; state["state"]="CLOSED"
+            else:
+                state["state"]="SUPERSEDED"; state["replacement_finding_key"]=p["replacement_finding_key"]
+            state["last_event_hash"]=e["event_hash"]
+        states[key]=state; last[key]=e["event_hash"]
+    return [states[k] for k in sorted(states,key=lambda x:(states[x]["finding_id"],x[1]))]
+
+def checkpoint(events):
+    current=fold_finding_events(events)
+    return {"event_count":len(events),
+      "finding_history_hash":h("fal002-finding-history-v1",events),
+      "current_findings":current,
+      "finding_ledger_hash":h("fal002-finding-ledger-v1",current)}
+
+def control(predecessor,events,ordinal=0,count=1):
+    cp=checkpoint(events)
+    variant={"ordinal":ordinal,"correction_count":count,"diff_hash":hb(b""),
+      "evidence_hash":h("fal002-progress-evidence-v1",{"ordinal":ordinal}),
+      "finding_ids":[e["finding_id"] for e in events],"progress":"NONE",
+      "decision_requirements":[],"decision_bindings":[],"decision_applications":[],
+      "finding_events":events,"finding_checkpoint":cp}
+    return gate(predecessor["sequence"]+1,"correction_required","core","CONTROL_UPDATED",
+      "CONTROL",variant,predecessor["record_hash"],count)
+
+def progress_inputs(rr,current):
+    evidence={"repository":{"baseline_head":rr["repository"]["baseline_head"],
+       "final_head":rr["repository"]["final_head"],"status":rr["repository"]["status"],
+       "changed_paths":rr["repository"]["changed_paths"]},"diff":rr["diff"],
+      "runtime":rr["runtime"],"tools":rr["tools"],
+      "commands":[{"command_id":x["command_id"],"termination":x["termination"],
+       "exit_code":x["exit_code"],"classification":x["classification"],
+       "parsed_without_duration":{k:v for k,v in x["parsed"].items()
+        if k!="duration_seconds_decimal"}} for x in rr["commands"]],"build":rr["build"]}
+    unresolved=[{"finding_id":x["finding_id"],"occurrence":x["occurrence"],
+      "state":x["state"],"severity_epoch":x["severity_epoch"],
+      "epoch_baseline_severity":x["epoch_baseline_severity"],
+      "current_severity":x["current_severity"],"current_blocking":x["current_blocking"],
+      "last_event_hash":x["last_event_hash"],
+      "remediation_evidence_hash_or_absent":x.get("remediation_evidence_hash")}
+      for x in sorted(current,key=lambda y:(y["finding_id"],y["occurrence"]))
+      if x["state"] in UNRESOLVED]
+    return {"progress_evidence_hash":h("fal002-progress-evidence-v1",evidence),
+      "unresolved_finding_set_hash":h("fal002-unresolved-findings-v1",unresolved),
+      "unresolved":unresolved}
+
+def progress_result(previous,current,previous_diff,current_diff,correction_count):
+    p={(x["finding_id"],x["occurrence"]):x for x in previous["unresolved"]}
+    c={(x["finding_id"],x["occurrence"]):x for x in current["unresolved"]}
+    resolved_any=any(k not in c for k in p)
+    introduced=any(k not in p and (x["current_blocking"] or x["current_severity"]=="CRITICAL")
+      for k,x in c.items()) or any(k in p and
+      ((not p[k]["current_blocking"] and x["current_blocking"]) or
+       (p[k]["current_severity"]!="CRITICAL" and x["current_severity"]=="CRITICAL"))
+      for k,x in c.items())
+    material=(previous_diff!=current_diff or
+      previous["progress_evidence_hash"]!=current["progress_evidence_hash"]) and \
+      resolved_any and not introduced
+    return "NO_PROGRESS" if not material else \
+      ("CORRECTION_CEILING" if correction_count==2 else "MATERIAL_PROGRESS")
+```
 
 ### 48.8 Exact publication-intent, recovery and rebinding constructors
 
-`slot(predecessor,target_surface,target_id,target_path,reconstruction)` supplies every §45.2 field and
-computes slot ID last. `publication_intent(predecessor,target_record,stage_attempt=0)` sets stage path
-from slot ID, intended record hash, `hb(cf(target_record))` for all file/stage hashes, source authority
-REVIEWER_ADAPTER for reviewer target otherwise the exact producing authority, source record ID/hash
-from predecessor payload, retained state from predecessor and commitment hash last. Its gate sequence
-is predecessor+1.
+These constructors are exhaustive for publication/recovery fixtures. `target_path` is supplied by the
+closed `canonical_path` function, never by a case author.
 
-`obstruction(slot,intent,target_record,kind,observed_bytes,path_kind)` supplies every §45.5 field.
-Observed hash is `hb(observed_bytes)` only for readable regular cases. `discovery(predecessor,slot)`
-supplies every §45.6 field and key. `successor_id(key,n)` is stdlib `uuid.uuid5(UUID(NAMESPACE),
-f"fal002-recovery-discovery-v1:{key}:{n}")` string.
+```python
+def canonical_path(surface,series,record_id):
+    folder={"fal002.gate-record.v1":"gate","fal002.executor-exchange.v1":"executor",
+      "fal002.run-record.v1":"run","fal002.reviewer-exchange.v1":"reviewer",
+      "fal002.human-decision.v1":"decisions"}[surface]
+    name=(f"{int(record_id[5:]):08d}" if surface=="fal002.gate-record.v1" else record_id)
+    return f".forge/fal002/series/{series}/{folder}/{name}.json"
 
-`decision_requirement()` uses RECOVERY domain, question `May this logical lineage resume after the
-recorded obstruction?`, choices `["AUTHORIZE_RECOVERY_RESUME","ABANDON_LINEAGE"]`, original root
-semantic target and two sorted semantic sources: CANONICAL_MODEL obstruction descriptor and
-STATE_SERIES predecessor gate. `decision_binding(requirement,series,generation,previous=None,
-obstruction_hash=None)` uses §46.2 exact ID/path/hash procedure.
+def slot(predecessor,target_surface,target_id,reconstruction):
+    value={"origin_series_id":ORIGIN,"predecessor_series_id":predecessor["series_id"],
+      "predecessor_gate_id":predecessor["record_id"],
+      "predecessor_gate_hash":predecessor["record_hash"],"target_surface":target_surface,
+      "target_record_id":target_id,
+      "target_path":canonical_path(target_surface,predecessor["series_id"],target_id),
+      "reconstruction":reconstruction}
+    return {"slot_id":h("fal002-publication-slot-v1",value),**value}
 
-`recovery_root(predecessor,slot,obstruction,n,ledger=[],requirements=[],bindings=[],progress=[])`
-supplies every §45.8 field, successor UUID, retained state, inherited hashes/count/maximum ordinal,
-sorted complete arrays, precomputed bound pending decision record ID/hash and sequence-zero recovery
-GateRecord. No caller supplies discovery, condition, payload, record or file hash.
+def publication_intent(predecessor,target_record,source_record,stage_attempt=0):
+    s=slot(predecessor,target_record["schema_id"],target_record["record_id"],"COMMITTED")
+    value={"slot":s,"retained_state":predecessor["state"],
+      "intended_record_hash":target_record["record_hash"],
+      "intended_file_hash":hb(cf(target_record)),
+      "stage_locator":f".forge/fal002/series/{predecessor['series_id']}/.staging/"
+        f"{s['slot_id']}/attempt-{stage_attempt:04d}.json.part",
+      "stage_attempt":stage_attempt,"stage_file_hash":hb(cf(target_record)),
+      "source_authority":"REVIEWER_ADAPTER" if target_record["schema_id"]==
+        "fal002.reviewer-exchange.v1" else "HUMAN_BOUNDARY",
+      "source_record_id":source_record["record_id"],
+      "source_record_hash":source_record["record_hash"]}
+    value["intent_commitment_hash"]=h("fal002-publication-intent-v1",value)
+    return gate(predecessor["sequence"]+1,predecessor["state"],"core",
+      "PUBLICATION_INTENT_COMMITTED","PUBLICATION_INTENT",value,
+      predecessor["record_hash"],predecessor["payload"]["correction_count"])
+
+def obstruction(predecessor,s,intent,target_record,observed=b"\x7b"):
+    value={"origin_series_id":ORIGIN,"predecessor_series_id":predecessor["series_id"],
+      "predecessor_gate_id":predecessor["record_id"],
+      "predecessor_gate_hash":predecessor["record_hash"],"publication_slot":s,
+      "intended_record_hash":target_record["record_hash"],
+      "intended_file_hash":hb(cf(target_record)),"target_path":s["target_path"],
+      "obstruction_kind":"MALFORMED_FILE","observed_content_hash":hb(observed),
+      "path_object_kind":"REGULAR","frozen_hash":FROZEN}
+    if intent is not None:
+        value["intent_gate_id"]=intent["record_id"]
+        value["intent_gate_hash"]=intent["record_hash"]
+    return value
+
+def discovery(predecessor,s):
+    material={"origin_series_id":ORIGIN,"predecessor_series_id":predecessor["series_id"],
+      "predecessor_gate_id":predecessor["record_id"],
+      "predecessor_gate_hash":predecessor["record_hash"],
+      "publication_slot":{"slot_id":s["slot_id"],"target_surface":s["target_surface"],
+       "target_record_id":s["target_record_id"],"target_path":s["target_path"]}}
+    return material,h("fal002-recovery-discovery-v1",material)
+
+def successor_id(key,n):
+    return str(uuid.uuid5(uuid.UUID(NAMESPACE),f"fal002-recovery-discovery-v1:{key}:{n}"))
+
+def rebound_bundle(requirement,series,generation,previous,obstruction_hash):
+    did=requirement["decision_identity"]; pid=f"{did}-pending-b{generation:04d}"
+    base={"decision_identity":did,
+      "decision_requirement_hash":requirement["decision_requirement_hash"],
+      "binding_generation":generation,"binding_series_id":series,
+      "pending_card_record_id":pid,"pending_card_locator":canonical_path(
+        "fal002.human-decision.v1",series,pid),"previous_binding_key":previous["binding_key"],
+      "obstruction_evidence_hash":obstruction_hash}
+    key=h("fal002-decision-binding-v1",{"binding_object_kind":"PENDING_BINDING","value":base})
+    pending=make_record("fal002.human-decision.v1",pid,series,t(800+generation),
+      {"decision_identity":did,"binding_generation":generation,"decision_kind":"PENDING_CARD",
+       "status":"PENDING","owner":"human-product-owner",
+       "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+        "content_hash":hb(b"human-authority")},
+       "payload":{"decision_requirement_hash":requirement["decision_requirement_hash"],
+        "binding_key":key,"semantic_input":requirement["semantic_input"]}})[0]
+    return {**base,"pending_card_record_hash":pending["record_hash"],"binding_key":key},pending
+
+def resolution_for(requirement,bnd,pending,choice,rationale,application_ordinal=0,
+                   previous_application=None):
+    generation=bnd["binding_generation"]; did=requirement["decision_identity"]
+    rsi={"decision_identity":did,
+      "decision_requirement_hash":requirement["decision_requirement_hash"],
+      "pending_card_record_hash":pending["record_hash"],"selected_choice":choice,
+      "rationale":rationale,"human_owner":"human-product-owner",
+      "human_provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+       "content_hash":hb(b"human-authority")},"decided_at":t(820)}
+    semantic_hash=h("fal002-json-content-v1",rsi)
+    rid=f"{did}-resolution-b{generation:04d}"
+    resolution=make_record("fal002.human-decision.v1",rid,bnd["binding_series_id"],t(821),
+      {"decision_identity":did,"binding_generation":generation,"decision_kind":"RESOLUTION",
+       "status":"ACCEPTED","owner":"human-product-owner",
+       "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+        "content_hash":hb(b"human-authority")},
+       "payload":{"resolution_semantic_input":rsi,
+        "resolution_semantic_hash":semantic_hash}})[0]
+    app={"decision_identity":did,
+      "decision_requirement_hash":requirement["decision_requirement_hash"],
+      "binding_generation":generation,"binding_key":bnd["binding_key"],
+      "pending_card_record_id":pending["record_id"],
+      "pending_card_record_hash":pending["record_hash"],"resolution_record_id":rid,
+      "resolution_locator":canonical_path("fal002.human-decision.v1",
+        bnd["binding_series_id"],rid),"resolution_record_hash":resolution["record_hash"],
+      "resolution_semantic_hash":semantic_hash,"selected_choice":choice,
+      "application_ordinal":application_ordinal}
+    if previous_application is not None:
+        app["previous_application_key"]=previous_application["application_key"]
+    app["application_key"]=h("fal002-decision-binding-v1",
+      {"binding_object_kind":"RESOLUTION_APPLICATION","value":app})
+    return resolution,app
+
+def finding_decision_bundle(current,predecessor,domain,choice):
+    assert domain in ("FINDING_RECLASSIFICATION","FINDING_DISPOSITION")
+    choices=(["SET_LOW_NONBLOCKING","SET_LOW_BLOCKING","SET_MEDIUM_NONBLOCKING",
+      "SET_MEDIUM_BLOCKING","SET_HIGH_NONBLOCKING","SET_HIGH_BLOCKING",
+      "SET_CRITICAL_BLOCKING","DECLINE"] if domain=="FINDING_RECLASSIFICATION" else
+      ["CLOSE_VERIFIED","SUPERSEDE","DECLINE"])
+    assert choice in choices
+    semantic={"domain":domain,"question":"What is the authorized finding disposition?",
+      "allowed_choices":choices,
+      "original_target":{"target_kind":"GATE","origin_series_id":ORIGIN,
+       "target_record_id":predecessor["record_id"],
+       "target_semantic_hash":predecessor["record_hash"]},
+      "semantic_sources":[{"authority":"CANONICAL_MODEL",
+       "record_id":current["finding_id"],"record_hash":current["last_event_hash"],
+       "locator":"/payload/control/finding_checkpoint/current_findings"}]}
+    did="D-"+h("fal002-decision-identity-v1",semantic)[:32]
+    value={"decision_identity":did,"semantic_input":semantic,
+      "semantic_payload_hash":h("fal002-json-content-v1",semantic),
+      "required_authority":"HUMAN","originating_series_id":predecessor["series_id"],
+      "originating_gate_id":predecessor["record_id"],
+      "originating_gate_hash":predecessor["record_hash"],"created_at":t(825)}
+    req={**value,"decision_requirement_hash":h("fal002-decision-requirement-v1",value)}
+    bnd,pending=initial_binding(req,predecessor["series_id"])
+    resolution,application=resolution_for(req,bnd,pending,choice,
+      "Human authority selected the recorded finding disposition.")
+    return req,bnd,pending,resolution,application
+
+def conflict_bundle(predecessor):
+    semantic={"domain":"AUTHORITY_CONFLICT","question":"Which recorded source governs?",
+      "allowed_choices":["SELECT_SOURCE_A","SELECT_SOURCE_B","ABANDON_SERIES"],
+      "original_target":{"target_kind":"GATE","origin_series_id":ORIGIN,
+       "target_record_id":predecessor["record_id"],
+       "target_semantic_hash":predecessor["record_hash"]},
+      "semantic_sources":[
+       {"authority":"HUMAN","record_id":"source-a","record_hash":hb(b"source-a"),
+        "locator":"/payload/resolution_semantic_input"},
+       {"authority":"HUMAN","record_id":"source-b","record_hash":hb(b"source-b"),
+        "locator":"/payload/resolution_semantic_input"}]}
+    did="D-"+h("fal002-decision-identity-v1",semantic)[:32]
+    value={"decision_identity":did,"semantic_input":semantic,
+      "semantic_payload_hash":h("fal002-json-content-v1",semantic),
+      "required_authority":"HUMAN","originating_series_id":predecessor["series_id"],
+      "originating_gate_id":predecessor["record_id"],
+      "originating_gate_hash":predecessor["record_hash"],"created_at":t(830)}
+    req={**value,"decision_requirement_hash":h("fal002-decision-requirement-v1",value)}
+    bnd,pending=initial_binding(req,predecessor["series_id"])
+    return req,bnd,pending
+
+def recovery_requirement(predecessor,obs,successor):
+    semantic={"domain":"RECOVERY",
+      "question":"May this logical lineage resume after the recorded obstruction?",
+      "allowed_choices":["AUTHORIZE_RECOVERY_RESUME","ABANDON_LINEAGE"],
+      "original_target":{"target_kind":"RECOVERY_ROOT","origin_series_id":ORIGIN,
+       "target_record_id":"gate-00000000",
+       "target_semantic_hash":h("fal002-recovery-condition-v1",obs)},
+      "semantic_sources":[
+       {"authority":"CANONICAL_MODEL","record_id":"obstruction-descriptor",
+        "record_hash":h("fal002-recovery-condition-v1",obs),"locator":"/payload/obstruction"},
+       {"authority":"STATE_SERIES","record_id":predecessor["record_id"],
+        "record_hash":predecessor["record_hash"],"locator":"/payload"}]}
+    did="D-"+h("fal002-decision-identity-v1",semantic)[:32]
+    value={"decision_identity":did,"semantic_input":semantic,
+      "semantic_payload_hash":h("fal002-json-content-v1",semantic),
+      "required_authority":"HUMAN","originating_series_id":successor,
+      "originating_gate_id":"gate-00000000","originating_gate_hash":predecessor["record_hash"],
+      "created_at":t(810)}
+    return {**value,"decision_requirement_hash":h("fal002-decision-requirement-v1",value)}
+
+def initial_binding(requirement,series):
+    did=requirement["decision_identity"]; pid=did+"-pending-b0000"
+    base={"decision_identity":did,
+      "decision_requirement_hash":requirement["decision_requirement_hash"],
+      "binding_generation":0,"binding_series_id":series,"pending_card_record_id":pid,
+      "pending_card_locator":canonical_path("fal002.human-decision.v1",series,pid)}
+    key=h("fal002-decision-binding-v1",{"binding_object_kind":"PENDING_BINDING","value":base})
+    pending=make_record("fal002.human-decision.v1",pid,series,t(811),
+      {"decision_identity":did,"binding_generation":0,"decision_kind":"PENDING_CARD",
+       "status":"PENDING","owner":"human-product-owner",
+       "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
+        "content_hash":hb(b"human-authority")},
+       "payload":{"decision_requirement_hash":requirement["decision_requirement_hash"],
+        "binding_key":key,"semantic_input":requirement["semantic_input"]}})[0]
+    return {**base,"pending_card_record_hash":pending["record_hash"],"binding_key":key},pending
+
+def recovery_root(predecessor,target_record,n=0):
+    s=slot(predecessor,target_record["schema_id"],target_record["record_id"],"COMMITTED")
+    intent=publication_intent(predecessor,target_record,predecessor)[0]
+    obs=obstruction(intent,s,intent,target_record,b"\x7b")
+    material,key=discovery(intent,s); successor=successor_id(key,n)
+    req=recovery_requirement(intent,obs,successor); bnd,pending=initial_binding(req,successor)
+    cp=gate0()[0]["payload"]["manifest"]["finding_checkpoint"]
+    root={"origin_series_id":ORIGIN,"predecessor_series_id":intent["series_id"],
+      "predecessor_gate_id":intent["record_id"],"predecessor_gate_hash":intent["record_hash"],
+      "publication_slot":s,"recovery_discovery_material":material,
+      "recovery_discovery_key":key,"obstruction":obs,
+      "recovery_condition_hash":h("fal002-recovery-condition-v1",obs),
+      "successor_series_id":successor,"recovery_ordinal":n,"predecessor_sealed":True,
+      "retained_state":intent["state"],"scope_hash":SCOPE,"criteria_hash":CRITERIA,
+      "allowed_paths_hash":h("fal002-json-content-v1",["forge/fal002.py"]),
+      "command_policy_hash":POLICY,"frozen_hash":FROZEN,
+      "correction_count":intent["payload"]["correction_count"],"max_prior_ordinal":0,
+      "finding_checkpoint":cp,"pending_decisions":[req],
+      "active_decision_bindings":[bnd],"applied_decisions":[],"no_progress_history":[],
+      "intended_decision_record_id":pending["record_id"],
+      "intended_decision_record_hash":pending["record_hash"]}
+    return gate(0,"awaiting_human","recovery","RECOVERY_SUCCESSOR","RECOVERY_ROOT",root,
+      None,intent["payload"]["correction_count"],successor),pending
+```
 
 ### 48.9 Canonical mutation function
 
@@ -2895,7 +3735,34 @@ content/identity hashes from leaves outward, then payload/record/file hashes. `N
 the old hash fields. Unknown pointer, ambiguous command ID or type-invalid operation is an oracle
 definition failure, not a system fixture.
 
-### 48.10 Exact CORR-012 fixture matrix
+The virtual filesystem is a byte map with no host-I/O dependency:
+
+```python
+VROOT="/repo/.forge/fal002"
+def vfs(): return {"regular":{},"nonregular":{},"operations":[]}
+def write_bytes(fs,path,value):
+    assert path.startswith(VROOT+"/") and isinstance(value,bytes) and path not in fs["nonregular"]
+    fs["regular"][path]=value; fs["operations"].append(["WRITE_BYTES",path,value.hex()])
+def remove_path(fs,path):
+    fs["regular"].pop(path,None); fs["nonregular"].pop(path,None)
+    fs["operations"].append(["REMOVE_PATH",path])
+def make_nonregular(fs,path,kind):
+    assert kind in ("SYMLINK","DIRECTORY","OTHER") and path not in fs["regular"]
+    fs["nonregular"][path]=kind; fs["operations"].append(["MAKE_NONREGULAR",path,kind])
+def host_path(relative): return VROOT+"/"+relative.removeprefix(".forge/fal002/")
+def publish_record(fs,relative,record): write_bytes(fs,host_path(relative),cf(record))
+def fixture_files(fs):
+    return [{"path":p,"bytes_hex":b.hex(),"file_hash":hb(b)}
+            for p,b in sorted(fs["regular"].items())]
+```
+
+An absent path is one missing from both maps. A staged path, final path and obstruction path are the
+literal `host_path(stage_locator)`, `host_path(slot["target_path"])` and the same final path,
+respectively. A partial stage writes `cf(target)[:len(cf(target))//2]`; a readable malformed
+obstruction writes `b"\x7b"`; a collision writes `b"conflict\n"`. Operation order is exactly the
+order in `fs["operations"]`. Filesystem cases may use only these functions.
+
+### 48.10 Exact CORR-013 fixture matrix
 
 Every row begins from a fresh constructor and uses all operations left-to-right. Unless stated,
 REHASH follows. Expected valid files are exact `cf(record)` and expected hashes are §48.1 outputs.
@@ -2908,7 +3775,7 @@ Invalid input is never published as an authoritative final.
 | `hash-wrong-lf` | gate0; set record_hash to sha256(preimage+0a); NO_REHASH | HASH_MISMATCH; no authority |
 | `hash-domain-missing` | gate0; replace record_hash with sha256(cj(record without hash)); NO_REHASH | HASH_MISMATCH |
 | `intent-not-required` | ready; derive reconstructable next GateRecord | PUBLICATION_INTENT forbidden; ordinary gate append |
-| `intent-required-missing` | completed executor target; attempt exchange final without intent | FORBIDDEN_TRANSITION; no exchange final |
+| `intent-required-missing` | `fs=vfs(); target=executor_exchange()[0]; publish_record(fs,canonical_path(target["schema_id"],ORIGIN,target["record_id"]),target)` with no PUBLICATION_INTENT gate | FORBIDDEN_TRANSITION; target ignored |
 | `intent-valid` | completed reviewer target; publication_intent | intent gate final; retained reviewing state |
 | `intent-wrong-predecessor` | intent-valid; replace `/payload/publication_intent/slot/predecessor_gate_hash` with 64 `0` | HASH_MISMATCH |
 | `intent-wrong-slot` | intent-valid; replace `/payload/publication_intent/slot/target_record_id` with `review-wrong` | MALFORMED_BOUNDARY |
@@ -2917,16 +3784,23 @@ Invalid input is never published as an authoritative final.
 | `intent-crash-stage` | write first floor(len(cf(target))/2) bytes at attempt-0000 | preserve; complete attempt-0001; predecessor active until intent final |
 | `intent-crash-after-final` | publish intent; no target | intent gate active; replay publishes exact stage without actor invocation |
 | `discovery-zero` | obstruct intent target with raw `7b`; recovery_root n=0 | exact UUID candidate 0 authoritative awaiting_human |
-| `discovery-candidate-invalid` | put raw `7b` at candidate-0 root | preserve; candidate-1 eligible |
+| `discovery-candidate-invalid` | `write_bytes(fs,host_path(canonical_path("fal002.gate-record.v1",successor_id(key,0),"gate-00000000")),b"\x7b")` | preserve exact byte; candidate-1 eligible |
 | `discovery-later` | candidate-0 stable malformed; recovery_root n=1 | ordinal 1 root authoritative |
-| `discovery-first-absent` | obstruct target; candidate-0 absent; valid-looking candidate-1 present | candidate-1 ignored; predecessor remains active |
+| `discovery-first-absent` | candidate-0 absent; `publish_record(fs,canonical_path("fal002.gate-record.v1",successor_id(key,1),"gate-00000000"),root1)` | candidate-1 ignored; predecessor remains active |
 | `discovery-wrong-lineage` | recovery n=0; replace `/payload/recovery_root/origin_series_id` with `00000000-0000-4000-8000-000000000003` | invalid stable candidate; no authority |
-| `discovery-no-directory-heuristic` | place valid-looking root under UUID not derived by function | ignored evidence |
+| `discovery-no-directory-heuristic` | `publish_record(fs,canonical_path("fal002.gate-record.v1","00000000-0000-4000-8000-000000000099","gate-00000000"),root0)` | ignored evidence |
 | `recovery-crash-before-root` | complete root stage; fault before final link | predecessor active; replay identical root |
 | `recovery-crash-after-root` | root final valid; decision final absent | successor authoritative; replay exact bound decision |
 | `recovery-chain-two` | root0 active; obstruct its decision path; derive root1 from root0 slot | one logical lineage; binding generation 1 |
 | `decision-binding-zero` | recovery root with generation-0 binding | exact active locator/read succeeds |
-| `decision-path-obstructed` | put raw `7b` at generation-0 locator | same decision requirement pending; successor recovery |
+| `decision-path-obstructed` | `write_bytes(fs,host_path(binding0["pending_card_locator"]),b"\x7b")` | same decision identity pending; successor recovery and generation 1 |
+| `decision-pending-only` | `offline_bundle()`; remove resolution and application files/state | PENDING; no state authority |
+| `decision-resolution-separate` | publish pending and resolution to their distinct canonical locators; carry application | ACCEPTED AUTHORIZE_OFFLINE; pending bytes unchanged |
+| `decision-resolution-obstructed` | `write_bytes(fs,host_path(application0["resolution_locator"]),b"\x7b")`; retain ResolutionSemanticInput; rebound generation 1 | PENDING during recovery; same semantic hash; one applied answer after replay |
+| `decision-resolution-replay` | publish byte-identical rebound resolution twice | one semantic resolution; idempotent |
+| `decision-resolution-conflict` | clone resolution; replace selected choice with `DECLINE`; REHASH | AUTHORITY_CONFLICT; no application |
+| `decision-resolution-orphan` | publish accepted resolution at canonical path for inactive series `00000000-0000-4000-8000-000000000099` | STALE_RECORD; ignored for authority |
+| `decision-recovery-n` | repeat `recovery_root` for n=0,1,2 with obstruction at each active bound path | same decision identity at every depth; contiguous binding generations |
 | `decision-rebound` | prior obstruction; bind same identity at generation 1 | semantic input/hash identical; new series locator |
 | `decision-generation-gap` | generation 0 then 2 | AUTHORITY_CONFLICT |
 | `decision-orphan` | valid record at unbound locator | ignored evidence; cannot resolve |
@@ -2934,7 +3808,7 @@ Invalid input is never published as an authoritative final.
 | `decision-wrong-hash` | active record; replace `/record_hash` with 64 `0`; NO_REHASH | HASH_MISMATCH |
 | `offline-origin` | gate0 + valid origin offline resolution | pre-spawn resolution succeeds |
 | `offline-rebound` | same decision identity rebound generation 1 and explicitly carried resolution | same AUTHORIZE_OFFLINE semantic result |
-| `offline-wrong-locator` | gate0; replace `/payload/manifest/offline_evidence/decision_locator` with `x.json` | HASH_MISMATCH |
+| `offline-wrong-locator` | gate0; replace `/payload/manifest/offline_evidence/resolution_locator` with `x.json` | HASH_MISMATCH |
 | `offline-wrong-identity` | replace offline `decision_identity` with `D-00000000000000000000000000000000` | HASH_MISMATCH |
 | `offline-nonaccepted` | resolution status DECLINED, choice DECLINE | MALFORMED_BOUNDARY; no spawn |
 | `finding-same-severity` | NEW HIGH/blocking then STILL_PRESENT HIGH/blocking | current HIGH/blocking OPEN |
@@ -2946,6 +3820,14 @@ Invalid input is never published as an authoritative final.
 | `finding-addressed-empty-review` | addressed then review findings empty | stays addressed; PASS blocked |
 | `finding-addressed-still-present` | addressed then STILL_PRESENT | OPEN |
 | `finding-verified` | addressed then ABSENT_AFTER_CORRECTION exact evidence/rationale | INDEPENDENTLY_VERIFIED |
+| `finding-failed-verification` | addressed then STILL_PRESENT reviewer event | OPEN; unresolved |
+| `finding-human-downgrade` | NEW HIGH/true then applied human reclassification MEDIUM/false | MEDIUM/false in epoch 1; lifecycle unchanged |
+| `finding-post-human-escalation` | human MEDIUM/false baseline then reviewer HIGH/true | HIGH/true in epoch 1 |
+| `finding-post-human-lower` | human MEDIUM/false baseline then reviewer LOW/false | MEDIUM/false in epoch 1 |
+| `finding-missing-prior` | remove `previous_event_hash` from event ordinal 1; REHASH | HASH_MISMATCH; reconstruction and PASS blocked |
+| `finding-duplicate-identical` | carry the same event ID/hash/bytes twice at the same logical position | idempotent one event |
+| `finding-duplicate-conflict` | reuse event ID and ordinal with changed statement; REHASH | AUTHORITY_CONFLICT |
+| `finding-restart` | serialize each CONTROL with CF; discard memory; traverse origin and fold stored deltas | byte-identical checkpoint/current state |
 | `finding-recurrence` | independently verified then STILL_PRESENT | OPEN same occurrence |
 | `finding-recurrence-after-close` | CLOSED occurrence 0 then NEW with terminal event hash | occurrence 1 OPEN |
 | `finding-bad-recurrence` | CLOSED then NEW without terminal event hash | FORBIDDEN_TRANSITION |
@@ -2955,6 +3837,12 @@ Invalid input is never published as an authoritative final.
 | `progress-remediation-only` | same diff/evidence; OPEN→ADDRESSED with evidence | unresolved, resolved_any false; NO_PROGRESS |
 | `progress-across-recovery` | same previous/current snapshots separated by root | same result as one physical segment |
 | `progress-ceiling` | material progress true, correction_count 2 | CORRECTION_CEILING after progress calculation |
+| `progress-diff-only` | change only diff hash | NO_PROGRESS; resolved_any false |
+| `progress-evidence-only` | change only progress evidence hash | NO_PROGRESS; resolved_any false |
+| `progress-lifecycle-only` | OPEN→INDEPENDENTLY_VERIFIED; keep diff/evidence hashes | NO_PROGRESS |
+| `progress-severity-only` | raise current severity only | NO_PROGRESS; introduced_blocker when CRITICAL |
+| `progress-blocking-only` | false→true only | NO_PROGRESS; introduced_blocker |
+| `progress-verification-only` | ADDRESSED→INDEPENDENTLY_VERIFIED only | NO_PROGRESS without diff/evidence change |
 
 ### 48.11 Legacy fixture coverage under final constructors
 
@@ -2969,8 +3857,8 @@ They are regenerated only from §§48.1–48.9. Their subcases use these exact n
   {"available":false,"failure_reason":"COMMAND_FAILURE"}`; timeout uses the same exact three
   pointers at `/commands/13` with TIMEOUT;
 - invalid UTF-8: `raw("PYTEST","stdout","ff")`; malformed Git version:
-  `raw("GIT-VERSION","stdout",hex(UTF8("git ???\n")))`; ambiguous pytest uses exact two-line raw
-  bytes from historical §40.5;
+  `raw("GIT-VERSION","stdout","676974203f3f3f0a")`; ambiguous pytest uses
+  `raw("PYTEST","stdout","312070617373656420696e20302e3031730a312070617373656420696e20302e3031730a")`;
 - REVIEW missing binding: `remove /result/criterion_evidence/0`; same principal:
   `replace /reviewer_execution/grant/principal_id "principal-executor"`; inherited context:
   `add /reviewer_execution/grant/prior_context_id "ctx-old"`;
@@ -2984,8 +3872,13 @@ They are regenerated only from §§48.1–48.9. Their subcases use these exact n
 - partial uses exactly `cf(record)[:len(cf(record))//2]` at attempt zero;
 - redaction raw input is UTF-8 `criterion=abc token='x y'` and exact persisted replacement
   `criterion=abc token='<REDACTED>'`;
-- conditional/dynamic source bytes remain the literal historical §40.5 strings; computed dynamic
-  target remains awaiting human; and
+- conditional source bytes are
+  `6966207379732e706c6174666f726d3d3d2778273a20696d706f727420666f7267652e610a696620545950455f434845434b494e473a20696d706f727420666f7267652e620a`;
+  literal dynamic bytes are
+  `696d706f72746c69622e696d706f72745f6d6f64756c652827666f7267652e6127293b2073756270726f636573732e72756e285b7379732e65786563757461626c652c27666f7267652f622e7079275d290a`;
+  computed dynamic bytes are
+  `696d706f72746c69622e696d706f72745f6d6f64756c65286e616d65290a` and the target remains awaiting
+  human; and
 - hidden surface replaces `/payload/inventory/counts/schema_surfaces` with 6; correction/no-progress/
   ceiling/closure cases use §§47–48, never the withdrawn hashes.
 
@@ -3016,11 +3909,14 @@ the independence test.
 
 | Chain | Required final proof |
 | --- | --- |
-| A — canonical bytes → hash → fixtures | For one record from each surface, oracle computes CJ, CF, domain preimage, record hash and file hash; schema/model round-trip reproduces CF; no LF enters H |
-| B — intent → obstruction → discovery | Non-reconstructable target is staged and intent-committed; later consumer derives slot/key/UUID solely from active gate, validates root and needs no actor memory |
-| C — decision obstruction → successor → resolution | One decision identity remains pending, binding generation increments, latest exact locator resolves from origin traversal, orphan/old records cannot satisfy |
-| D — finding evolution → PASS | Valid remediation without independent absence leaves ADDRESSED_AWAITING_REVIEW unresolved; empty later review cannot PASS |
-| E — finding evolution → no-progress | Same ordered events produce identical current severity/blocking/state, ledger hash, introduced/recurrence flags and result across physical recovery |
+| A — requirement → pending card → resolution → application | Pending and resolution are distinct immutable HumanDecisionRecords; only an exact DecisionApplication in GateRecord changes state |
+| B — obstruction → recovery → rebinding → resolution | One semantic identity survives pending/resolution obstruction and recovery-N; generations are contiguous and conflicting answers fail closed |
+| C — offline authority → lineage → accepted resolution | MANIFEST legally carries bootstrap requirement/binding/application; the common resolver rejects pending-only, orphan, stale or unapplied records |
+| D — review → GateRecord event → remediation → restart | CONTROL deltas and checkpoints reconstruct byte-identical current state; remediation is evidence-backed but remains unverified |
+| E — human downgrade → reviewer escalation → current state | A human reclassification starts a severity epoch; a later higher reviewer observation escalates deterministically while a lower one cannot downgrade |
+| F — current finding state → PASS | OPEN or ADDRESSED_AWAITING_REVIEW blocker denies PASS; only independent absence produces INDEPENDENTLY_VERIFIED and closure remains human-only |
+| G — current state → no-progress → ceiling | Logical-lineage fingerprints and correction count survive recovery; progress is computed before the unchanged 2-correction ceiling |
+| H — final models → independent oracle | Five surface constructors, embedded decision/finding objects, VFS operations, mutations and expected hashes instantiate §§44–47 without production imports |
 
 Failure of any link is `HASH_MISMATCH`, `AUTHORITY_CONFLICT`, `MISSING_EVIDENCE` or
 `FORBIDDEN_TRANSITION` as specified; no chain may synthesize PASS.
@@ -3031,11 +3927,11 @@ Exactly five persisted/external surfaces remain:
 
 | Surface | Producer → consumer | Final authority and lifecycle |
 | --- | --- | --- |
-| GateRecord | human/core/inventory/collector/recovery → all | sole state authority; includes PUBLICATION_INTENT and RECOVERY_ROOT; append-only CF/H; full lineage validation |
+| GateRecord | human/core/inventory/collector/recovery → all | sole state authority; includes PUBLICATION_INTENT, RECOVERY_ROOT, DecisionBinding/Application and embedded FindingEvent/RemediationEvidence; append-only CF/H; full lineage validation |
 | ExecutorExchange | core grant + executor result + I/O observation → collector/core | execution result only; committed intent before non-reconstructable final; no PASS/closure |
 | RunRecord | collector → reviewer/core | Git/command/runtime/tool authority; committed intent; 17 commands; raw HB plus surface H |
 | ReviewerExchange | core packet + reviewer result + I/O observation → core/human | semantic/finding event authority; committed intent; no correction/closure |
-| HumanDecisionRecord | human boundary/core pending representation → core/human | semantic human decision authority; physical binding/rebinding; never state authority |
+| HumanDecisionRecord | human boundary/core pending representation → core/human | separate immutable PendingDecisionCard, DecisionResolution and conflict/closure cards; never state authority without GateRecord application |
 
 Every surface uses exact model fields incorporated from §§35 and replaced by §§44–47, CF persisted
 bytes, §44 hashes, receipt/pre-persist validation, create-only publication, deterministic ordering,
@@ -3057,6 +3953,10 @@ The following final results are mandatory:
 - recovery depth greater than one → same logical lineage, inherited counts/ledger/progress;
 - decision obstruction → same identity, generation+1; orphan/inactive/wrong-hash record rejected;
 - accepted old-segment resolution → effective only through explicit active binding/application;
+- pending-only state returns PENDING; a separately persisted accepted resolution remains evidence until
+  application; two different semantic answers fail AUTHORITY_CONFLICT without filesystem tie-break;
+- resolution-path obstruction retains one byte-identical semantic answer through intent/recovery and
+  rejects a second answer;
 - severity escalation/blocking latch → conservative current state; downgrade/clear needs HumanDecision;
 - remediation without complete evidence → remains OPEN; correction self-verification forbidden;
 - recurrence → deterministic occurrence; empty review never erases; malformed history blocks;
@@ -3072,7 +3972,7 @@ hash, recovery locator, decision lookup, finding evolution and fixture statement
 force. Sections 44–48 explicitly incorporate only named unchanged structures, parser rules and raw
 fixture inputs. No competing normative answer remains.
 
-## 50. Final budget, scope and CORR-012 state
+## 50. Final budget, scope and CORR-013 state
 
 The corrected design retains four new production modules plus unchanged `forge/__init__.py`
 attribution, one executor adapter, one reviewer adapter, five schema surfaces and zero new dependency.
@@ -3082,12 +3982,13 @@ decision binding and finding derivation refine responsibilities already allocate
 they add no module or surface. Implementation inventory must continuously prove the limit and stop
 `BUDGET AUTHORITY REQUIRED` on contrary concrete evidence. `EB006-FR-07` is not reopened.
 
-Only EB-006 and necessary documentation index/project-memory text may change in CORR-012. Runtime,
+Only EB-006 and necessary documentation index/project-memory text may change in CORR-013. Runtime,
 tests, schemas, committed fixture implementation, dependencies, versions, Audio Recorder,
 FAL-002 specification, FAL-001 and unrelated artifacts remain unchanged.
 
-`CORR-012-01` through `CORR-012-05` and `EB006-IR4-01` through `EB006-IR4-05` are each
-`ADDRESSED — AWAITING INDEPENDENT REVIEW`. No finding is independently verified, closed, accepted or
-PASS. FAL-002 remains `NOT AUTHORIZED`; FAL-001 remains permanently `TERMINATED BLOCKED`, unaccepted
-and unclosed, correction count 2/2. The only next gate is a fresh independent read-only
-Standard-Assurance Review IR5 against the dedicated correction commit.
+All four objectives `CORR-013-01` through `CORR-013-04`, mapped respectively to `EB006-IR5-01`
+through `EB006-IR5-04`, are `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only the correction
+agent's remediation claim: no IR5 finding is independently verified, closed, accepted or PASS.
+FAL-002 remains `NOT AUTHORIZED`; no runtime implementation occurred. FAL-001 remains permanently
+`TERMINATED BLOCKED`, unaccepted and unclosed, correction count 2/2. The only next gate is a fresh
+independent read-only Standard-Assurance Review IR6 against the dedicated CORR-013 commit.

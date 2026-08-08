@@ -11,8 +11,9 @@ correction CORR-012-01/EB006-IR4-01 and publication-intent/recovery-discovery co
 CORR-012-03/EB006-IR4-03, without closing either finding. It did not verify CORR-012-02,
 CORR-012-04 or CORR-012-05 and identified four open blocking residual findings,
 `EB006-IR5-01` through `EB006-IR5-04`. `HD-FAL-016` now authorizes one bounded coherent
-`CORR-013-01`–`CORR-013-04` EB-006 documentation correction campaign. The campaign has not started;
-this decision corrected, verified and closed no finding. FAL-002 remains `NOT AUTHORIZED` under the
+`CORR-013-01`–`CORR-013-04` EB-006 documentation correction campaign. The campaign is complete as a
+correction-agent claim: all four objectives are `ADDRESSED — AWAITING INDEPENDENT REVIEW`, and no
+IR5 finding was independently verified or closed. FAL-002 remains `NOT AUTHORIZED` under the
 unchanged 1,660 expected / 1,800 maximum LOC envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
@@ -28,10 +29,9 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Execute the complete `HD-FAL-016`-authorized bounded `CORR-013-01`–`CORR-013-04` EB-006
-documentation correction in one separate commit, then conduct fresh independent read-only
-Standard-Assurance Review IR6. Do not implement FAL-002. Manual Digital Album Authoring and Export
-remains unstarted and unauthorized.
+Conduct fresh independent read-only Standard-Assurance Review IR6 of the dedicated completed
+`CORR-013-01`–`CORR-013-04` documentation correction commit. Do not implement FAL-002. Manual
+Digital Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -174,8 +174,11 @@ remains unstarted and unauthorized.
   CORR-012-01/IR4-01 and CORR-012-03/IR4-03 corrections are verified but not closed, while four open
   blocking residual findings `EB006-IR5-01`–`EB006-IR5-04` remain
 - accepted `HD-FAL-016` authorization for one bounded coherent `CORR-013-01`–`CORR-013-04` EB-006
-  documentation correction campaign; the correction has not started and implementation remains
-  unauthorized
+  documentation correction campaign
+- completed the coherent CORR-013 EB-006 documentation correction: separate immutable pending and
+  resolution records with GateRecord applications, CONTROL-carried finding-event deltas and restart
+  checkpoints, deterministic severity epochs/blocking fold, and an executable independent oracle;
+  all four claims await IR6 and implementation remains unauthorized
 
 ## What Does Not Exist
 
@@ -309,8 +312,7 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Execute the complete bounded `CORR-013-01`–`CORR-013-04` EB-006 documentation correction in one
-   separate commit using only the HD-FAL-016 change surface.
-2. Conduct fresh independent read-only Standard-Assurance Review IR6 after that correction commit.
-3. Keep FAL-002 implementation `NOT AUTHORIZED`, all four IR5 findings open pending correction and
+1. Conduct fresh independent read-only Standard-Assurance Review IR6 of the dedicated CORR-013
+   correction commit.
+2. Keep FAL-002 implementation `NOT AUTHORIZED`, all four IR5 findings unverified/unclosed pending
    IR6, FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.
