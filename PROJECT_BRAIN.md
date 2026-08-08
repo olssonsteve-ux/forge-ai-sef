@@ -94,6 +94,10 @@ Forge may eventually include:
   21–27 are the implementation-complete refinements for boundary models, state transitions,
   fixtures, adapters, reviewer separation, collectors, recovery, budget and control coverage. All
   ten findings await fresh independent review; no implementation authority follows.
+- Treat the latest independent review as superseding that completeness claim: it returned `NOT READY
+  FOR IMPLEMENTATION AUTHORIZATION` with `EB006-IR2-01`–`EB006-IR2-07`. `HD-FAL-010` authorizes only
+  their bounded documentation correction. It cannot change the FAL-002 specification, 1,800-LOC
+  ceiling, dependencies or implementation state and must stop on higher-order authority needs.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

@@ -5,11 +5,10 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-The `HD-FAL-008`/`HD-FAL-009` bounded EB-006 documentation correction is complete. The brief now
-specifies canonical boundary fields, exhaustive transitions, literal fixture contracts, adapter and
-reviewer-separation lifecycle, create-only recovery, exact collectors, end-to-end controls and the
-1,660 expected / 1,800 maximum LOC envelope. All ten findings are only `ADDRESSED — AWAITING
-INDEPENDENT REVIEW`; none is verified or closed. FAL-002 implementation is `NOT AUTHORIZED`.
+The latest independent EB-006 review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION` and seven
+new findings `EB006-IR2-01`–`EB006-IR2-07`. `HD-FAL-010` authorizes only a second bounded residual
+documentation correction; it closes no finding and does not authorize implementation. FAL-002
+remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -24,10 +23,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct a fresh independent read-only Standard-Assurance review with adversarial instructions of the
-fully corrected EB-006 under `HD-FAL-008` and `HD-FAL-009`.
-Do not implement FAL-002 without a ready review result and separate explicit Implementation
-Authorization. Manual Digital Album Authoring and Export remains unstarted.
+Perform only the second bounded residual EB-006 documentation correction authorized by `HD-FAL-010`,
+then conduct a fresh independent read-only Standard-Assurance review. Stop for higher-order authority
+if specification, recovery architecture or budget must change. FAL-002 implementation and Manual
+Digital Album Authoring and Export remain unstarted.
 
 ## What Exists
 
@@ -144,6 +143,7 @@ Authorization. Manual Digital Album Authoring and Export remains unstarted.
 - `HD-FAL-009` reconciliation to 1,660 expected / 1,800 maximum new FAL-002 production LOC
 - bounded `EB-006` implementation plan returned for and completed through documentation correction
 - completed bounded EB-006 documentation correction awaiting fresh independent review
+- `HD-FAL-010` authorization for a second bounded EB-006 residual documentation correction only
 
 ## What Does Not Exist
 

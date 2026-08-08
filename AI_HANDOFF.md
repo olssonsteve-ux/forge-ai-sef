@@ -13,10 +13,10 @@ Forge's motto is: Build software with intention.
 FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
 correct, accept, close or restart it. The FAL-002 specification is approved for Implementation
 Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. The latest independent EB-006
-review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION`. The bounded `HD-FAL-008` correction is
-now documentation-complete using the `HD-FAL-009` envelope of approximately 1,660 expected and at
-most 1,800 new production LOC. All ten findings are only addressed and require fresh independent
-reassessment. Do not implement FAL-002 without a separate explicit Human Decision.
+review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION` with `EB006-IR2-01`–`EB006-IR2-07`.
+`HD-FAL-010` authorizes only their second bounded residual documentation correction under the
+unchanged `HD-FAL-009` envelope of approximately 1,660 expected and at most 1,800 new production LOC.
+All findings remain open. Do not implement FAL-002 without a separate explicit Human Decision.
 The album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
@@ -209,10 +209,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Conduct a fresh independent read-only Standard-Assurance review with adversarial instructions of the
-fully corrected EB-006. Do not change the FAL-002 specification, runtime, tests, schemas, fixtures,
-dependencies, versions or FAL-001. A review result is decision input only: implementation still
-requires a separate Human Decision naming the accepted brief and baseline.
+Perform only the second bounded EB-006 documentation correction authorized by `HD-FAL-010`. Do not
+change the FAL-002 specification, runtime, tests, schemas, fixtures, dependencies, versions or
+FAL-001; stop if authoritative recovery or provenance requires higher-order authority. Then conduct
+a fresh independent read-only Standard-Assurance review. Implementation still requires a separate
+Human Decision naming the accepted brief and baseline.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
