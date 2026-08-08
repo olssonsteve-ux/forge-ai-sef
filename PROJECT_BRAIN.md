@@ -82,6 +82,10 @@ Forge may eventually include:
 - Treat `EB006-R1`–`EB006-R3` as addressed under `HD-FAL-007` but not closed. The revised brief freezes
   storage, collector/parser, adapter, schema/fixture, recovery and criterion-evidence contracts and
   must receive a new independent review before Implementation Authorization can be considered.
+- Treat the latest independent EB-006 verdict as `NOT READY FOR IMPLEMENTATION AUTHORIZATION`.
+  `HD-FAL-008` authorizes documentation-only correction of `EB006-FR-01`–`EB006-FR-07`; it does not
+  close or verify those findings or `EB006-R1`–`EB006-R3`. Stop if the correction requires changed
+  specification, scope, criteria, authority, budget, dependencies or implementation experiments.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

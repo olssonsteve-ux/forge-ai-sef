@@ -5,9 +5,10 @@
 FAL-001 has final disposition `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. It remains
 blocked, unaccepted and unclosed with correction count 2/2 and its complete finding/review history.
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
-Implementation Planning is documented in revised `EB-006`, which remains `AWAITING HUMAN REVIEW`.
-Findings `EB006-R1`–`EB006-R3` are addressed under `HD-FAL-007` and await independent review; they
-are not self-closed. Implementation is not authorized. No release or Audio Recorder work was authorized.
+The independent EB-006 review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION`. `HD-FAL-008`
+authorizes one further bounded documentation correction of `EB006-FR-01`–`EB006-FR-07`; correction
+has not yet begun. `EB006-R1`–`EB006-R3` remain only partially addressed, and no finding is closed or
+verified. FAL-002 implementation is `NOT AUTHORIZED`. No release or Audio Recorder work was authorized.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -22,9 +23,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Conduct a fresh read-only Standard-Assurance review with adversarial instructions of revised
-`EB-006`. Do not implement FAL-002 without an accepted brief and a separate explicit Implementation
-Authorization decision. Manual Digital Album Authoring and Export remains unstarted.
+Perform only the separately bounded EB-006 documentation correction authorized by `HD-FAL-008`,
+then conduct a fresh independent read-only Standard-Assurance review with adversarial instructions.
+Do not implement FAL-002 without a ready review result and separate explicit Implementation
+Authorization. Manual Digital Album Authoring and Export remains unstarted.
 
 ## What Exists
 
@@ -137,7 +139,8 @@ Authorization decision. Manual Digital Album Authoring and Export remains unstar
 - closed EB-005 Engineering Brief and CS-002.3 Capability Slice
 - human-approved FAL-002 specification with all `FAL2-HR-001`–`FAL2-HR-004` findings closed
 - `HD-FAL-006` authorization for FAL-002 Implementation Planning only
-- bounded `EB-006` implementation plan awaiting human review; implementation unauthorized
+- `HD-FAL-008` authorization for bounded EB-006 documentation correction only
+- bounded `EB-006` implementation plan returned for correction; implementation unauthorized
 
 ## What Does Not Exist
 

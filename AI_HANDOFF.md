@@ -10,11 +10,12 @@ Forge's motto is: Build software with intention.
 
 ## Current Repository State
 
-FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`. Never correct, accept, close or
-restart it. The FAL-002 specification is approved for Implementation Planning under `HD-FAL-006`;
-all four specification findings are closed. Revised `EB-006` is `AWAITING HUMAN REVIEW`;
-`EB006-R1`–`EB006-R3` are addressed under `HD-FAL-007` but await independent review. Do not implement
-FAL-002 without accepted brief review and a separate explicit Implementation Authorization decision.
+FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
+correct, accept, close or restart it. The FAL-002 specification is approved for Implementation
+Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. The latest independent EB-006
+review returned `NOT READY FOR IMPLEMENTATION AUTHORIZATION`; `HD-FAL-008` authorizes only bounded
+documentation correction of `EB006-FR-01`–`EB006-FR-07`. All ten EB findings require fresh
+independent reassessment. Do not implement FAL-002 without a separate explicit Human Decision.
 The album capability remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
@@ -207,10 +208,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Conduct a fresh read-only Standard-Assurance review with adversarial instructions of revised
-`EB-006` (`docs/engineering/EB-006-Implement-FAL-002-Standard-Assurance-Loop.md`). A review result is
-decision input only: do not start implementation until a separate human decision explicitly
-authorizes it and names the accepted brief and baseline.
+Perform only the bounded EB-006 documentation correction authorized by `HD-FAL-008`; do not change
+the FAL-002 specification, runtime, tests, schemas, fixtures, dependencies, versions or FAL-001.
+After correction and verification, conduct a fresh independent read-only Standard-Assurance review
+with adversarial instructions. A review result is decision input only: implementation still requires
+a separate Human Decision naming the accepted brief and baseline.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
