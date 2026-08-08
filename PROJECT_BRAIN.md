@@ -108,6 +108,11 @@ Forge may eventually include:
   path cannot record authoritative fail-closed state under the current single-series contract and
   total conflict-card recovery depends on that choice. Keep the 1,660 expected / 1,800 maximum LOC
   envelope unchanged and FAL-002 `NOT AUTHORIZED`.
+- Treat `HD-FAL-012` as the binding recovery/state architecture: deterministic successor physical
+  series segments form one logical append-only lineage; a `RECOVERY_ROOT` GateRecord is the sole
+  authority transition; HumanDecision conflict cards explain/resolve but never establish state;
+  discovery is derived and pointer-free. The five surfaces and budget remain unchanged. IR3-04 and
+  IR3-05 remain open, and CORR-011 requires a separate Human Decision.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

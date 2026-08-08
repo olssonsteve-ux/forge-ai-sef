@@ -7,11 +7,12 @@ blocked, unaccepted and unclosed with correction count 2/2 and its complete find
 FAL-002 Standard Assurance Bounded Engineering Loop specification is approved under `HD-FAL-006`.
 The fresh independent IR3 review of the `HD-FAL-010` correction returned
 `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with eight blocking findings,
-`EB006-IR3-01` through `EB006-IR3-08`. `HD-FAL-011` accepts that disposition and requires a separate
-recovery/state architecture decision because occupied or invalid canonical gate/card paths cannot
-obtain a total authoritative state under the current single-series contract. No CORR-011 objective
-is authorized. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum
-LOC envelope.
+`EB006-IR3-01` through `EB006-IR3-08`. `HD-FAL-012` resolves the architecture authority gap by
+selecting deterministic successor state-series segments forming one logical authoritative lineage.
+Recovery remains within the existing GateRecord and HumanDecisionRecord surfaces, with no mutable
+global pointer or new schema surface. IR3-04 and IR3-05 remain open, and no CORR-011 objective is
+authorized. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC
+envelope.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -26,9 +27,9 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Create a separate bounded FAL-002 recovery/state architecture decision resolving `EB006-IR3-04` and
-the dependent publication portion of `EB006-IR3-05`. Do not correct EB-006 or implement FAL-002.
-Manual Digital Album Authoring and Export remains unstarted and unauthorized.
+Create a separate Human Decision deciding whether to authorize one coherent bounded CORR-011
+documentation correction under `HD-FAL-012`. Do not correct EB-006 or implement FAL-002 without
+that decision. Manual Digital Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -150,6 +151,8 @@ Manual Digital Album Authoring and Export remains unstarted and unauthorized.
 - independent IR3 result `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED` with eight blocking
   findings, `EB006-IR3-01` through `EB006-IR3-08`
 - accepted `HD-FAL-011` recovery-architecture gate; no CORR-011 or FAL-002 implementation authority
+- accepted `HD-FAL-012` deterministic successor-series recovery architecture; IR3-04/IR3-05 remain
+  open and CORR-011 remains unauthorized
 
 ## What Does Not Exist
 
