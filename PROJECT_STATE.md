@@ -12,8 +12,9 @@ CORR-013-01/EB006-IR5-01 and recorded two open blocking residual findings, `EB00
 `EB006-IR6-02`. Independent IR7 of CORR-014 returned
 `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`: `CORR-014-01`/`EB006-IR6-01` is independently
 `VERIFIED`, while `CORR-014-02`/`EB006-IR6-02` is `NOT VERIFIED` and remains open and blocking. IR7
-created no new finding. `HD-FAL-018` authorizes exactly one final bounded `CORR-015-01` oracle
-documentation correction mapped to `EB006-IR6-02`; it is `AUTHORIZED — NOT STARTED`. No finding is
+created no new finding. `HD-FAL-018` authorized exactly one final bounded `CORR-015-01` oracle
+documentation correction mapped to `EB006-IR6-02`. That correction is documentation-complete and
+`ADDRESSED — AWAITING INDEPENDENT REVIEW`; `EB006-IR6-02` remains open and blocking. No finding is
 closed. FAL-002 remains `NOT AUTHORIZED` under the unchanged 1,660 expected / 1,800 maximum LOC
 envelope.
 
@@ -30,10 +31,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Execute the single `HD-FAL-018`-authorized bounded `CORR-015-01` EB-006 fixture-oracle documentation
-correction in a separate commit, followed by one fresh independent read-only Standard-Assurance
-Review. Do not implement FAL-002. Manual Digital Album Authoring and Export remains unstarted and
-unauthorized.
+Conduct one fresh independent read-only Standard-Assurance Review of the dedicated `CORR-015-01`
+correction baseline. Preserve `EB006-IR6-01` as independently verified but not closed and keep
+`EB006-IR6-02` open pending that review. Do not implement FAL-002. Manual Digital Album Authoring
+and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -198,6 +199,11 @@ unauthorized.
 - accepted `HD-FAL-018` authorization for exactly one final `CORR-015-01` documentation correction
   mapped to `EB006-IR6-02`; verified decision, recovery, finding and hash contracts remain frozen,
   and no finding closure or FAL-002 implementation authority is created
+- completed the bounded `CORR-015-01` oracle correction directly in final EB-006 §48: active-series
+  propagation now supports recovery-N, successor RunRecord/ReviewerExchange/FindingEvent bindings
+  use the actual lineage, DecisionRequirement REHASH is inner-to-outer, NO_REHASH fails on stale
+  nested hashes, and create-only VFS behavior is executable. Status is only
+  `ADDRESSED — AWAITING INDEPENDENT REVIEW`; `EB006-IR6-02` remains open
 
 ## What Does Not Exist
 
@@ -331,8 +337,7 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Execute the single bounded `CORR-015-01` EB-006 fixture-oracle documentation correction in a
-   separate commit using only the `HD-FAL-018` change surface.
-2. Conduct one fresh independent read-only Standard-Assurance Review after that correction commit.
-3. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending correction and review,
+1. Conduct one fresh independent read-only Standard-Assurance Review of the dedicated
+   `CORR-015-01` correction commit.
+2. Keep FAL-002 implementation `NOT AUTHORIZED`, `EB006-IR6-02` open pending that review,
    FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.

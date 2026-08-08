@@ -9,7 +9,7 @@ Owner: Chief Architect
 Decision basis: `HD-FAL-006`
 
 Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`, `HD-FAL-012`,
-`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`, `HD-FAL-017`
+`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`, `HD-FAL-017`, `HD-FAL-018`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -48,7 +48,7 @@ Residual finding status:
 | `EB006-IR5-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR5-03` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR5-04` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
-| `EB006-IR6-01` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR6-01` | `INDEPENDENTLY VERIFIED — NOT CLOSED` |
 | `EB006-IR6-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 1. Purpose and gate
@@ -1988,6 +1988,14 @@ inseparable residual documentation correction; these rows are remediation claims
 | `CORR-014-01` | `EB006-IR6-01` | `HD-FAL-012`, `HD-FAL-014`, `HD-FAL-017` | §§44.6, 46, 48–49 | stable DecisionRequirement-bound ResolutionSemanticInput, separate PresentationEvidence, physically relocatable DecisionResolution, current-lineage DecisionApplication and offline resolution; executable P0/P1 and R0/R1 scenarios | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `CORR-014-02` | `EB006-IR6-02` | `HD-FAL-017` | §§48–49 | explicit test-only OracleLineageState, predecessor-consuming CONTROL and RECOVERY_ROOT, actual-run review binding, executable JSON Pointer/hash/VFS operations and integrated chain/restart scenarios | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
+IR7 independently verified `CORR-014-01`/`EB006-IR6-01`, did not verify
+`CORR-014-02`/`EB006-IR6-02`, and created no new finding. `HD-FAL-018` authorizes only the following
+final residual oracle correction; it does not reopen the verified semantic-answer model:
+
+| Objective | Source | Authority | Final sections | Consolidated model and completion evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CORR-015-01` | `EB006-IR6-02` | `HD-FAL-018` | §§48–50 | explicit active-series propagation; executable recovery-N and successor run/review scenarios; topologically complete DecisionRequirement REHASH/NO_REHASH; create-only VFS and total row operations | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+
 ## 44. Final universal canonical bytes and hash contract
 
 ### 44.1 Canonical JSON value domain
@@ -2993,7 +3001,8 @@ def make_record(schema_id, record_id, series_id, created_at, fields):
           "decision_kind","status","owner","provenance","payload")}
     return surface_hashes(schema_id,payload_input,body)
 
-def gate(sequence,state,actor,event,variant_kind,variant,predecessor,count=0,series=ORIGIN):
+def gate(sequence,state,actor,event,variant_kind,variant,predecessor,count,series):
+    assert isinstance(series,str) and series
     assert (sequence == 0) == (predecessor is None)
     payload={"frozen_hash":FROZEN,"correction_count":count,
              "variant_kind":variant_kind,variant_kind.lower():copy.deepcopy(variant)}
@@ -3094,7 +3103,7 @@ def gate0():
       "reviewer_adapter_id":"forge/fal002_io.py#reviewer","decision_requirements":[req],
       "decision_bindings":[binding],"decision_applications":[application],
       "finding_checkpoint":empty,"offline_evidence":evidence}
-    return gate(0,"draft","human","INITIALIZE","MANIFEST",manifest,None)
+    return gate(0,"draft","human","INITIALIZE","MANIFEST",manifest,None,0,ORIGIN)
 
 def oracle_lineage_state():
     req,bnd,pending,resolution,application,evidence=offline_bundle()
@@ -3102,12 +3111,14 @@ def oracle_lineage_state():
     publish_record(fs,canonical_path("fal002.gate-record.v1",ORIGIN,origin["record_id"]),origin)
     publish_record(fs,bnd["pending_card_locator"],pending)
     publish_record(fs,application["resolution_locator"],resolution)
-    return {"origin_series_id":ORIGIN,"active_gate":origin,"gate_chain":[origin],"vfs":fs,
-      "run_records":[],"review_records":[],"decision_requirements":[req],
+    return {"origin_series_id":ORIGIN,"active_series_id":ORIGIN,
+      "active_gate":origin,"gate_chain":[origin],"vfs":fs,
+      "executor_records":[],"run_records":[],"review_records":[],"decision_requirements":[req],
       "decision_bindings":[bnd],"decision_applications":[application],
       "pending_records":[pending],"resolution_records":[resolution],"finding_events":[],
       "remediation_history":[],"finding_checkpoint":origin["payload"]["manifest"]["finding_checkpoint"],
       "max_global_event_ordinal":-1,"max_prior_ordinal":0,"correction_count":0,
+      "recovery_depth":0,"publication_slots":[],"offline_evidence":evidence,
       "no_progress_history":[],"frozen_hash":FROZEN,"scope_hash":SCOPE,
       "criteria_hash":CRITERIA,"command_policy_hash":POLICY,
       "allowed_paths_hash":h("fal002-json-content-v1",["forge/fal002.py"])}
@@ -3128,8 +3139,7 @@ def edge(target,kind,locator):
     value={"source":"forge/fal002.py","target":target,"kind":kind,"locator":locator}
     return {"edge_id":"E-"+h("fal002-json-content-v1",value)[:20],**value}
 
-def ready():
-    g0=gate0()[0]
+def inventory_value():
     edges=[edge("forge/__init__.py","PACKAGE_INIT","/package/forge"),
       edge("forge/fal002_inventory.py","IMPORT","/imports/0"),
       edge("forge/fal002_io.py","IMPORT","/imports/1"),
@@ -3148,7 +3158,7 @@ def ready():
           "roles":roles}
         if path!="forge/fal002.py": item["parent_edge"]=by_target[path]
         files.append(item)
-    inventory={"entrypoint":"forge/fal002.py","baseline_commit":HEAD,"python_version":"3.14",
+    return {"entrypoint":"forge/fal002.py","baseline_commit":HEAD,"python_version":"3.14",
       "files":files,"edges":edges,"exemptions":[],
       "counts":{"modules":5,"new_production_loc":1660,"executor_adapters":1,
                 "reviewer_adapters":1,"schema_surfaces":5},
@@ -3156,7 +3166,14 @@ def ready():
           "subprocess","sys","uuid"],"existing_third_party":[],"new_direct":[],
           "new_transitive":[],"manifest_hash":hb(b"pyproject")},
       "unresolved_targets":[],"disposition":"PASS"}
-    return gate(1,"ready","core","INVENTORY_COMPLETE","INVENTORY",inventory,g0["record_hash"])
+
+def ready(lineage):
+    predecessor=lineage["active_gate"]
+    assert lineage["active_series_id"]==predecessor["series_id"]
+    inventory=inventory_value()
+    return gate(predecessor["sequence"]+1,"ready","core","INVENTORY_COMPLETE","INVENTORY",
+      inventory,predecessor["record_hash"],lineage["correction_count"],
+      predecessor["series_id"])
 
 def executor_request(kind,count,ordinal):
     assert kind in ("INITIAL","CORRECTION") and 0 <= count <= 2
@@ -3170,17 +3187,17 @@ def executor_request(kind,count,ordinal):
 ### 48.6 Exact invocation, exchange and run constructors
 
 ```python
-def ids(ordinal):
+def ids(series,ordinal):
     o=f"{ordinal:04d}"
-    run="run-"+o+"-"+hashlib.sha256(f"{ORIGIN}:{o}:{FROZEN}".encode()).hexdigest()[:12]
+    run="run-"+o+"-"+hashlib.sha256(f"{series}:{o}:{FROZEN}".encode()).hexdigest()[:12]
     exe="exec-"+o+"-"+hashlib.sha256((run+":executor").encode()).hexdigest()[:12]
     rev="review-"+o+"-"+hashlib.sha256((run+":reviewer").encode()).hexdigest()[:12]
     return run,exe,rev
 
-def grant(role,input_record_id,input_hash,sequence):
+def grant(series,role,input_record_id,input_hash,sequence):
     principal="principal-executor" if role=="EXECUTOR" else "principal-reviewer"
     adapter="forge/fal002_io.py#executor" if role=="EXECUTOR" else "forge/fal002_io.py#reviewer"
-    value={"series_id":ORIGIN,"gate_sequence":sequence,"role":role,"principal_id":principal,
+    value={"series_id":series,"gate_sequence":sequence,"role":role,"principal_id":principal,
            "adapter_id":adapter,"input_hash":input_hash}
     return {"grant_id":h("fal002-invocation-grant-v1",value),"role":role,
       "principal_id":principal,"adapter_id":adapter,
@@ -3197,13 +3214,17 @@ def observed(role,g,input_hash,output_hash):
       "object_identity":ex[2],"started_at":ex[3],"ended_at":ex[4],"input_hash":input_hash,
       "output_hash":output_hash,"termination":"RETURNED"}
 
-def executor_exchange(ordinal=0):
-    run_id,execution_id,_=ids(ordinal); req=executor_request("INITIAL",0,ordinal)
+def executor_exchange(lineage,ordinal):
+    series=lineage["active_series_id"]; predecessor=lineage["active_gate"]
+    assert predecessor["series_id"]==series
+    run_id,execution_id,_=ids(series,ordinal)
+    kind="INITIAL" if ordinal==0 else "CORRECTION"
+    req=executor_request(kind,lineage["correction_count"],ordinal)
     result={"status":"COMPLETED","changed_paths":["forge/fal002.py"],
             "summary":"Bounded work completed."}
     ih=h("fal002-json-content-v1",req); oh=h("fal002-json-content-v1",result)
-    g=grant("EXECUTOR",execution_id,ih,2)
-    return make_record("fal002.executor-exchange.v1",execution_id,ORIGIN,t(100+ordinal),
+    g=grant(series,"EXECUTOR",execution_id,ih,predecessor["sequence"]+1)
+    return make_record("fal002.executor-exchange.v1",execution_id,series,t(100+ordinal),
       {"run_id":run_id,"ordinal":ordinal,"request":req,"result":result,
        "invocation":{"grant":g,"observed":observed("EXECUTOR",g,ih,oh)}})
 
@@ -3272,9 +3293,15 @@ def command(i,inventory):
       "stdout_text":stdout.decode(),"stderr_text":"","redaction_count":0,"parser_version":1,
       "parsed":parsed,"classification":"PASS"}
 
-def run(ordinal=0):
-    run_id,execution_id,_=ids(ordinal); inv=ready()[0]["payload"]["inventory"]
-    _,_,_,resolution,_,evidence=offline_bundle()
+def run(lineage,executor_record,ordinal):
+    series=lineage["active_series_id"]; predecessor=lineage["active_gate"]
+    assert predecessor["series_id"]==series==executor_record["series_id"]
+    run_id,execution_id,_=ids(series,ordinal); inv=inventory_value()
+    assert executor_record["record_id"]==execution_id and executor_record["run_id"]==run_id
+    evidence=lineage["offline_evidence"]
+    resolutions=[r for r in lineage["resolution_records"]
+      if r["record_hash"]==evidence["resolution_record_hash"]]
+    assert len(resolutions)==1; resolution=resolutions[0]
     runtime={"python_implementation":"CPython","python_version":"3.14.0",
       "python_executable":PY,"python_executable_sha256":hb(b"python-exe")}
     tools=[{"name":"git","version":"2.50.0","executable":GIT,
@@ -3285,7 +3312,7 @@ def run(ordinal=0):
        "executable_sha256":hb(b"python-exe"),"version_command_id":"PYTHON-VERSION"},
       {"name":"ruff","version":"0.12.0","executable":PY,
        "executable_sha256":hb(b"python-exe"),"version_command_id":"RUFF-VERSION"}]
-    return make_record("fal002.run-record.v1",run_id,ORIGIN,t(200+ordinal),
+    return make_record("fal002.run-record.v1",run_id,series,t(200+ordinal),
       {"execution_id":execution_id,"ordinal":ordinal,
        "repository":{"root":".","branch":"main","baseline_head":HEAD,"final_head":HEAD,
          "status":[],"changed_paths":[],"offline_evidence_id":evidence["evidence_id"],
@@ -3294,68 +3321,74 @@ def run(ordinal=0):
        "diff":{"redacted_text":"","sha256":hb(b""),"numstat":[]},
        "build":{"status":"not_available","reason":"packaging_forbidden"}})
 
-def execution_gate(ordinal=0,count=0):
-    predecessor=ready()[0]; run_id,execution_id,_=ids(ordinal)
-    request=executor_request("INITIAL" if ordinal==0 else "CORRECTION",count,ordinal)
+def execution_gate(lineage,executor_record,ordinal=0):
+    predecessor=lineage["active_gate"]; series=lineage["active_series_id"]
+    run_id,execution_id,_=ids(series,ordinal)
+    request=executor_record["request"]
     request_hash=h("fal002-json-content-v1",request)
     value={"execution_id":execution_id,"run_id":run_id,"ordinal":ordinal,
       "request_kind":request["request_kind"],"request":request,"request_hash":request_hash,
-      "invocation_grant":grant("EXECUTOR",predecessor["record_id"],request_hash,
+      "invocation_grant":grant(series,"EXECUTOR",predecessor["record_id"],request_hash,
         predecessor["sequence"]+1)}
     return gate(predecessor["sequence"]+1,"executing","core","START_EXECUTION",
-      "EXECUTION",value,predecessor["record_hash"],count)
+      "EXECUTION",value,predecessor["record_hash"],lineage["correction_count"],series)
 
-def evidence_gate(ordinal=0,count=0):
-    predecessor=execution_gate(ordinal,count)[0]; rr=run(ordinal)[0]
+def evidence_gate(lineage,rr):
+    predecessor=lineage["active_gate"]; series=lineage["active_series_id"]
+    assert rr["series_id"]==series
     value={"run_id":rr["record_id"],"run_record_hash":rr["record_hash"],
       "execution_id":rr["execution_id"],"command_ids":COMMAND_IDS,
       "evidence_hash":h("fal002-json-content-v1",
         {"run_record_id":rr["record_id"],"run_record_hash":rr["record_hash"]})}
     return gate(predecessor["sequence"]+1,"evidence_ready","collector","COLLECT_COMPLETE",
-      "EVIDENCE",value,predecessor["record_hash"],count)
+      "EVIDENCE",value,predecessor["record_hash"],lineage["correction_count"],series)
 
-def review_gate(ordinal=0,count=0):
-    predecessor=evidence_gate(ordinal,count)[0]; rr=run(ordinal)[0]
+def review_gate(lineage,rr):
+    predecessor=lineage["active_gate"]; series=lineage["active_series_id"]
+    assert rr["series_id"]==series
     packet={"frozen_hash":FROZEN,"run_record_id":rr["record_id"],
       "run_record_hash":rr["record_hash"],"criterion_ids":["FAL2-CC-01"],
       "evidence_index":[binding(rr)],"instructions_hash":hb(b"adversarial-review-v1")}
-    _,_,review_id=ids(ordinal); packet_hash=h("fal002-json-content-v1",packet)
-    value={"review_id":review_id,"run_id":rr["record_id"],"ordinal":ordinal,
+    _,_,review_id=ids(series,rr["ordinal"]); packet_hash=h("fal002-json-content-v1",packet)
+    value={"review_id":review_id,"run_id":rr["record_id"],"ordinal":rr["ordinal"],
       "packet":packet,"packet_hash":packet_hash,
-      "invocation_grant":grant("REVIEWER",rr["record_id"],packet_hash,
+      "invocation_grant":grant(series,"REVIEWER",rr["record_id"],packet_hash,
         predecessor["sequence"]+1)}
     return gate(predecessor["sequence"]+1,"reviewing","core","START_REVIEW",
-      "REVIEW",value,predecessor["record_hash"],count)
+      "REVIEW",value,predecessor["record_hash"],lineage["correction_count"],series)
 
-def checkpoint_gate(predecessor):
+def checkpoint_gate(lineage):
+    predecessor=lineage["active_gate"]; series=lineage["active_series_id"]
     value={"reason_code":"INTERRUPTED","source_record_ids":[predecessor["record_id"]],
       "source_hashes":[predecessor["record_hash"]],"interruption_id":"interrupt-0000",
       "resume_state":"ready"}
     return gate(predecessor["sequence"]+1,"awaiting_human","recovery","CHECKPOINT_CREATED",
-      "CHECKPOINT",value,predecessor["record_hash"],predecessor["payload"]["correction_count"])
+      "CHECKPOINT",value,predecessor["record_hash"],lineage["correction_count"],series)
 
-def eligibility_gate(ordinal=0):
-    predecessor=review_gate(ordinal)[0]; rv=review("PASS",[],ordinal)[0]
+def eligibility_gate(lineage,rv):
+    predecessor=lineage["active_gate"]; series=lineage["active_series_id"]
+    assert rv["series_id"]==series and rv["result"]["outcome"]=="PASS"
     value={"review_id":rv["record_id"],"review_hash":rv["record_hash"],
       "criterion_ids":["FAL2-CC-01"],"finding_ids":[],"eligible":True}
     return gate(predecessor["sequence"]+1,"accepted","core","REVIEW_PASS",
-      "ELIGIBILITY",value,predecessor["record_hash"],0)
+      "ELIGIBILITY",value,predecessor["record_hash"],lineage["correction_count"],series)
 
-def closure_bundle(ordinal=0):
-    eligible=eligibility_gate(ordinal)[0]; did="D-"+hb(b"fixture-closure")[:32]
-    decision=make_record("fal002.human-decision.v1",did+"-closure-b0000",ORIGIN,t(900),
+def closure_bundle(lineage,eligible,rv):
+    series=lineage["active_series_id"]; did="D-"+hb(b"fixture-closure")[:32]
+    assert eligible["series_id"]==series==rv["series_id"]
+    decision=make_record("fal002.human-decision.v1",did+"-closure-b0000",series,t(900),
       {"decision_identity":did,"binding_generation":0,"decision_kind":"CLOSURE",
        "status":"ACCEPTED","owner":"human-product-owner",
        "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
         "content_hash":hb(b"human-authority")},
        "payload":{"eligible_gate_id":eligible["record_id"],
-        "eligible_gate_hash":eligible["record_hash"],"review_id":ids(ordinal)[2],
-        "review_hash":review("PASS",[],ordinal)[0]["record_hash"],
+        "eligible_gate_hash":eligible["record_hash"],"review_id":rv["record_id"],
+        "review_hash":rv["record_hash"],
         "finding_ledger_hash":h("fal002-finding-ledger-v1",[])}})[0]
     value={"decision_id":decision["record_id"],"decision_hash":decision["record_hash"],
       "eligible_gate_id":eligible["record_id"],"eligible_gate_hash":eligible["record_hash"]}
     closed=gate(eligible["sequence"]+1,"accepted","human","HUMAN_CLOSURE",
-      "CLOSURE",value,eligible["record_hash"],0)
+      "CLOSURE",value,eligible["record_hash"],lineage["correction_count"],series)
     return decision,closed
 ```
 
@@ -3365,8 +3398,7 @@ The following code is the complete constructor and fold library. It has no deleg
 selected value; test cases may alter its results only through §48.9.
 
 ```python
-def binding(rr=None):
-    rr=run()[0] if rr is None else rr
+def binding(rr):
     value=rr["commands"][12]["parsed"]["schemas"][0]["sha256"]
     return {"criterion_id":"FAL2-CC-01","evidence_kind":"SCHEMA",
       "source_surface":"fal002.run-record.v1","source_record_id":rr["record_id"],
@@ -3385,9 +3417,11 @@ def finding_observation(severity="HIGH",blocking=True,observation="NEW"):
       "severity":severity,"blocking":blocking,"criterion_ids":["FAL2-CC-01"],
       "statement":"Required evidence is missing.","observation":observation}
 
-def review(outcome="CORRECTION_REQUIRED",observations=None,ordinal=0):
+def review(lineage,run_record,outcome="CORRECTION_REQUIRED",observations=None):
     observations=[finding_observation()] if observations is None else observations
-    rr=run(ordinal)[0]; run_id,_,review_id=ids(ordinal); eb=binding(rr)
+    series=lineage["active_series_id"]; rr=run_record; ordinal=rr["ordinal"]
+    assert rr["series_id"]==series==lineage["active_gate"]["series_id"]
+    run_id,_,review_id=ids(series,ordinal); eb=binding(rr)
     packet={"frozen_hash":FROZEN,"run_record_id":rr["record_id"],
       "run_record_hash":rr["record_hash"],"criterion_ids":["FAL2-CC-01"],
       "evidence_index":[eb],"instructions_hash":hb(b"adversarial-review-v1")}
@@ -3396,21 +3430,34 @@ def review(outcome="CORRECTION_REQUIRED",observations=None,ordinal=0):
       "semantic_rationale":[{"criterion_id":"FAL2-CC-01",
         "rationale":"The resolved schema hash supports exact model and schema consistency."}]}
     ih=h("fal002-json-content-v1",packet); oh=h("fal002-json-content-v1",result)
-    g=grant("REVIEWER",rr["record_id"],ih,4)
+    g=grant(series,"REVIEWER",rr["record_id"],ih,lineage["active_gate"]["sequence"]+1)
     execution={"grant":g,"observed":observed("REVIEWER",g,ih,oh),
       "fresh_context_verified":True,"read_only_packet_verified":True,
       "separation_checks":["MANIFEST_ROLE_DISTINCT","PRINCIPAL_DISTINCT",
        "ADAPTER_ENTRYPOINT_DISTINCT","GRANT_MATCH","CONTEXT_FRESH","PACKET_MINIMAL",
        "NO_WRITE_CALLBACK"]}
-    return make_record("fal002.reviewer-exchange.v1",review_id,ORIGIN,t(300+ordinal),
+    return make_record("fal002.reviewer-exchange.v1",review_id,series,t(300+ordinal),
       {"run_id":run_id,"ordinal":ordinal,"packet":packet,"result":result,
        "reviewer_execution":execution})
 
-def review_event(review_record,run_record,observation,event_ordinal=0,previous=None,
+def carry_surface(lineage,record):
+    series=lineage["active_series_id"]
+    assert record["series_id"]==series
+    key={"fal002.executor-exchange.v1":"executor_records",
+      "fal002.run-record.v1":"run_records",
+      "fal002.reviewer-exchange.v1":"review_records"}.get(record["schema_id"])
+    if key is None: raise OracleDefinitionError("NOT_A_CARRIED_EXCHANGE")
+    updated=copy.deepcopy(lineage); updated.setdefault(key,[]).append(copy.deepcopy(record))
+    publish_record(updated["vfs"],canonical_path(record["schema_id"],series,
+      record["record_id"]),record)
+    return updated
+
+def review_event(review_record,run_record,observation,event_ordinal,previous=None,
                  occurrence=0,recurs_after=None):
     assert review_record["run_id"]==run_record["record_id"]
     assert review_record["packet"]["run_record_id"]==run_record["record_id"]
     assert review_record["packet"]["run_record_hash"]==run_record["record_hash"]
+    assert review_record["series_id"]==run_record["series_id"]
     bindings=copy.deepcopy(review_record["result"]["criterion_evidence"])
     assert all(x["source_record_id"]==run_record["record_id"] for x in bindings)
     payload={"observation":observation["observation"],
@@ -3428,8 +3475,7 @@ def review_event(review_record,run_record,observation,event_ordinal=0,previous=N
     eh=h("fal002-finding-observation-v1",event)
     return {"event_id":"FE-"+eh[:20],**event,"event_hash":eh}
 
-def remediation(finding,rr=None):
-    rr=run()[0] if rr is None else rr
+def remediation(finding,rr):
     value={"finding_id":finding["finding_id"],"finding_key":finding["finding_key"],
       "occurrence":0,"correction_objective_id":"CORR-013-03",
       "authorization_decision_id":"HD-FAL-016",
@@ -3627,8 +3673,9 @@ def canonical_path(surface,series,record_id):
     name=(f"{int(record_id[5:]):08d}" if surface=="fal002.gate-record.v1" else record_id)
     return f".forge/fal002/series/{series}/{folder}/{name}.json"
 
-def slot(predecessor,target_surface,target_id,reconstruction):
-    value={"origin_series_id":ORIGIN,"predecessor_series_id":predecessor["series_id"],
+def slot(origin_series_id,predecessor,target_surface,target_id,reconstruction):
+    value={"origin_series_id":origin_series_id,
+      "predecessor_series_id":predecessor["series_id"],
       "predecessor_gate_id":predecessor["record_id"],
       "predecessor_gate_hash":predecessor["record_hash"],"target_surface":target_surface,
       "target_record_id":target_id,
@@ -3636,8 +3683,12 @@ def slot(predecessor,target_surface,target_id,reconstruction):
       "reconstruction":reconstruction}
     return {"slot_id":h("fal002-publication-slot-v1",value),**value}
 
-def publication_intent(predecessor,target_record,source_record,stage_attempt=0):
-    s=slot(predecessor,target_record["schema_id"],target_record["record_id"],"COMMITTED")
+def publication_intent(lineage,target_record,source_record,stage_attempt):
+    predecessor=lineage["active_gate"]; series=lineage["active_series_id"]
+    assert predecessor["series_id"]==series
+    assert target_record["series_id"]==series==source_record["series_id"]
+    s=slot(lineage["origin_series_id"],predecessor,target_record["schema_id"],
+      target_record["record_id"],"COMMITTED")
     value={"slot":s,"retained_state":predecessor["state"],
       "intended_record_hash":target_record["record_hash"],
       "intended_file_hash":hb(cf(target_record)),
@@ -3651,10 +3702,11 @@ def publication_intent(predecessor,target_record,source_record,stage_attempt=0):
     value["intent_commitment_hash"]=h("fal002-publication-intent-v1",value)
     return gate(predecessor["sequence"]+1,predecessor["state"],"core",
       "PUBLICATION_INTENT_COMMITTED","PUBLICATION_INTENT",value,
-      predecessor["record_hash"],predecessor["payload"]["correction_count"])
+      predecessor["record_hash"],lineage["correction_count"],series)
 
-def obstruction(predecessor,s,intent,target_record,observed=b"\x7b"):
-    value={"origin_series_id":ORIGIN,"predecessor_series_id":predecessor["series_id"],
+def obstruction(origin_series_id,predecessor,s,intent,target_record,observed=b"\x7b"):
+    value={"origin_series_id":origin_series_id,
+      "predecessor_series_id":predecessor["series_id"],
       "predecessor_gate_id":predecessor["record_id"],
       "predecessor_gate_hash":predecessor["record_hash"],"publication_slot":s,
       "intended_record_hash":target_record["record_hash"],
@@ -3666,8 +3718,9 @@ def obstruction(predecessor,s,intent,target_record,observed=b"\x7b"):
         value["intent_gate_hash"]=intent["record_hash"]
     return value
 
-def discovery(predecessor,s):
-    material={"origin_series_id":ORIGIN,"predecessor_series_id":predecessor["series_id"],
+def discovery(origin_series_id,predecessor,s):
+    material={"origin_series_id":origin_series_id,
+      "predecessor_series_id":predecessor["series_id"],
       "predecessor_gate_id":predecessor["record_id"],
       "predecessor_gate_hash":predecessor["record_hash"],
       "publication_slot":{"slot_id":s["slot_id"],"target_surface":s["target_surface"],
@@ -3743,11 +3796,13 @@ def resolution_for(requirement,bnd,pending,choice,rationale,application_ordinal=
 
 def relocate_resolution(requirement,binding0,pending0,resolution0,application0,series1):
     obstruction_hash=hb(b"resolution-path-obstruction")
-    binding1,pending1=rebound_bundle(requirement,series1,1,binding0,obstruction_hash)
+    generation=binding0["binding_generation"]+1
+    binding1,pending1=rebound_bundle(requirement,series1,generation,binding0,obstruction_hash)
     semantic=resolution0["payload"]["resolution_semantic_input"]
     presentation=resolution0["payload"]["presentation_evidence"]
     resolution1,application1=resolution_for(requirement,binding1,pending1,
-      semantic["selected_choice"],semantic["rationale"],1,application0,semantic,presentation)
+      semantic["selected_choice"],semantic["rationale"],
+      application0["application_ordinal"]+1,application0,semantic,presentation)
     assert pending0["record_hash"]!=pending1["record_hash"]
     assert resolution0["record_hash"]!=resolution1["record_hash"]
     assert resolution0["payload"]["resolution_semantic_hash"]== \
@@ -3772,7 +3827,8 @@ def relocate_offline_evidence(evidence0,binding1,pending1,resolution1,applicatio
     evidence1["evidence_id"]=h("fal002-offline-evidence-v1",evidence1)
     return evidence1
 
-def finding_decision_bundle(current,predecessor,domain,choice):
+def finding_decision_bundle(current,lineage,domain,choice):
+    predecessor=lineage["active_gate"]; origin_series_id=lineage["origin_series_id"]
     assert domain in ("FINDING_RECLASSIFICATION","FINDING_DISPOSITION")
     choices=(["SET_LOW_NONBLOCKING","SET_LOW_BLOCKING","SET_MEDIUM_NONBLOCKING",
       "SET_MEDIUM_BLOCKING","SET_HIGH_NONBLOCKING","SET_HIGH_BLOCKING",
@@ -3781,7 +3837,7 @@ def finding_decision_bundle(current,predecessor,domain,choice):
     assert choice in choices
     semantic={"domain":domain,"question":"What is the authorized finding disposition?",
       "allowed_choices":choices,
-      "original_target":{"target_kind":"GATE","origin_series_id":ORIGIN,
+      "original_target":{"target_kind":"GATE","origin_series_id":origin_series_id,
        "target_record_id":predecessor["record_id"],
        "target_semantic_hash":predecessor["record_hash"]},
       "semantic_sources":[{"authority":"CANONICAL_MODEL",
@@ -3799,10 +3855,11 @@ def finding_decision_bundle(current,predecessor,domain,choice):
       "Human authority selected the recorded finding disposition.")
     return req,bnd,pending,resolution,application
 
-def conflict_bundle(predecessor):
+def conflict_bundle(lineage):
+    predecessor=lineage["active_gate"]; origin_series_id=lineage["origin_series_id"]
     semantic={"domain":"AUTHORITY_CONFLICT","question":"Which recorded source governs?",
       "allowed_choices":["SELECT_SOURCE_A","SELECT_SOURCE_B","ABANDON_SERIES"],
-      "original_target":{"target_kind":"GATE","origin_series_id":ORIGIN,
+      "original_target":{"target_kind":"GATE","origin_series_id":origin_series_id,
        "target_record_id":predecessor["record_id"],
        "target_semantic_hash":predecessor["record_hash"]},
       "semantic_sources":[
@@ -3820,11 +3877,11 @@ def conflict_bundle(predecessor):
     bnd,pending=initial_binding(req,predecessor["series_id"])
     return req,bnd,pending
 
-def recovery_requirement(predecessor,obs,successor):
+def recovery_requirement(origin_series_id,predecessor,obs,successor):
     semantic={"domain":"RECOVERY",
       "question":"May this logical lineage resume after the recorded obstruction?",
       "allowed_choices":["AUTHORIZE_RECOVERY_RESUME","ABANDON_LINEAGE"],
-      "original_target":{"target_kind":"RECOVERY_ROOT","origin_series_id":ORIGIN,
+      "original_target":{"target_kind":"RECOVERY_ROOT","origin_series_id":origin_series_id,
        "target_record_id":"gate-00000000",
        "target_semantic_hash":h("fal002-recovery-condition-v1",obs)},
       "semantic_sources":[
@@ -3856,19 +3913,27 @@ def initial_binding(requirement,series):
         "binding_key":key,"semantic_input":requirement["semantic_input"]}})[0]
     return {**base,"pending_card_record_hash":pending["record_hash"],"binding_key":key},pending
 
-def recovery_root(lineage,target_record,n=0):
+def recovery_root(lineage,target_record,n):
     prior=copy.deepcopy(lineage); predecessor=prior["active_gate"]
-    s=slot(predecessor,target_record["schema_id"],target_record["record_id"],"COMMITTED")
-    intent=publication_intent(predecessor,target_record,target_record)[0]
+    assert predecessor["series_id"]==prior["active_series_id"]==target_record["series_id"]
+    origin_series_id=prior["origin_series_id"]
+    s=slot(origin_series_id,predecessor,target_record["schema_id"],
+      target_record["record_id"],"COMMITTED")
+    intent=publication_intent(prior,target_record,target_record,0)[0]
     write_bytes(prior["vfs"],host_path(intent["payload"]["publication_intent"]["stage_locator"]),
       cf(target_record))
     publish_record(prior["vfs"],canonical_path("fal002.gate-record.v1",
       intent["series_id"],intent["record_id"]),intent)
     write_bytes(prior["vfs"],host_path(s["target_path"]),b"\x7b")
-    obs=obstruction(intent,s,intent,target_record,b"\x7b")
-    material,key=discovery(intent,s); successor=successor_id(key,n)
-    req=recovery_requirement(intent,obs,successor); bnd,pending=initial_binding(req,successor)
-    root={"origin_series_id":ORIGIN,"predecessor_series_id":intent["series_id"],
+    obs=obstruction(origin_series_id,intent,s,intent,target_record,b"\x7b")
+    material,key=discovery(origin_series_id,intent,s); successor=successor_id(key,n)
+    for lower in range(n):
+        lower_path=host_path(canonical_path("fal002.gate-record.v1",
+          successor_id(key,lower),"gate-00000000"))
+        assert lower_path in prior["vfs"]["regular"] or lower_path in prior["vfs"]["nonregular"]
+    req=recovery_requirement(origin_series_id,intent,obs,successor)
+    bnd,pending=initial_binding(req,successor)
+    root={"origin_series_id":origin_series_id,"predecessor_series_id":intent["series_id"],
       "predecessor_gate_id":intent["record_id"],"predecessor_gate_hash":intent["record_hash"],
       "publication_slot":s,"recovery_discovery_material":material,
       "recovery_discovery_key":key,"obstruction":obs,
@@ -3889,8 +3954,10 @@ def recovery_root(lineage,target_record,n=0):
     record=gate(0,"awaiting_human","recovery","RECOVERY_SUCCESSOR","RECOVERY_ROOT",root,
       None,prior["correction_count"],successor)[0]
     updated=copy.deepcopy(prior); updated["active_gate"]=record
+    updated["active_series_id"]=successor; updated["recovery_depth"]+=1
     updated["gate_chain"].extend([intent,record]); updated["decision_requirements"].append(req)
     updated["decision_bindings"].append(bnd); updated["pending_records"].append(pending)
+    updated["publication_slots"].append(copy.deepcopy(s))
     publish_record(updated["vfs"],canonical_path("fal002.gate-record.v1",successor,
       record["record_id"]),record)
     publish_record(updated["vfs"],bnd["pending_card_locator"],pending)
@@ -3973,6 +4040,41 @@ def remove(value,pointer):
     else: raise OracleDefinitionError("NON_CONTAINER_PARENT")
     return result
 
+DERIVED_DEPENDENCY_ORDER=(
+  "DecisionSemanticInput->semantic_payload_hash",
+  "DecisionSemanticInput->decision_identity",
+  "DecisionRequirement->decision_requirement_hash",
+  "PresentationEvidence->presentation_evidence_hash",
+  "ResolutionSemanticInput->resolution_semantic_hash",
+  "DecisionBinding->binding_key",
+  "DecisionApplication->application_key",
+  "RemediationEvidence->remediation_evidence_hash",
+  "FindingEvent->event_id,event_hash",
+  "FindingEventHistory->FindingCheckpoint",
+  "OfflineEvidence->evidence_id",
+  "surface payload->payload_hash->record_hash")
+
+REHASH_PATH_POLICY={
+  "DecisionRequirement":("/semantic_input",),
+  "DecisionResolution":("/payload/resolution_semantic_input",),
+  "DecisionBinding":("/decision_requirement_hash","/binding_generation",
+    "/binding_series_id","/pending_card_record_id","/pending_card_locator",
+    "/previous_binding_key","/obstruction_evidence_hash"),
+  "DecisionApplication":("/decision_requirement_hash","/binding_generation","/binding_key",
+    "/pending_card_record_id","/pending_card_record_hash","/resolution_record_id",
+    "/resolution_locator","/resolution_record_hash","/resolution_semantic_hash",
+    "/presentation_evidence_hash","/selected_choice","/application_ordinal",
+    "/previous_application_key"),
+  "FindingEvent":("/payload",),"RemediationEvidence":("/",),
+  "GateRecord":("/payload/manifest/scope_hash","/payload/publication_intent/intended_record_hash",
+    "/payload/publication_intent/slot/target_record_id","/payload/control/finding_events")}
+
+REHASH_PROHIBITED_WITHOUT_SOURCE=(
+  "PendingDecisionCard.semantic_input","EvidenceBinding.content_hash",
+  "FindingCheckpoint without complete FindingEvent history",
+  "recovery condition/discovery material without exact obstruction and predecessor",
+  "progress fingerprint without exact RunRecord and CurrentFindingState")
+
 def rehash_value(value):
     if isinstance(value,list): return [rehash_value(x) for x in value]
     if not isinstance(value,dict): return copy.deepcopy(value)
@@ -3982,6 +4084,9 @@ def rehash_value(value):
         base={k:v for k,v in out.items() if k!="presentation_evidence_hash"}
         out["presentation_evidence_hash"]=h("fal002-json-content-v1",base)
     if "decision_requirement_hash" in value and "semantic_input" in value:
+        out["semantic_payload_hash"]=h("fal002-json-content-v1",out["semantic_input"])
+        out["decision_identity"]="D-"+h("fal002-decision-identity-v1",
+          out["semantic_input"])[:32]
         base={k:v for k,v in out.items() if k!="decision_requirement_hash"}
         out["decision_requirement_hash"]=h("fal002-decision-requirement-v1",base)
     if "binding_key" in value and "pending_card_locator" in value:
@@ -4022,11 +4127,25 @@ def REHASH(value,lineage=None):
     return rehash_value(work)
 
 def NO_REHASH(value,lineage=None): return copy.deepcopy(value)
+
+def validate_requirement_hashes(requirement):
+    semantic_hash=h("fal002-json-content-v1",requirement["semantic_input"])
+    identity="D-"+h("fal002-decision-identity-v1",requirement["semantic_input"])[:32]
+    base={k:v for k,v in requirement.items() if k!="decision_requirement_hash"}
+    expected_requirement=h("fal002-decision-requirement-v1",base)
+    return ("VALID" if requirement["semantic_payload_hash"]==semantic_hash and
+      requirement["decision_identity"]==identity and
+      requirement["decision_requirement_hash"]==expected_requirement else "HASH_MISMATCH")
 ```
 
-`REHASH` order is therefore executable and closed: recursively rehash nested presentation,
-requirement, binding, application, remediation, resolution and event objects; derive a CONTROL
-checkpoint from explicit lineage plus delta; then recompute surface payload and record hashes.
+`DERIVED_DEPENDENCY_ORDER` is the normative topological order. `REHASH` recursively rebuilds
+innermost derived objects, including semantic payload hash before decision identity and requirement
+hash, then presentation, binding, application, remediation, resolution and event objects; it derives
+a CONTROL checkpoint from explicit complete lineage plus delta, and finally recomputes surface
+payload and record hashes. `REHASH_PATH_POLICY` is the complete set of fixture-authorized REHASH
+families. A path named by `REHASH_PROHIBITED_WITHOUT_SOURCE` must use `NO_REHASH` or a total
+constructor carrying the named source context; direct REHASH raises `OracleDefinitionError` in its
+own fixture wrapper. No normative matrix row may request REHASH outside this policy.
 `HB(CF(record))` is computed only when the rehashed record is placed in the VFS/output. A required
 ancestor context that is absent is `OracleDefinitionError`, never implementer discretion.
 
@@ -4082,11 +4201,11 @@ The mandatory integrated scenarios are executable:
 
 ```python
 def scenario_finding_chain():
-    state=oracle_lineage_state(); rr0=run(0)[0]; rv0=review(ordinal=0)[0]
+    state=oracle_lineage_state(); state,_,rr0,rv0=make_run_review(state,0)
     finding=finding_observation(); e0=review_event(rv0,rr0,finding,0)
     _,state=control(state,[e0])
     e1=remediation_event(finding,e0,rr0,1); _,state=control(state,[e1])
-    rr1=run(1)[0]; rv1=review(ordinal=1)[0]
+    state,_,rr1,rv1=make_run_review(state,1)
     absent=finding_observation("HIGH",True,"ABSENT_AFTER_CORRECTION")
     e2=review_event(rv1,rr1,absent,2,e1); _,state=control(state,[e2])
     assert state["finding_checkpoint"]["event_count"]==3
@@ -4095,12 +4214,12 @@ def scenario_finding_chain():
     return state
 
 def scenario_finding_recovery():
-    state=oracle_lineage_state(); rr0=run(0)[0]; rv0=review(ordinal=0)[0]
+    state=oracle_lineage_state(); state,_,rr0,rv0=make_run_review(state,0,publish_review=False)
     finding=finding_observation(); e0=review_event(rv0,rr0,finding,0)
     _,state=control(state,[e0])
     e1=remediation_event(finding,e0,rr0,1); _,state=control(state,[e1])
     before=copy.deepcopy(state["finding_checkpoint"])
-    root,_,state=recovery_root(state,rv0)
+    root,_,state=recovery_root(state,rv0,0)
     carried=root["payload"]["recovery_root"]
     assert carried["finding_checkpoint"]==before
     assert carried["finding_checkpoint"]["event_count"]==2
@@ -4109,14 +4228,83 @@ def scenario_finding_recovery():
     return state
 
 def scenario_review_binding():
-    rr0=run(0)[0]; rv0=review(ordinal=0)[0]
-    rr1=run(1)[0]; rv1=review(ordinal=1)[0]
+    state=oracle_lineage_state(); state,_,rr0,rv0=make_run_review(state,0)
+    state,_,rr1,rv1=make_run_review(state,1)
     finding=finding_observation()
     e0=review_event(rv0,rr0,finding,0)
     e1=review_event(rv1,rr1,finding,0)
     assert e0["payload"]["evidence_bindings"][0]["source_record_id"]==rr0["record_id"]
     assert e1["payload"]["evidence_bindings"][0]["source_record_id"]==rr1["record_id"]
     return rr0,rv0,e0,rr1,rv1,e1
+
+def make_run_review(lineage,ordinal,outcome="CORRECTION_REQUIRED",observations=None,
+                    publish_review=True):
+    executor=executor_exchange(lineage,ordinal)[0]
+    state=carry_surface(lineage,executor)
+    rr=run(state,executor,ordinal)[0]; state=carry_surface(state,rr)
+    rv=review(state,rr,outcome,observations)[0]
+    if publish_review: state=carry_surface(state,rv)
+    assert executor["series_id"]==rr["series_id"]==rv["series_id"]==state["active_series_id"]
+    return state,executor,rr,rv
+
+def scenario_recovery_n():
+    state=oracle_lineage_state(); state,_,rr0,rv0=make_run_review(state,0,publish_review=False)
+    finding=finding_observation(); e0=review_event(rv0,rr0,finding,0)
+    _,state=control(state,[e0],count=1)
+    origin_series=state["active_series_id"]
+    root1,_,state=recovery_root(state,rv0,0); series1=state["active_series_id"]
+    e1=remediation_event(finding,e0,rr0,1); _,state=control(state,[e1])
+    state,_,rr1,rv1=make_run_review(state,1,publish_review=False)
+    immutable_before=copy.deepcopy(state["vfs"]["regular"])
+    root2,_,state=recovery_root(state,rv1,0); series2=state["active_series_id"]
+    intent2=state["gate_chain"][-2]
+    assert origin_series!=series1 and series1!=series2 and origin_series!=series2
+    assert root1["series_id"]==series1 and root2["series_id"]==series2
+    assert intent2["series_id"]==series1
+    assert root2["payload"]["recovery_root"]["predecessor_series_id"]==series1
+    assert state["origin_series_id"]==origin_series and state["recovery_depth"]==2
+    assert state["finding_checkpoint"]["event_count"]==2
+    assert state["correction_count"]==1 and state["no_progress_history"]==[]
+    assert len(state["publication_slots"])==2
+    assert len({x["slot_id"] for x in state["publication_slots"]})==2
+    assert len({x["target_path"] for x in state["publication_slots"]})==2
+    for path,value in immutable_before.items(): assert state["vfs"]["regular"][path]==value
+    root_paths=[host_path(canonical_path("fal002.gate-record.v1",x["series_id"],x["record_id"]))
+      for x in (root1,root2)]
+    assert root_paths[0]!=root_paths[1] and all(p in state["vfs"]["regular"] for p in root_paths)
+    return {"state":state,"root1":root1,"root2":root2,"run0":rr0,"review0":rv0,
+      "run1":rr1,"review1":rv1,"event0":e0,"event1":e1,
+      "origin_series":origin_series,"series1":series1,"series2":series2}
+
+def scenario_successor_run_review():
+    state=oracle_lineage_state(); state,_,rr0,rv0=make_run_review(state,0,publish_review=False)
+    observation=finding_observation(); e0=review_event(rv0,rr0,observation,0)
+    _,state=control(state,[e0],count=1); origin_series=state["active_series_id"]
+    _,_,state=recovery_root(state,rv0,0); series1=state["active_series_id"]
+    state,_,rr1,rv1=make_run_review(state,1,publish_review=False)
+    e1=review_event(rv1,rr1,finding_observation("HIGH",True,"STILL_PRESENT"),1,e0)
+    _,state=control(state,[e1])
+    _,_,state=recovery_root(state,rv1,0); series2=state["active_series_id"]
+    state,_,rr2,rv2=make_run_review(state,2)
+    e2=review_event(rv2,rr2,finding_observation("HIGH",True,"STILL_PRESENT"),2,e1)
+    _,state=control(state,[e2])
+    assert len({origin_series,series1,series2})==3
+    assert rr0["series_id"]==rv0["series_id"]==origin_series
+    assert rr1["series_id"]==rv1["series_id"]==series1
+    assert rr2["series_id"]==rv2["series_id"]==series2
+    for record in (rr0,rr1,rr2):
+        path=host_path(canonical_path(record["schema_id"],record["series_id"],record["record_id"]))
+        assert state["vfs"]["regular"][path]==cf(record)
+    assert len({rr0["record_id"],rr1["record_id"],rr2["record_id"]})==3
+    assert e0["payload"]["evidence_bindings"][0]["provenance"]["record_hash"]==rr0["record_hash"]
+    assert e1["payload"]["evidence_bindings"][0]["provenance"]["record_hash"]==rr1["record_hash"]
+    assert e2["payload"]["evidence_bindings"][0]["source_record_id"]==rr2["record_id"]
+    assert e2["payload"]["evidence_bindings"][0]["provenance"]["record_hash"]==rr2["record_hash"]
+    assert [x["event_ordinal"] for x in state["finding_events"]]==[0,1,2]
+    assert state["max_global_event_ordinal"]==2 and state["finding_checkpoint"]["event_count"]==3
+    return {"state":state,"origin_series":origin_series,"series1":series1,"series2":series2,
+      "run0":rr0,"review0":rv0,"event0":e0,"run1":rr1,"review1":rv1,"event1":e1,
+      "run2":rr2,"review2":rv2,"event2":e2}
 
 def scenario_decision_relocation():
     requirement,binding0,pending0,resolution0,application0,evidence=offline_bundle()
@@ -4152,29 +4340,106 @@ def scenario_mutation():
       "REHASH_disposition":"AUTHORITY_CONFLICT","NO_REHASH":stale,
       "NO_REHASH_disposition":"HASH_MISMATCH"}
 
+def scenario_rehash_decision_requirement():
+    base=offline_bundle()[0]; pointer="/semantic_input/question"
+    changed=replace(base,pointer,"May this independently mutated fixture execute offline?")
+    current=REHASH(changed); stale=NO_REHASH(changed)
+    expected_semantic=h("fal002-json-content-v1",current["semantic_input"])
+    expected_identity="D-"+h("fal002-decision-identity-v1",current["semantic_input"])[:32]
+    expected_base={k:v for k,v in current.items() if k!="decision_requirement_hash"}
+    expected_requirement=h("fal002-decision-requirement-v1",expected_base)
+    assert current["semantic_payload_hash"]==expected_semantic
+    assert current["decision_identity"]==expected_identity
+    assert current["decision_requirement_hash"]==expected_requirement
+    assert current["semantic_payload_hash"]!=base["semantic_payload_hash"]
+    assert current["decision_requirement_hash"]!=base["decision_requirement_hash"]
+    assert validate_requirement_hashes(current)=="VALID"
+    assert stale["semantic_payload_hash"]==base["semantic_payload_hash"]
+    assert stale["decision_requirement_hash"]==base["decision_requirement_hash"]
+    assert validate_requirement_hashes(stale)=="HASH_MISMATCH"
+    return {"base":base,"pointer":pointer,"REHASH":current,"NO_REHASH":stale,
+      "REHASH_disposition":"VALID","NO_REHASH_disposition":"HASH_MISMATCH"}
+
+def scenario_resolution_relocation_recovery_n():
+    recovered=scenario_recovery_n(); decision=scenario_decision_relocation()
+    b2,p2,r2,a2=relocate_resolution(decision["requirement"],decision["binding1"],
+      decision["pending1"],decision["resolution1"],decision["application1"],
+      recovered["series2"])
+    assert r2["payload"]["resolution_semantic_hash"]== \
+      decision["resolution0"]["payload"]["resolution_semantic_hash"]
+    assert len({decision["resolution0"]["record_hash"],decision["resolution1"]["record_hash"],
+      r2["record_hash"]})==3
+    assert a2["binding_generation"]==2 and b2["binding_generation"]==2
+    return {"recovery":recovered,"binding2":b2,"pending2":p2,
+      "resolution2":r2,"application2":a2,**decision}
+
+def scenario_vfs_create_only():
+    state=oracle_lineage_state(); state,_,_,target=make_run_review(state,0,publish_review=False)
+    intent=publication_intent(state,target,target,0)[0]
+    intent_path=canonical_path(intent["schema_id"],intent["series_id"],intent["record_id"])
+    publish_record(state["vfs"],intent_path,intent); publish_record(state["vfs"],intent_path,intent)
+    target_path=canonical_path(target["schema_id"],target["series_id"],target["record_id"])
+    raw(state["vfs"],host_path(target_path),"7b")
+    preserved=state["vfs"]["regular"][host_path(target_path)]
+    try: publish_record(state["vfs"],target_path,target)
+    except OracleDefinitionError as error: assert str(error)=="DUPLICATE_CONFLICT"
+    else: raise AssertionError("obstruction was overwritten")
+    assert state["vfs"]["regular"][host_path(target_path)]==preserved==b"\x7b"
+    return {"state":state,"intent":intent,"target":target,
+      "disposition":"DUPLICATE_CONFLICT"}
+
+def scenario_progress_across_recovery():
+    recovered=scenario_recovery_n(); carried=recovered["root2"]["payload"]["recovery_root"]
+    current=recovered["state"]
+    assert carried["no_progress_history"]==current["no_progress_history"]==[]
+    assert carried["correction_count"]==current["correction_count"]==1
+    assert carried["finding_checkpoint"]==current["finding_checkpoint"]
+    return {"carried":carried,"current":current,"disposition":"CARRIED_IDENTICALLY"}
+
+def execute_normative_oracle():
+    return {"finding_chain":scenario_finding_chain(),
+      "finding_recovery":scenario_finding_recovery(),"recovery_n":scenario_recovery_n(),
+      "origin_review_binding":scenario_review_binding(),
+      "successor_run_review":scenario_successor_run_review(),
+      "decision_semantic_relocation":scenario_decision_relocation(),
+      "nested_rehash":scenario_rehash_decision_requirement()["REHASH"],
+      "nested_no_rehash":scenario_rehash_decision_requirement()["NO_REHASH"],
+      "vfs_create_only":scenario_vfs_create_only(),
+      "resolution_relocation_recovery_n":scenario_resolution_relocation_recovery_n(),
+      "progress_across_recovery":scenario_progress_across_recovery()}
+
 def case_environment():
     state=oracle_lineage_state(); decision=scenario_decision_relocation()
     rr0,rv0,e0,rr1,rv1,e1=scenario_review_binding()
-    executor0=executor_exchange(0)[0]; intent0=publication_intent(state["active_gate"],rv0,rv0)[0]
+    executor0=executor_exchange(state,0)[0]; intent0=publication_intent(state,rv0,rv0,0)[0]
     slot0=intent0["payload"]["publication_intent"]["slot"]
     root0,pending_recovery,state0=recovery_root(copy.deepcopy(state),rv0,0)
-    root1,_,_=recovery_root(copy.deepcopy(state),rv0,1)
     key=root0["payload"]["recovery_root"]["recovery_discovery_key"]
+    collision_state=copy.deepcopy(state)
+    candidate0=canonical_path("fal002.gate-record.v1",successor_id(key,0),"gate-00000000")
+    raw(collision_state["vfs"],host_path(candidate0),"7b")
+    root1,_,_=recovery_root(collision_state,rv0,1)
     return {"state":state,"fs":copy.deepcopy(state["vfs"]),"gate0":gate0()[0],
-      "ready":ready()[0],"run0":rr0,"run1":rr1,"review0":rv0,"review1":rv1,
+      "ready":ready(state)[0],"run0":rr0,"run1":rr1,"review0":rv0,"review1":rv1,
       "event0":e0,"event1":e1,"key":key,"root0":root0,"root1":root1,
       "executor0":executor0,"intent0":intent0,"slot0":slot0,
       "stage0":intent0["payload"]["publication_intent"]["stage_locator"],
-      "candidate0":canonical_path("fal002.gate-record.v1",successor_id(key,0),"gate-00000000"),
+      "candidate0":candidate0,
       "candidate1":canonical_path("fal002.gate-record.v1",successor_id(key,1),"gate-00000000"),
       "pending_recovery":pending_recovery,"finding_chain":scenario_finding_chain(),
-      "finding_recovery":scenario_finding_recovery(),"mutation":scenario_mutation(),**decision}
+      "finding_recovery":scenario_finding_recovery(),"recovery_n":scenario_recovery_n(),
+      "successor_run_review":scenario_successor_run_review(),
+      "rehash_requirement":scenario_rehash_decision_requirement(),
+      "vfs_create_only":scenario_vfs_create_only(),
+      "mutation":scenario_mutation(),**decision}
 ```
 
-### 48.10 Exact CORR-014 fixture matrix
+### 48.10 Exact CORR-015 fixture matrix
 
-Every row begins independently with `e=case_environment()`; a bare constructor name means the exact
-same-named function in §§48.1–48.9. Before its operation, each row assigns every bare local from
+Every row begins independently with `e=case_environment()`. The rows changed by CORR-015 use exact
+Python syntax naming the constructor, mutation or VFS operation to execute; unchanged historical
+assertion rows retain their previously reviewed compact notation. Before its operation, each row
+assigns every bare local from
 this closed map: `state=e["state"]`, `fs=e["fs"]`, `gate0=e["gate0"]`, `ready=e["ready"]`,
 `run0=e["run0"]`, `run1=e["run1"]`, `review0=e["review0"]`, `review1=e["review1"]`,
 `target=e["review0"]`, `intent=e["intent0"]`, `stage=e["stage0"]`, `key=e["key"]`,
@@ -4197,25 +4462,26 @@ authoritative final.
 | `hash-preimage-no-lf` | gate0 | preimage equals `cj({domain:"fal002-record-v1:fal002.gate-record.v1",value:gate0 without record_hash})` |
 | `hash-wrong-lf` | gate0; set record_hash to sha256(preimage+0a); NO_REHASH | HASH_MISMATCH; no authority |
 | `hash-domain-missing` | gate0; replace record_hash with sha256(cj(record without hash)); NO_REHASH | HASH_MISMATCH |
-| `intent-not-required` | ready; derive reconstructable next GateRecord | PUBLICATION_INTENT forbidden; ordinary gate append |
-| `intent-required-missing` | `fs=vfs(); target=executor_exchange()[0]; publish_record(fs,canonical_path(target["schema_id"],ORIGIN,target["record_id"]),target)` with no PUBLICATION_INTENT gate | FORBIDDEN_TRANSITION; target ignored |
-| `intent-valid` | `target=review0; intent=publication_intent(state["active_gate"],target,target)[0]` | intent gate final; retained reviewing state |
+| `intent-not-required` | `next_gate=ready(state)[0]` | `next_gate["payload"]["kind"]=="READY"`; ordinary reconstructable gate append requires no PUBLICATION_INTENT |
+| `intent-required-missing` | `fs=vfs(); target=executor_exchange(state,0)[0]; publish_record(fs,canonical_path(target["schema_id"],target["series_id"],target["record_id"]),target)` | FORBIDDEN_TRANSITION; target ignored because no PUBLICATION_INTENT exists |
+| `intent-valid` | `target=review0; intent=publication_intent(state,target,target,0)[0]` | `intent["series_id"]==state["active_series_id"]`; intent gate final; retained reviewing state |
 | `intent-wrong-predecessor` | `x=replace(intent,"/payload/publication_intent/slot/predecessor_gate_hash","0"*64); NO_REHASH(x)` | HASH_MISMATCH |
 | `intent-wrong-slot` | `x=replace(intent,"/payload/publication_intent/slot/target_record_id","review-wrong"); REHASH(x,state)` | MALFORMED_BOUNDARY |
 | `intent-wrong-hash` | `x=replace(intent,"/payload/publication_intent/intended_record_hash","0"*64); REHASH(x,state)` | HASH_MISMATCH |
 | `intent-replay` | `publish_record(fs,canonical_path(intent["schema_id"],intent["series_id"],intent["record_id"]),intent)` twice | one final; idempotent |
-| `intent-crash-stage` | write first floor(len(cf(target))/2) bytes at attempt-0000 | preserve; complete attempt-0001; predecessor active until intent final |
-| `intent-crash-after-final` | publish intent; no target | intent gate active; replay publishes exact stage without actor invocation |
-| `discovery-zero` | obstruct intent target with raw `7b`; recovery_root n=0 | exact UUID candidate 0 authoritative awaiting_human |
+| `intent-crash-stage` | `write_bytes(fs,host_path(stage),cf(target)[:len(cf(target))//2])` | partial bytes preserved; `stage_attempt=1` selects attempt-0001; predecessor active until intent final |
+| `intent-crash-after-final` | `publish_record(fs,canonical_path(intent["schema_id"],intent["series_id"],intent["record_id"]),intent)` | target absent; intent gate active; replay uses `cf(target)` without actor invocation |
+| `discovery-zero` | `raw(state["vfs"],host_path(intent["payload"]["publication_intent"]["slot"]["target_path"]),"7b"); root,card,next_state=recovery_root(state,target,0)` | `root["series_id"]==successor_id(root["payload"]["recovery_root"]["recovery_discovery_key"],0)`; authoritative awaiting_human |
 | `discovery-candidate-invalid` | `raw(fs,host_path(candidate0),"7b")` | preserve exact byte; candidate-1 eligible |
-| `discovery-later` | candidate-0 stable malformed; recovery_root n=1 | ordinal 1 root authoritative |
+| `discovery-later` | `raw(state["vfs"],host_path(candidate0),"7b"); root,card,next_state=recovery_root(state,target,1)` | `root["series_id"]==successor_id(key,1)`; ordinal 1 root authoritative |
 | `discovery-first-absent` | assert `host_path(candidate0)` absent; `publish_record(fs,candidate1,root1)` | candidate-1 ignored; predecessor remains active |
-| `discovery-wrong-lineage` | recovery n=0; replace `/payload/recovery_root/origin_series_id` with `00000000-0000-4000-8000-000000000003` | invalid stable candidate; no authority |
+| `discovery-wrong-lineage` | `x=replace(root0,"/payload/recovery_root/origin_series_id","00000000-0000-4000-8000-000000000003"); NO_REHASH(x)` | HASH_MISMATCH; invalid stable candidate; no authority |
 | `discovery-no-directory-heuristic` | `publish_record(fs,canonical_path("fal002.gate-record.v1","00000000-0000-4000-8000-000000000099","gate-00000000"),root0)` | ignored evidence |
-| `recovery-crash-before-root` | complete root stage; fault before final link | predecessor active; replay identical root |
-| `recovery-crash-after-root` | root final valid; decision final absent | successor authoritative; replay exact bound decision |
-| `recovery-chain-two` | root0 active; obstruct its decision path; derive root1 from root0 slot | one logical lineage; binding generation 1 |
-| `decision-binding-zero` | recovery root with generation-0 binding | exact active locator/read succeeds |
+| `recovery-crash-before-root` | `write_bytes(fs,host_path(intent["payload"]["publication_intent"]["stage_locator"]),cf(root0)); assert host_path(candidate0) not in fs["regular"]` | predecessor active; replay produces byte-identical `root0` |
+| `recovery-crash-after-root` | `publish_record(fs,candidate0,root0); assert host_path(root0["payload"]["recovery_root"]["decision_binding"]["pending_card_locator"]) not in fs["regular"]` | successor authoritative; replay publishes exact bound decision |
+| `recovery-chain-two` | `x=scenario_recovery_n()` | `x["root2"]["payload"]["recovery_root"]["predecessor_series_id"]==x["series1"]`; one logical lineage; depth 2 |
+| `successor-run-review` | `x=scenario_successor_run_review()` | Run0/1/2 and Review0/1/2 use `x["origin_series"]`, `x["series1"]`, `x["series2"]`; event ordinals equal `[0,1,2]` |
+| `decision-binding-zero` | `x=scenario_decision_relocation(); fs=vfs(); publish_record(fs,x["binding0"]["pending_card_locator"],x["pending0"]); assert fs["regular"][host_path(x["binding0"]["pending_card_locator"])]==cf(x["pending0"])` | exact active locator/read succeeds |
 | `decision-path-obstructed` | `raw(fs,host_path(binding0["pending_card_locator"]),"7b")` | same decision identity pending; successor recovery and generation 1 |
 | `decision-pending-only` | `offline_bundle()`; remove resolution and application files/state | PENDING; no state authority |
 | `decision-resolution-separate` | publish pending and resolution to their distinct canonical locators; carry application | ACCEPTED AUTHORIZE_OFFLINE; pending bytes unchanged |
@@ -4225,7 +4491,10 @@ authoritative final.
 | `decision-resolution-replay` | `publish_record(fs,application1["resolution_locator"],resolution1)` twice with create-only identical-byte adoption | one semantic resolution; idempotent |
 | `decision-resolution-conflict` | `x=replace(resolution1,"/payload/resolution_semantic_input/selected_choice","DECLINE"); x=REHASH(x)` | different semantic hash/choice; AUTHORITY_CONFLICT; no application |
 | `decision-resolution-orphan` | publish accepted resolution at canonical path for inactive series `00000000-0000-4000-8000-000000000099` | STALE_RECORD; ignored for authority |
-| `decision-recovery-n` | repeat `recovery_root` for n=0,1,2 with obstruction at each active bound path | same decision identity at every depth; contiguous binding generations |
+| `decision-recovery-n` | `x=scenario_resolution_relocation_recovery_n()` | one semantic resolution hash across R0/R1/R2; physical hashes distinct; `x["binding2"]["binding_generation"]==2` |
+| `decision-requirement-rehash` | `x=scenario_rehash_decision_requirement()` | `x["REHASH_disposition"]=="VALID"`; semantic payload, identity and requirement hash recomputed in dependency order |
+| `decision-requirement-no-rehash` | `x=scenario_rehash_decision_requirement()` | `x["NO_REHASH_disposition"]=="HASH_MISMATCH"`; stale nested and outer hashes retained |
+| `vfs-create-only` | `x=scenario_vfs_create_only()` | identical intent replay adopted; conflicting target bytes preserved; `x["disposition"]=="DUPLICATE_CONFLICT"` |
 | `decision-rebound` | compare `binding0,pending0,resolution0` to `binding1,pending1,resolution1` | same decision identity and semantic answer hash; new physical pending/resolution records |
 | `decision-generation-gap` | generation 0 then 2 | AUTHORITY_CONFLICT |
 | `decision-orphan` | valid record at unbound locator | ignored evidence; cannot resolve |
@@ -4264,7 +4533,7 @@ authoritative final.
 | `finding-incomplete-history` | remove first NEW event from addressed history | HASH_MISMATCH; PASS/no-progress blocked |
 | `progress-severity-blocker` | previous MEDIUM/false; current HIGH/true, diff/evidence changed | introduced_blocker; NO_PROGRESS |
 | `progress-remediation-only` | same diff/evidence; OPEN→ADDRESSED with evidence | unresolved, resolved_any false; NO_PROGRESS |
-| `progress-across-recovery` | same previous/current snapshots separated by root | same result as one physical segment |
+| `progress-across-recovery` | `x=scenario_progress_across_recovery()` | `x["disposition"]=="CARRIED_IDENTICALLY"`; checkpoint, correction count and no-progress history equal across physical segments |
 | `progress-ceiling` | material progress true, correction_count 2 | CORRECTION_CEILING after progress calculation |
 | `progress-diff-only` | change only diff hash | NO_PROGRESS; resolved_any false |
 | `progress-evidence-only` | change only progress evidence hash | NO_PROGRESS; resolved_any false |
@@ -4411,7 +4680,7 @@ hash, recovery locator, decision lookup, finding evolution and fixture statement
 force. Sections 44–48 explicitly incorporate only named unchanged structures, parser rules and raw
 fixture inputs. No competing normative answer remains.
 
-## 50. Final budget, scope and CORR-014 state
+## 50. Final budget, scope and CORR-015 state
 
 The corrected design retains four new production modules plus unchanged `forge/__init__.py`
 attribution, one executor adapter, one reviewer adapter, five schema surfaces and zero new dependency.
@@ -4421,13 +4690,14 @@ decision binding and finding derivation refine responsibilities already allocate
 they add no module or surface. Implementation inventory must continuously prove the limit and stop
 `BUDGET AUTHORITY REQUIRED` on contrary concrete evidence. `EB006-FR-07` is not reopened.
 
-Only EB-006 and necessary documentation index/project-memory text may change in CORR-014. Runtime,
+Only EB-006 and necessary documentation index/project-memory text may change in CORR-015. Runtime,
 tests, schemas, committed fixture implementation, dependencies, versions, Audio Recorder,
 FAL-002 specification, FAL-001 and unrelated artifacts remain unchanged.
 
-Both objectives `CORR-014-01` and `CORR-014-02`, mapped respectively to `EB006-IR6-01` and
-`EB006-IR6-02`, are `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only the correction agent's
-remediation claim: neither IR6 finding is independently verified, closed, accepted or PASS.
+`CORR-015-01`, mapped to `EB006-IR6-02`, is `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only
+the correction agent's remediation claim: `EB006-IR6-02` remains open and is not independently
+verified, closed, accepted or PASS. IR7's independent verification of `CORR-014-01`/
+`EB006-IR6-01` is preserved and not reopened; that finding is not closed.
 FAL-002 remains `NOT AUTHORIZED`; no runtime implementation occurred. FAL-001 remains permanently
 `TERMINATED BLOCKED`, unaccepted and unclosed, correction count 2/2. The only next gate is a fresh
-independent read-only Standard-Assurance Review IR7 against the dedicated CORR-014 commit.
+independent read-only Standard-Assurance Review against the dedicated CORR-015 commit.

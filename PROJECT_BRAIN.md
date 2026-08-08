@@ -188,6 +188,12 @@ Forge may eventually include:
   `CORR-015-01` → `EB006-IR6-02`. The correction must make §48's oracle follow the frozen production
   model, preserve §46 decision semantics and all verified recovery/finding/hash contracts, keep five
   surfaces and the 1,800-LOC ceiling, and leave FAL-002 implementation `NOT AUTHORIZED`.
+- Treat `CORR-015-01` as documentation-complete and only `ADDRESSED — AWAITING INDEPENDENT REVIEW`.
+  Final §48 now takes current lineage for all successor construction, executes recovery-N and
+  successor Run/Review/FindingEvent chains, recomputes DecisionRequirement dependencies
+  inner-to-outer, preserves stale hashes under NO_REHASH, and exercises create-only VFS behavior.
+  `EB006-IR6-02` remains open and blocking until a fresh independent read-only review; no finding is
+  closed and `EB006-IR6-01` remains independently verified.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.
