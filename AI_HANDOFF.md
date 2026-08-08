@@ -16,9 +16,10 @@ Planning under `HD-FAL-006`, but implementation is `NOT AUTHORIZED`. Independent
 CORR-013-corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT RECOMMENDED`. It verified
 CORR-013-03/IR5-03 and CORR-013-04/IR5-04, partially verified CORR-013-02/IR5-02, did not verify
 CORR-013-01/IR5-01 and recorded two open blocking residual findings, `EB006-IR6-01` and
-`EB006-IR6-02`. `HD-FAL-017` authorizes one coherent bounded `CORR-014-01`–`CORR-014-02` EB-006
-documentation correction campaign; it has not started and verifies or closes no finding. FAL-002
-implementation remains `NOT AUTHORIZED`. The
+`EB006-IR6-02`. The `HD-FAL-017`-authorized coherent bounded `CORR-014-01`–`CORR-014-02` EB-006
+documentation correction is complete as a remediation claim. Both objectives are
+`ADDRESSED — AWAITING INDEPENDENT REVIEW`; neither IR6 finding is independently verified or closed.
+FAL-002 implementation remains `NOT AUTHORIZED`. The
 `HD-FAL-009` envelope remains approximately 1,660 expected and at most 1,800 new production LOC; the
 album capability remains unstarted.
 
@@ -212,11 +213,10 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-The next permitted FAL-002 step is execution of the complete `HD-FAL-017`-authorized bounded
-`CORR-014-01`–`CORR-014-02` EB-006 documentation correction in one separate commit using only its
-authorized paths, followed by fresh independent read-only Standard-Assurance Review IR7. During
-correction both IR6 findings may become at most `ADDRESSED — AWAITING INDEPENDENT REVIEW`; do not
-implement FAL-002, verify/close a finding or infer Implementation Authorization.
+The next permitted FAL-002 step is fresh independent read-only Standard-Assurance Review IR7 of the
+completed `HD-FAL-017`-authorized `CORR-014-01`–`CORR-014-02` EB-006 correction commit. Both IR6 findings
+remain only `ADDRESSED — AWAITING INDEPENDENT REVIEW`; do not implement FAL-002, verify/close a
+finding or infer Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

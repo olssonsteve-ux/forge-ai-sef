@@ -173,6 +173,13 @@ Forge may eventually include:
   stable semantic-answer versus physical-binding semantics and the total lineage-aware independent
   oracle. It must directly consolidate §§46 and 48, preserve every IR6-verified contract, keep five
   surfaces and the 1,800-LOC ceiling, and leave FAL-002 implementation `NOT AUTHORIZED`.
+- Treat EB-006 §§44–50 as the completed CORR-014 remediation claim. Stable ResolutionSemanticInput
+  binds DecisionRequirement rather than a relocatable pending-card hash; PresentationEvidence is
+  separate; DecisionApplication and offline authority independently validate semantic answer and
+  current physical lineage. The stdlib-only OracleLineageState, CONTROL, RECOVERY_ROOT,
+  review-event and mutation/VFS scenarios execute without production imports. Both objectives remain
+  only `ADDRESSED — AWAITING INDEPENDENT REVIEW`; neither IR6 finding is verified or closed, and the
+  only next FAL-002 gate is independent read-only Standard-Assurance Review IR7.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

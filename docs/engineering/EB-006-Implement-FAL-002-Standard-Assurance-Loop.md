@@ -9,7 +9,7 @@ Owner: Chief Architect
 Decision basis: `HD-FAL-006`
 
 Correction authority: `HD-FAL-007`, `HD-FAL-008`, `HD-FAL-009`, `HD-FAL-010`, `HD-FAL-012`,
-`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`
+`HD-FAL-013`, `HD-FAL-014`, `HD-FAL-015`, `HD-FAL-016`, `HD-FAL-017`
 
 Specification: `docs/capabilities/FAL-002-Standard-Assurance-Bounded-Engineering-Loop.md`
 
@@ -48,6 +48,8 @@ Residual finding status:
 | `EB006-IR5-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR5-03` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `EB006-IR5-04` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR6-01` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `EB006-IR6-02` | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 1. Purpose and gate
 
@@ -1946,7 +1948,7 @@ modified.
 PASS. FAL-002 remains `NOT AUTHORIZED`; FAL-001 remains permanently `TERMINATED BLOCKED` with
 correction count 2/2. The only next gate is a fresh independent read-only Standard-Assurance Review.
 
-## 43. CORR-012 preserved authority and CORR-013 traceability
+## 43. Preserved authority and correction traceability
 
 `HD-FAL-012` and `HD-FAL-014` are binding architecture. `HD-FAL-015` authorizes one inseparable
 documentation correction containing `CORR-012-01` through `CORR-012-05`. Sections 44–50 are the sole
@@ -1976,6 +1978,15 @@ following inseparable residual correction is authorized by `HD-FAL-012`, `HD-FAL
 | `CORR-013-02` | `EB006-IR5-02` | `HD-FAL-012`, `HD-FAL-014`, `HD-FAL-016` | §§44.6, 45.8, 46, 48–49 | separate immutable requirement, pending card, resolution, binding and GateRecord application; one lineage resolver | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `CORR-013-03` | `EB006-IR5-03` | `HD-FAL-016` | §§45.8, 47, 48–49 | GateRecord CONTROL deltas, exact FindingEvent/RemediationEvidence and restart checkpoints | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 | `CORR-013-04` | `EB006-IR5-04` | `HD-FAL-016` | §§47–49 | exact severity epochs, blocking latch, lifecycle fold, PASS and no-progress inputs | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+
+IR6 independently verified the frozen CJ/CF/H/HB, publication/recovery/discovery and persisted
+finding-state contracts. CORR-014 does not reopen them. `HD-FAL-017` authorizes the following one
+inseparable residual documentation correction; these rows are remediation claims pending IR7:
+
+| Objective | Source | Authority | Final sections | Consolidated model and completion evidence | Status |
+| --- | --- | --- | --- | --- | --- |
+| `CORR-014-01` | `EB006-IR6-01` | `HD-FAL-012`, `HD-FAL-014`, `HD-FAL-017` | §§44.6, 46, 48–49 | stable DecisionRequirement-bound ResolutionSemanticInput, separate PresentationEvidence, physically relocatable DecisionResolution, current-lineage DecisionApplication and offline resolution; executable P0/P1 and R0/R1 scenarios | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
+| `CORR-014-02` | `EB006-IR6-02` | `HD-FAL-017` | §§48–49 | explicit test-only OracleLineageState, predecessor-consuming CONTROL and RECOVERY_ROOT, actual-run review binding, executable JSON Pointer/hash/VFS operations and integrated chain/restart scenarios | `ADDRESSED — AWAITING INDEPENDENT REVIEW` |
 
 ## 44. Final universal canonical bytes and hash contract
 
@@ -2121,6 +2132,8 @@ Every prior one-argument `H(...)` formula is withdrawn and replaced as follows:
 - `decision_identity = "D-" + H("fal002-decision-identity-v1", DecisionSemanticInput)[:32]`;
 - `decision_requirement_hash = H("fal002-decision-requirement-v1", DecisionRequirement without
   decision_requirement_hash)`;
+- `presentation_evidence_hash = H("fal002-json-content-v1", PresentationEvidence without
+  presentation_evidence_hash)`;
 - `binding_key = H("fal002-decision-binding-v1", {binding_object_kind:"PENDING_BINDING",
   value:DecisionBinding without binding_key and pending_card_record_hash})`;
 - `application_key = H("fal002-decision-binding-v1", {binding_object_kind:
@@ -2428,17 +2441,38 @@ GateRecord authenticates the complete binding including that hash.
 `ResolutionSemanticInput` is exactly:
 
 ```text
-{decision_identity:NonEmpty,decision_requirement_hash:Sha256,
- pending_card_record_hash:Sha256,selected_choice:NonEmpty,rationale:NonEmpty,
+{decision_identity:NonEmpty,answered_requirement_hash:Sha256,
+ answered_semantic_payload_hash:Sha256,selected_choice:NonEmpty,rationale:NonEmpty,
  human_owner:NonEmpty,human_provenance:{source:NonEmpty,locator:NonEmpty,
  content_hash:Sha256},decided_at:Timestamp}
 ```
+
+`answered_requirement_hash` equals the immutable DecisionRequirement's
+`decision_requirement_hash`; `answered_semantic_payload_hash` equals that requirement's
+`semantic_payload_hash`. These two stable hashes bind what governance question was answered. No
+binding generation, pending-card ID/hash/locator, physical series, recovery ordinal or physical
+resolution metadata participates in `ResolutionSemanticInput`.
 
 `resolution_semantic_hash=H("fal002-json-content-v1", ResolutionSemanticInput)`. A physical
 DecisionResolution record ID is
 `{decision_identity}-resolution-b{binding_generation:04d}` and its locator uses the same decisions
 directory rule. Recovered copies retain byte-identical ResolutionSemanticInput and semantic hash;
 only binding generation, series, physical ID/locator, envelope timestamp and record hash may differ.
+
+`PresentationEvidence` is separate non-authoritative evidence and is exactly:
+
+```text
+{answered_pending_card_record_id:NonEmpty,answered_pending_card_record_hash:Sha256,
+ answered_binding_generation:int 0..9999,answered_binding_key:Sha256,
+ presented_at:Timestamp,presentation_evidence_hash:Sha256}
+```
+
+Its hash is `H("fal002-json-content-v1", PresentationEvidence without
+presentation_evidence_hash)`. It identifies the immutable card presentation actually answered. It
+must resolve to a valid historical DecisionBinding/PENDING_CARD for the same requirement and must
+not postdate `decided_at`. It need not equal the latest physical pending-card binding after recovery.
+Presentation evidence does not participate in `resolution_semantic_hash`; a physically relocated
+resolution retains it byte-identically.
 
 `DecisionApplication` is the GateRecord-owned state effect and is exactly:
 
@@ -2448,6 +2482,7 @@ only binding generation, series, physical ID/locator, envelope timestamp and rec
  pending_card_record_id:NonEmpty,pending_card_record_hash:Sha256,
  resolution_record_id:NonEmpty,resolution_locator:PathRel,
  resolution_record_hash:Sha256,resolution_semantic_hash:Sha256,
+ presentation_evidence_hash:Sha256,
  selected_choice:NonEmpty,application_ordinal:int 0..9999,
  previous_application_key:Sha256|absent,application_key:Sha256}
 ```
@@ -2467,19 +2502,24 @@ HumanDecisionRecord retains the §35.5 envelope and requires top-level `decision
   `{decision_requirement_hash,binding_key,semantic_input:DecisionSemanticInput}`;
 - RESOLUTION, status ACCEPTED or DECLINED, physical ID
   `{decision_identity}-resolution-b{binding_generation:04d}`, payload
-  `{resolution_semantic_input:ResolutionSemanticInput,resolution_semantic_hash:Sha256}`; and
+  `{resolution_semantic_input:ResolutionSemanticInput,resolution_semantic_hash:Sha256,
+    presentation_evidence:PresentationEvidence}`; and
 - CLOSURE, status ACCEPTED, with the existing closure payload plus decision identity and generation.
 
 PENDING_CARD and RESOLUTION are separate create-only files. Neither may replace or mutate the other.
-A resolution is eligible for application only when its pending-card hash, requirement hash, selected
-choice, human owner/provenance and semantic hash validate. A valid HumanDecisionRecord without a
-matching DecisionApplication has no GateRecord state effect.
+A resolution is eligible for application only when its stable requirement/semantic-payload hashes,
+selected choice, human owner/provenance, semantic hash and historical PresentationEvidence validate.
+Separately, the DecisionApplication's binding key and pending-card fields must equal the latest
+active-lineage DecisionBinding. A valid HumanDecisionRecord without a matching DecisionApplication
+has no GateRecord state effect.
 
 Pending-card obstruction advances binding generation through §45 recovery with identical semantic
 input. Resolution obstruction uses PUBLICATION_INTENT because human response bytes are COMMITTED;
 recovery advances binding generation, creates the canonical rebound pending card and stages a
-resolution whose ResolutionSemanticInput is byte-identical to the obstructed response. Replay adopts
-the same semantic hash. A different response for the same identity fails `AUTHORITY_CONFLICT`.
+resolution whose ResolutionSemanticInput, PresentationEvidence and semantic hash are byte-identical
+to the obstructed response. The new physical resolution ID/locator/envelope and record hash may
+differ. Replay adopts the same semantic hash. A different semantic input or selected choice for the
+same identity fails `AUTHORITY_CONFLICT`.
 
 ### 46.4 Complete logical-lineage lookup
 
@@ -2492,24 +2532,30 @@ For one semantic decision identity, core performs exactly:
 4. require one immutable requirement and reject changed semantic input/hash as `AUTHORITY_CONFLICT`;
 5. require binding generation zero followed by contiguous increments with valid previous keys;
 6. select the greatest valid active-lineage binding and read only its pending-card locator;
-7. validate pending-card CF/schema/hash/ID/series/generation/requirement/binding/owner/provenance;
+7. validate that current pending card's CF/schema/hash/ID/series/generation/requirement/binding/
+   owner/provenance independently of any previously accepted semantic answer;
 8. collect applications by ordinal; require zero then contiguous increments and one stable resolution
    semantic hash/choice;
 9. for the latest application, read only its exact resolution locator and validate CF/schema/hash,
-   physical ID, decision identity, generation, semantic input/hash, human owner/provenance, pending
-   card hash, status and allowed choice;
-10. return ACCEPTED or DECLINED only from that applied resolution; a pending card or unapplied
+   physical ID, decision identity, generation, stable answered requirement/semantic-payload hashes,
+   semantic input/hash, human owner/provenance, PresentationEvidence, status and allowed choice;
+10. require the application's binding/current pending fields to equal step 6, require its
+    presentation-evidence hash to equal the physical resolution, and permit the presentation card
+    to be an older valid binding for the same requirement;
+11. return ACCEPTED or DECLINED only from that applied resolution; a pending card or unapplied
     resolution returns PENDING;
-11. reject absent as `MISSING_EVIDENCE`, malformed as `MALFORMED_BOUNDARY`, mismatched hash as
+12. reject absent as `MISSING_EVIDENCE`, malformed as `MALFORMED_BOUNDARY`, mismatched hash as
     `HASH_MISMATCH`, and stale/orphan/forked/conflicting records as `STALE_RECORD` or
     `AUTHORITY_CONFLICT`; and
-12. replay identical bindings, resolutions and applications idempotently; never enumerate a decision
+13. replay identical bindings, resolutions and applications idempotently; never enumerate a decision
     directory, synthesize a default or mint a new semantic identity.
 
-An obstructed pending or resolution path leaves the requirement pending at its last applied state and
-invokes §45. Pending obstruction advances binding generation. Resolution obstruction additionally
-retains one semantic response hash and advances physical resolution/application ordinals. Exactly one
-applied semantic answer can satisfy a requirement.
+An obstructed pending or resolution path leaves the requirement at its last applied semantic state
+and invokes §45. Pending obstruction advances binding generation without invalidating an already
+applied answer. Resolution obstruction retains one semantic response and PresentationEvidence while
+advancing physical binding/resolution/application ordinals. Same semantic answer replay is
+idempotent even when its physical record differs; two semantic hashes/choices for one decision
+identity are `AUTHORITY_CONFLICT`. Exactly one applied semantic answer can satisfy a requirement.
 
 ### 46.4.1 Exact MANIFEST decision carrier
 
@@ -2541,6 +2587,7 @@ Final MANIFEST `offline_evidence` is exactly:
  binding_key:Sha256,pending_card_record_id:NonEmpty,
  pending_card_record_hash:Sha256,resolution_record_id:NonEmpty,
  resolution_record_hash:Sha256,resolution_locator:PathRel,
+ resolution_semantic_hash:Sha256,presentation_evidence_hash:Sha256,
  locator:"/payload/resolution_semantic_input/selected_choice",
  content_hash:Sha256,collected_at:Timestamp,valid_until:Timestamp,
  command_policy_hash:Sha256}
@@ -2553,8 +2600,11 @@ OFFLINE_EXECUTION requirement with choice `AUTHORIZE_OFFLINE`.
 `content_hash=H("fal002-json-content-v1","AUTHORIZE_OFFLINE")` and
 `evidence_id=H("fal002-offline-evidence-v1", offline_evidence without evidence_id)`.
 
-The requirement, binding key, pending-card hash, applied resolution ID/hash/locator, selected value,
-human owner/provenance and policy hash must agree. `collected_at` equals resolution created_at and
+The stable requirement/semantic-payload hashes and semantic resolution hash must agree with the
+accepted answer. Independently, the latest binding key/current pending-card hash and applied physical
+resolution ID/hash/locator must agree with the active lineage; presentation evidence may reference
+an older valid binding. Human owner/provenance and policy hash must agree. `collected_at` equals
+resolution created_at and
 `collected_at <= spawn_start <= valid_until <= collected_at+24h`. Recovery may rebind the same
 decision identity; semantic authority is unchanged, but evidence must resolve through the latest
 binding and its explicit applied-resolution reference. Missing → `MISSING_EVIDENCE`;
@@ -2990,13 +3040,18 @@ def offline_bundle():
                   "binding_key":bkey,"semantic_input":semantic}})[0]
     binding={**bp,"pending_card_record_hash":pending["record_hash"],
              "binding_key":bkey}
-    rsi={"decision_identity":did,"decision_requirement_hash":req["decision_requirement_hash"],
-      "pending_card_record_hash":pending["record_hash"],"selected_choice":"AUTHORIZE_OFFLINE",
+    rsi={"decision_identity":did,"answered_requirement_hash":req["decision_requirement_hash"],
+      "answered_semantic_payload_hash":req["semantic_payload_hash"],
+      "selected_choice":"AUTHORIZE_OFFLINE",
       "rationale":"Offline execution is authorized for this fixture.",
       "human_owner":"human-product-owner",
       "human_provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
                           "content_hash":hb(b"human-authority")},"decided_at":t(399)}
     rsh=h("fal002-json-content-v1",rsi)
+    pe={"answered_pending_card_record_id":pid,
+      "answered_pending_card_record_hash":pending["record_hash"],
+      "answered_binding_generation":0,"answered_binding_key":bkey,"presented_at":t(398)}
+    pe["presentation_evidence_hash"]=h("fal002-json-content-v1",pe)
     rid=did+"-resolution-b0000"
     rloc=f".forge/fal002/series/{ORIGIN}/decisions/{rid}.json"
     resolution=make_record("fal002.human-decision.v1",rid,ORIGIN,t(399),
@@ -3004,12 +3059,15 @@ def offline_bundle():
        "status":"ACCEPTED","owner":"human-product-owner",
        "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
                      "content_hash":hb(b"human-authority")},
-       "payload":{"resolution_semantic_input":rsi,"resolution_semantic_hash":rsh}})[0]
+       "payload":{"resolution_semantic_input":rsi,"resolution_semantic_hash":rsh,
+                  "presentation_evidence":pe}})[0]
     application={"decision_identity":did,"decision_requirement_hash":req["decision_requirement_hash"],
       "binding_generation":0,"binding_key":bkey,"pending_card_record_id":pid,
       "pending_card_record_hash":pending["record_hash"],"resolution_record_id":rid,
       "resolution_locator":rloc,"resolution_record_hash":resolution["record_hash"],
-      "resolution_semantic_hash":rsh,"selected_choice":"AUTHORIZE_OFFLINE",
+      "resolution_semantic_hash":rsh,
+      "presentation_evidence_hash":pe["presentation_evidence_hash"],
+      "selected_choice":"AUTHORIZE_OFFLINE",
       "application_ordinal":0}
     application["application_key"]=h("fal002-decision-binding-v1",
       {"binding_object_kind":"RESOLUTION_APPLICATION","value":application})
@@ -3017,6 +3075,8 @@ def offline_bundle():
       "binding_generation":0,"binding_key":bkey,"pending_card_record_id":pid,
       "pending_card_record_hash":pending["record_hash"],"resolution_record_id":rid,
       "resolution_record_hash":resolution["record_hash"],"resolution_locator":rloc,
+      "resolution_semantic_hash":rsh,
+      "presentation_evidence_hash":pe["presentation_evidence_hash"],
       "locator":"/payload/resolution_semantic_input/selected_choice",
       "content_hash":h("fal002-json-content-v1","AUTHORIZE_OFFLINE"),"collected_at":t(399),
       "valid_until":"2026-08-02T00:00:00.000399Z","command_policy_hash":POLICY}
@@ -3035,7 +3095,28 @@ def gate0():
       "decision_bindings":[binding],"decision_applications":[application],
       "finding_checkpoint":empty,"offline_evidence":evidence}
     return gate(0,"draft","human","INITIALIZE","MANIFEST",manifest,None)
+
+def oracle_lineage_state():
+    req,bnd,pending,resolution,application,evidence=offline_bundle()
+    origin=gate0()[0]; fs=vfs()
+    publish_record(fs,canonical_path("fal002.gate-record.v1",ORIGIN,origin["record_id"]),origin)
+    publish_record(fs,bnd["pending_card_locator"],pending)
+    publish_record(fs,application["resolution_locator"],resolution)
+    return {"origin_series_id":ORIGIN,"active_gate":origin,"gate_chain":[origin],"vfs":fs,
+      "run_records":[],"review_records":[],"decision_requirements":[req],
+      "decision_bindings":[bnd],"decision_applications":[application],
+      "pending_records":[pending],"resolution_records":[resolution],"finding_events":[],
+      "remediation_history":[],"finding_checkpoint":origin["payload"]["manifest"]["finding_checkpoint"],
+      "max_global_event_ordinal":-1,"max_prior_ordinal":0,"correction_count":0,
+      "no_progress_history":[],"frozen_hash":FROZEN,"scope_hash":SCOPE,
+      "criteria_hash":CRITERIA,"command_policy_hash":POLICY,
+      "allowed_paths_hash":h("fal002-json-content-v1",["forge/fal002.py"])}
 ```
+
+`OracleLineageState` is the exact dictionary returned by `oracle_lineage_state()`. It is test-only,
+in-memory constructor state. It is never persisted, is not authoritative and is not a sixth surface.
+Every lineage-dependent constructor below receives and returns this object explicitly; none reads
+hidden globals, reconstructs gate zero or assumes ordinal zero.
 
 The all-zero originating gate hash is permitted only inside this pre-gate bootstrap requirement; the
 published MANIFEST authenticates the complete requirement, binding and application.
@@ -3325,12 +3406,17 @@ def review(outcome="CORRECTION_REQUIRED",observations=None,ordinal=0):
       {"run_id":run_id,"ordinal":ordinal,"packet":packet,"result":result,
        "reviewer_execution":execution})
 
-def review_event(review_record,observation,event_ordinal=0,previous=None,
+def review_event(review_record,run_record,observation,event_ordinal=0,previous=None,
                  occurrence=0,recurs_after=None):
+    assert review_record["run_id"]==run_record["record_id"]
+    assert review_record["packet"]["run_record_id"]==run_record["record_id"]
+    assert review_record["packet"]["run_record_hash"]==run_record["record_hash"]
+    bindings=copy.deepcopy(review_record["result"]["criterion_evidence"])
+    assert all(x["source_record_id"]==run_record["record_id"] for x in bindings)
     payload={"observation":observation["observation"],
       "observed_severity":observation["severity"],
       "observed_blocking":observation["blocking"],"statement":observation["statement"],
-      "criterion_ids":observation["criterion_ids"],"evidence_bindings":[binding()],
+      "criterion_ids":observation["criterion_ids"],"evidence_bindings":bindings,
       "rationale":"The resolved schema hash supports exact model and schema consistency."}
     if recurs_after is not None: payload["recurs_after_event_hash"]=recurs_after
     event={"event_ordinal":event_ordinal,"event_kind":"REVIEW_OBSERVATION",
@@ -3356,8 +3442,8 @@ def remediation(finding,rr=None):
       "source_run_id":rr["record_id"],"source_run_hash":rr["record_hash"]}
     return {**value,"remediation_evidence_hash":h("fal002-remediation-evidence-v1",value)}
 
-def remediation_event(finding,previous,event_ordinal=1):
-    rem=remediation(finding)
+def remediation_event(finding,previous,run_record,event_ordinal=1):
+    rem=remediation(finding,run_record)
     value={"event_ordinal":event_ordinal,"event_kind":"REMEDIATION_CLAIM",
       "finding_id":finding["finding_id"],"finding_key":finding["finding_key"],
       "occurrence":0,"created_at":t(650+event_ordinal),
@@ -3456,15 +3542,40 @@ def checkpoint(events):
       "current_findings":current,
       "finding_ledger_hash":h("fal002-finding-ledger-v1",current)}
 
-def control(predecessor,events,ordinal=0,count=1):
-    cp=checkpoint(events)
-    variant={"ordinal":ordinal,"correction_count":count,"diff_hash":hb(b""),
-      "evidence_hash":h("fal002-progress-evidence-v1",{"ordinal":ordinal}),
-      "finding_ids":[e["finding_id"] for e in events],"progress":"NONE",
-      "decision_requirements":[],"decision_bindings":[],"decision_applications":[],
-      "finding_events":events,"finding_checkpoint":cp}
-    return gate(predecessor["sequence"]+1,"correction_required","core","CONTROL_UPDATED",
-      "CONTROL",variant,predecessor["record_hash"],count)
+def control(lineage,events,count=None,progress="NONE",decision_requirements=None,
+            decision_bindings=None,decision_applications=None):
+    prior=copy.deepcopy(lineage); delta=copy.deepcopy(events)
+    dr=[] if decision_requirements is None else copy.deepcopy(decision_requirements)
+    db=[] if decision_bindings is None else copy.deepcopy(decision_bindings)
+    da=[] if decision_applications is None else copy.deepcopy(decision_applications)
+    start=len(prior["finding_events"])
+    assert all(e["event_ordinal"]==start+i for i,e in enumerate(delta))
+    history=prior["finding_events"]+delta; cp=checkpoint(history)
+    actual_count=prior["correction_count"] if count is None else count
+    assert prior["correction_count"] <= actual_count <= 2
+    predecessor=prior["active_gate"]
+    variant={"ordinal":predecessor["sequence"]+1,"correction_count":actual_count,
+      "diff_hash":hb(b""),
+      "evidence_hash":h("fal002-progress-evidence-v1",
+        {"event_count":len(history),"finding_ledger_hash":cp["finding_ledger_hash"]}),
+      "finding_ids":sorted({e["finding_id"] for e in delta}),"progress":progress,
+      "decision_requirements":dr,"decision_bindings":db,"decision_applications":da,
+      "finding_events":delta,"finding_checkpoint":cp}
+    record=gate(predecessor["sequence"]+1,"correction_required","core","CONTROL_UPDATED",
+      "CONTROL",variant,predecessor["record_hash"],actual_count,
+      predecessor["series_id"])[0]
+    updated=copy.deepcopy(prior); updated["active_gate"]=record
+    updated["gate_chain"].append(record); updated["finding_events"]=history
+    updated["finding_checkpoint"]=cp; updated["max_global_event_ordinal"]=len(history)-1
+    updated["max_prior_ordinal"]=max(updated["max_prior_ordinal"],len(history)-1)
+    updated["correction_count"]=actual_count
+    updated["decision_requirements"].extend(dr); updated["decision_bindings"].extend(db)
+    updated["decision_applications"].extend(da)
+    updated["remediation_history"].extend(
+      e["payload"]["remediation"] for e in delta if e["event_kind"]=="REMEDIATION_CLAIM")
+    publish_record(updated["vfs"],canonical_path("fal002.gate-record.v1",
+      record["series_id"],record["record_id"]),record)
+    return record,updated
 
 def progress_inputs(rr,current):
     evidence={"repository":{"baseline_head":rr["repository"]["baseline_head"],
@@ -3585,14 +3696,26 @@ def rebound_bundle(requirement,series,generation,previous,obstruction_hash):
     return {**base,"pending_card_record_hash":pending["record_hash"],"binding_key":key},pending
 
 def resolution_for(requirement,bnd,pending,choice,rationale,application_ordinal=0,
-                   previous_application=None):
+                   previous_application=None,semantic_input=None,presentation_evidence=None):
     generation=bnd["binding_generation"]; did=requirement["decision_identity"]
-    rsi={"decision_identity":did,
-      "decision_requirement_hash":requirement["decision_requirement_hash"],
-      "pending_card_record_hash":pending["record_hash"],"selected_choice":choice,
-      "rationale":rationale,"human_owner":"human-product-owner",
+    rsi=({"decision_identity":did,
+      "answered_requirement_hash":requirement["decision_requirement_hash"],
+      "answered_semantic_payload_hash":requirement["semantic_payload_hash"],
+      "selected_choice":choice,"rationale":rationale,"human_owner":"human-product-owner",
       "human_provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
        "content_hash":hb(b"human-authority")},"decided_at":t(820)}
+      if semantic_input is None else copy.deepcopy(semantic_input))
+    assert rsi["decision_identity"]==did
+    assert rsi["answered_requirement_hash"]==requirement["decision_requirement_hash"]
+    assert rsi["answered_semantic_payload_hash"]==requirement["semantic_payload_hash"]
+    assert rsi["selected_choice"]==choice
+    pe=({"answered_pending_card_record_id":pending["record_id"],
+      "answered_pending_card_record_hash":pending["record_hash"],
+      "answered_binding_generation":generation,"answered_binding_key":bnd["binding_key"],
+      "presented_at":pending["created_at"]} if presentation_evidence is None else
+      {k:copy.deepcopy(v) for k,v in presentation_evidence.items()
+       if k!="presentation_evidence_hash"})
+    pe["presentation_evidence_hash"]=h("fal002-json-content-v1",pe)
     semantic_hash=h("fal002-json-content-v1",rsi)
     rid=f"{did}-resolution-b{generation:04d}"
     resolution=make_record("fal002.human-decision.v1",rid,bnd["binding_series_id"],t(821),
@@ -3600,8 +3723,8 @@ def resolution_for(requirement,bnd,pending,choice,rationale,application_ordinal=
        "status":"ACCEPTED","owner":"human-product-owner",
        "provenance":{"source":"CODEx_TASK","locator":"task://fal002-fixture",
         "content_hash":hb(b"human-authority")},
-       "payload":{"resolution_semantic_input":rsi,
-        "resolution_semantic_hash":semantic_hash}})[0]
+       "payload":{"resolution_semantic_input":rsi,"resolution_semantic_hash":semantic_hash,
+        "presentation_evidence":pe}})[0]
     app={"decision_identity":did,
       "decision_requirement_hash":requirement["decision_requirement_hash"],
       "binding_generation":generation,"binding_key":bnd["binding_key"],
@@ -3609,13 +3732,45 @@ def resolution_for(requirement,bnd,pending,choice,rationale,application_ordinal=
       "pending_card_record_hash":pending["record_hash"],"resolution_record_id":rid,
       "resolution_locator":canonical_path("fal002.human-decision.v1",
         bnd["binding_series_id"],rid),"resolution_record_hash":resolution["record_hash"],
-      "resolution_semantic_hash":semantic_hash,"selected_choice":choice,
+      "resolution_semantic_hash":semantic_hash,
+      "presentation_evidence_hash":pe["presentation_evidence_hash"],"selected_choice":choice,
       "application_ordinal":application_ordinal}
     if previous_application is not None:
         app["previous_application_key"]=previous_application["application_key"]
     app["application_key"]=h("fal002-decision-binding-v1",
       {"binding_object_kind":"RESOLUTION_APPLICATION","value":app})
     return resolution,app
+
+def relocate_resolution(requirement,binding0,pending0,resolution0,application0,series1):
+    obstruction_hash=hb(b"resolution-path-obstruction")
+    binding1,pending1=rebound_bundle(requirement,series1,1,binding0,obstruction_hash)
+    semantic=resolution0["payload"]["resolution_semantic_input"]
+    presentation=resolution0["payload"]["presentation_evidence"]
+    resolution1,application1=resolution_for(requirement,binding1,pending1,
+      semantic["selected_choice"],semantic["rationale"],1,application0,semantic,presentation)
+    assert pending0["record_hash"]!=pending1["record_hash"]
+    assert resolution0["record_hash"]!=resolution1["record_hash"]
+    assert resolution0["payload"]["resolution_semantic_hash"]== \
+           resolution1["payload"]["resolution_semantic_hash"]
+    assert application1["binding_key"]==binding1["binding_key"]
+    assert application1["pending_card_record_hash"]==pending1["record_hash"]
+    assert application1["presentation_evidence_hash"]== \
+           presentation["presentation_evidence_hash"]
+    return binding1,pending1,resolution1,application1
+
+def relocate_offline_evidence(evidence0,binding1,pending1,resolution1,application1):
+    evidence1={k:copy.deepcopy(v) for k,v in evidence0.items() if k!="evidence_id"}
+    evidence1.update({"binding_generation":binding1["binding_generation"],
+      "binding_key":binding1["binding_key"],"pending_card_record_id":pending1["record_id"],
+      "pending_card_record_hash":pending1["record_hash"],
+      "resolution_record_id":resolution1["record_id"],
+      "resolution_record_hash":resolution1["record_hash"],
+      "resolution_locator":application1["resolution_locator"],
+      "resolution_semantic_hash":application1["resolution_semantic_hash"],
+      "presentation_evidence_hash":application1["presentation_evidence_hash"],
+      "collected_at":resolution1["created_at"]})
+    evidence1["evidence_id"]=h("fal002-offline-evidence-v1",evidence1)
+    return evidence1
 
 def finding_decision_bundle(current,predecessor,domain,choice):
     assert domain in ("FINDING_RECLASSIFICATION","FINDING_DISPOSITION")
@@ -3701,13 +3856,18 @@ def initial_binding(requirement,series):
         "binding_key":key,"semantic_input":requirement["semantic_input"]}})[0]
     return {**base,"pending_card_record_hash":pending["record_hash"],"binding_key":key},pending
 
-def recovery_root(predecessor,target_record,n=0):
+def recovery_root(lineage,target_record,n=0):
+    prior=copy.deepcopy(lineage); predecessor=prior["active_gate"]
     s=slot(predecessor,target_record["schema_id"],target_record["record_id"],"COMMITTED")
-    intent=publication_intent(predecessor,target_record,predecessor)[0]
+    intent=publication_intent(predecessor,target_record,target_record)[0]
+    write_bytes(prior["vfs"],host_path(intent["payload"]["publication_intent"]["stage_locator"]),
+      cf(target_record))
+    publish_record(prior["vfs"],canonical_path("fal002.gate-record.v1",
+      intent["series_id"],intent["record_id"]),intent)
+    write_bytes(prior["vfs"],host_path(s["target_path"]),b"\x7b")
     obs=obstruction(intent,s,intent,target_record,b"\x7b")
     material,key=discovery(intent,s); successor=successor_id(key,n)
     req=recovery_requirement(intent,obs,successor); bnd,pending=initial_binding(req,successor)
-    cp=gate0()[0]["payload"]["manifest"]["finding_checkpoint"]
     root={"origin_series_id":ORIGIN,"predecessor_series_id":intent["series_id"],
       "predecessor_gate_id":intent["record_id"],"predecessor_gate_hash":intent["record_hash"],
       "publication_slot":s,"recovery_discovery_material":material,
@@ -3717,23 +3877,158 @@ def recovery_root(predecessor,target_record,n=0):
       "retained_state":intent["state"],"scope_hash":SCOPE,"criteria_hash":CRITERIA,
       "allowed_paths_hash":h("fal002-json-content-v1",["forge/fal002.py"]),
       "command_policy_hash":POLICY,"frozen_hash":FROZEN,
-      "correction_count":intent["payload"]["correction_count"],"max_prior_ordinal":0,
-      "finding_checkpoint":cp,"pending_decisions":[req],
-      "active_decision_bindings":[bnd],"applied_decisions":[],"no_progress_history":[],
+      "correction_count":prior["correction_count"],
+      "max_prior_ordinal":prior["max_prior_ordinal"],
+      "finding_checkpoint":copy.deepcopy(prior["finding_checkpoint"]),
+      "pending_decisions":prior["decision_requirements"]+[req],
+      "active_decision_bindings":prior["decision_bindings"]+[bnd],
+      "applied_decisions":copy.deepcopy(prior["decision_applications"]),
+      "no_progress_history":copy.deepcopy(prior["no_progress_history"]),
       "intended_decision_record_id":pending["record_id"],
       "intended_decision_record_hash":pending["record_hash"]}
-    return gate(0,"awaiting_human","recovery","RECOVERY_SUCCESSOR","RECOVERY_ROOT",root,
-      None,intent["payload"]["correction_count"],successor),pending
+    record=gate(0,"awaiting_human","recovery","RECOVERY_SUCCESSOR","RECOVERY_ROOT",root,
+      None,prior["correction_count"],successor)[0]
+    updated=copy.deepcopy(prior); updated["active_gate"]=record
+    updated["gate_chain"].extend([intent,record]); updated["decision_requirements"].append(req)
+    updated["decision_bindings"].append(bnd); updated["pending_records"].append(pending)
+    publish_record(updated["vfs"],canonical_path("fal002.gate-record.v1",successor,
+      record["record_id"]),record)
+    publish_record(updated["vfs"],bnd["pending_card_locator"],pending)
+    return record,pending,updated
 ```
 
 ### 48.9 Canonical mutation function
 
-`replace(pointer,value)`, `add(pointer,value)` and `remove(pointer)` operate on a deep copy using
-strict RFC 6901. Array indices are base-10 with no leading zero; `-` is permitted only for add.
-`raw(command_id,stream,hexbytes)` changes the named pre-decode bytes. `REHASH` recomputes nested
-content/identity hashes from leaves outward, then payload/record/file hashes. `NO_REHASH` preserves
-the old hash fields. Unknown pointer, ambiguous command ID or type-invalid operation is an oracle
-definition failure, not a system fixture.
+The mutation implementation is executable and uses strict RFC 6901 tokens. Mutation always returns
+a deep copy; the input is unchanged.
+
+```python
+class OracleDefinitionError(Exception): pass
+
+def pointer_tokens(pointer):
+    if pointer=="": return []
+    if not isinstance(pointer,str) or not pointer.startswith("/"):
+        raise OracleDefinitionError("INVALID_POINTER")
+    out=[]
+    for raw_token in pointer[1:].split("/"):
+        i=0; token=""
+        while i<len(raw_token):
+            if raw_token[i]!="~": token+=raw_token[i]; i+=1; continue
+            if i+1==len(raw_token) or raw_token[i+1] not in "01":
+                raise OracleDefinitionError("INVALID_POINTER_ESCAPE")
+            token+=("~" if raw_token[i+1]=="0" else "/"); i+=2
+        out.append(token)
+    return out
+
+def array_index(token,length,allow_end=False,allow_dash=False):
+    if token=="-":
+        if allow_dash: return length
+        raise OracleDefinitionError("INVALID_ARRAY_INDEX")
+    if not token or (len(token)>1 and token[0]=="0") or not token.isascii() or not token.isdigit():
+        raise OracleDefinitionError("INVALID_ARRAY_INDEX")
+    index=int(token); limit=length if allow_end else length-1
+    if index<0 or index>limit: raise OracleDefinitionError("ARRAY_INDEX_OUT_OF_RANGE")
+    return index
+
+def pointer_parent(value,tokens):
+    current=value
+    for token in tokens[:-1]:
+        if isinstance(current,dict):
+            if token not in current: raise OracleDefinitionError("MISSING_PARENT")
+            current=current[token]
+        elif isinstance(current,list): current=current[array_index(token,len(current))]
+        else: raise OracleDefinitionError("NON_CONTAINER_PARENT")
+    return current
+
+def replace(value,pointer,replacement):
+    result=copy.deepcopy(value); tokens=pointer_tokens(pointer)
+    if not tokens: return copy.deepcopy(replacement)
+    parent=pointer_parent(result,tokens); token=tokens[-1]
+    if isinstance(parent,dict):
+        if token not in parent: raise OracleDefinitionError("MISSING_TARGET")
+        parent[token]=copy.deepcopy(replacement)
+    elif isinstance(parent,list): parent[array_index(token,len(parent))]=copy.deepcopy(replacement)
+    else: raise OracleDefinitionError("NON_CONTAINER_PARENT")
+    return result
+
+def add(value,pointer,addition):
+    result=copy.deepcopy(value); tokens=pointer_tokens(pointer)
+    if not tokens: return copy.deepcopy(addition)
+    parent=pointer_parent(result,tokens); token=tokens[-1]
+    if isinstance(parent,dict): parent[token]=copy.deepcopy(addition)
+    elif isinstance(parent,list):
+        parent.insert(array_index(token,len(parent),allow_end=True,allow_dash=True),
+                      copy.deepcopy(addition))
+    else: raise OracleDefinitionError("NON_CONTAINER_PARENT")
+    return result
+
+def remove(value,pointer):
+    result=copy.deepcopy(value); tokens=pointer_tokens(pointer)
+    if not tokens: raise OracleDefinitionError("REMOVE_ROOT_FORBIDDEN")
+    parent=pointer_parent(result,tokens); token=tokens[-1]
+    if isinstance(parent,dict):
+        if token not in parent: raise OracleDefinitionError("MISSING_TARGET")
+        del parent[token]
+    elif isinstance(parent,list): del parent[array_index(token,len(parent))]
+    else: raise OracleDefinitionError("NON_CONTAINER_PARENT")
+    return result
+
+def rehash_value(value):
+    if isinstance(value,list): return [rehash_value(x) for x in value]
+    if not isinstance(value,dict): return copy.deepcopy(value)
+    out={k:rehash_value(v) for k,v in value.items()
+         if k not in ("payload_hash","record_hash")}
+    if "presentation_evidence_hash" in value and "answered_binding_key" in value:
+        base={k:v for k,v in out.items() if k!="presentation_evidence_hash"}
+        out["presentation_evidence_hash"]=h("fal002-json-content-v1",base)
+    if "decision_requirement_hash" in value and "semantic_input" in value:
+        base={k:v for k,v in out.items() if k!="decision_requirement_hash"}
+        out["decision_requirement_hash"]=h("fal002-decision-requirement-v1",base)
+    if "binding_key" in value and "pending_card_locator" in value:
+        base={k:v for k,v in out.items() if k not in ("binding_key","pending_card_record_hash")}
+        out["binding_key"]=h("fal002-decision-binding-v1",
+          {"binding_object_kind":"PENDING_BINDING","value":base})
+    if "application_key" in value and "resolution_semantic_hash" in value:
+        base={k:v for k,v in out.items() if k!="application_key"}
+        out["application_key"]=h("fal002-decision-binding-v1",
+          {"binding_object_kind":"RESOLUTION_APPLICATION","value":base})
+    if "remediation_evidence_hash" in value and "correction_objective_id" in value:
+        base={k:v for k,v in out.items() if k!="remediation_evidence_hash"}
+        out["remediation_evidence_hash"]=h("fal002-remediation-evidence-v1",base)
+    if "resolution_semantic_hash" in value and "resolution_semantic_input" in value:
+        out["resolution_semantic_hash"]=h("fal002-json-content-v1",
+          out["resolution_semantic_input"])
+    if "event_hash" in value and "event_kind" in value:
+        base={k:v for k,v in out.items() if k not in ("event_id","event_hash")}
+        event_hash=h("fal002-finding-observation-v1",base)
+        out={"event_id":"FE-"+event_hash[:20],**base,"event_hash":event_hash}
+    if "evidence_id" in value and "command_policy_hash" in value:
+        base={k:v for k,v in out.items() if k!="evidence_id"}
+        out={**base,"evidence_id":h("fal002-offline-evidence-v1",base)}
+    if "schema_id" in value:
+        fields={k:out[k] for k in SURFACE_FIELDS[out["schema_id"]]}
+        return make_record(out["schema_id"],out["record_id"],out["series_id"],
+          out["created_at"],fields)[0]
+    return out
+
+def REHASH(value,lineage=None):
+    work=copy.deepcopy(value)
+    if isinstance(work,dict) and work.get("schema_id")=="fal002.gate-record.v1" and \
+       work["payload"].get("variant_kind")=="CONTROL":
+        if lineage is None: raise OracleDefinitionError("LINEAGE_REQUIRED_FOR_CONTROL_REHASH")
+        delta=work["payload"]["control"]["finding_events"]
+        history=copy.deepcopy(lineage["finding_events"])+copy.deepcopy(delta)
+        work["payload"]["control"]["finding_checkpoint"]=checkpoint(history)
+    return rehash_value(work)
+
+def NO_REHASH(value,lineage=None): return copy.deepcopy(value)
+```
+
+`REHASH` order is therefore executable and closed: recursively rehash nested presentation,
+requirement, binding, application, remediation, resolution and event objects; derive a CONTROL
+checkpoint from explicit lineage plus delta; then recompute surface payload and record hashes.
+`HB(CF(record))` is computed only when the rehashed record is placed in the VFS/output. A required
+ancestor context that is absent is `OracleDefinitionError`, never implementer discretion.
 
 The virtual filesystem is a byte map with no host-I/O dependency:
 
@@ -3750,10 +4045,31 @@ def make_nonregular(fs,path,kind):
     assert kind in ("SYMLINK","DIRECTORY","OTHER") and path not in fs["regular"]
     fs["nonregular"][path]=kind; fs["operations"].append(["MAKE_NONREGULAR",path,kind])
 def host_path(relative): return VROOT+"/"+relative.removeprefix(".forge/fal002/")
-def publish_record(fs,relative,record): write_bytes(fs,host_path(relative),cf(record))
+def publish_record(fs,relative,record):
+    path=host_path(relative); value=cf(record)
+    if path in fs["nonregular"]: raise OracleDefinitionError("NONREGULAR_PATH")
+    if path in fs["regular"]:
+        if fs["regular"][path]!=value: raise OracleDefinitionError("DUPLICATE_CONFLICT")
+        fs["operations"].append(["ADOPT_IDENTICAL",path,hb(value)]); return
+    write_bytes(fs,path,value)
 def fixture_files(fs):
     return [{"path":p,"bytes_hex":b.hex(),"file_hash":hb(b)}
             for p,b in sorted(fs["regular"].items())]
+def raw(fs,path,hexbytes):
+    if not isinstance(hexbytes,str) or len(hexbytes)%2 or any(c not in "0123456789abcdef" for c in hexbytes):
+        raise OracleDefinitionError("INVALID_HEX_BYTES")
+    write_bytes(fs,path,bytes.fromhex(hexbytes))
+
+def raw_command(record,command_id,stream,hexbytes):
+    if stream not in ("stdout","stderr"):
+        raise OracleDefinitionError("INVALID_COMMAND_STREAM")
+    if not isinstance(hexbytes,str) or len(hexbytes)%2 or any(c not in "0123456789abcdef" for c in hexbytes):
+        raise OracleDefinitionError("INVALID_HEX_BYTES")
+    matches=[c for c in record["commands"]
+             if c["command_id"]==command_id]
+    if len(matches)!=1: raise OracleDefinitionError("COMMAND_NOT_UNIQUE")
+    return {"record":copy.deepcopy(record),"command_id":command_id,"stream":stream,
+            "bytes":bytes.fromhex(hexbytes)}
 ```
 
 An absent path is one missing from both maps. A staged path, final path and obstruction path are the
@@ -3762,11 +4078,118 @@ respectively. A partial stage writes `cf(target)[:len(cf(target))//2]`; a readab
 obstruction writes `b"\x7b"`; a collision writes `b"conflict\n"`. Operation order is exactly the
 order in `fs["operations"]`. Filesystem cases may use only these functions.
 
-### 48.10 Exact CORR-013 fixture matrix
+The mandatory integrated scenarios are executable:
 
-Every row begins from a fresh constructor and uses all operations left-to-right. Unless stated,
-REHASH follows. Expected valid files are exact `cf(record)` and expected hashes are §48.1 outputs.
-Invalid input is never published as an authoritative final.
+```python
+def scenario_finding_chain():
+    state=oracle_lineage_state(); rr0=run(0)[0]; rv0=review(ordinal=0)[0]
+    finding=finding_observation(); e0=review_event(rv0,rr0,finding,0)
+    _,state=control(state,[e0])
+    e1=remediation_event(finding,e0,rr0,1); _,state=control(state,[e1])
+    rr1=run(1)[0]; rv1=review(ordinal=1)[0]
+    absent=finding_observation("HIGH",True,"ABSENT_AFTER_CORRECTION")
+    e2=review_event(rv1,rr1,absent,2,e1); _,state=control(state,[e2])
+    assert state["finding_checkpoint"]["event_count"]==3
+    assert state["max_global_event_ordinal"]==2
+    assert checkpoint(state["finding_events"])==state["finding_checkpoint"]
+    return state
+
+def scenario_finding_recovery():
+    state=oracle_lineage_state(); rr0=run(0)[0]; rv0=review(ordinal=0)[0]
+    finding=finding_observation(); e0=review_event(rv0,rr0,finding,0)
+    _,state=control(state,[e0])
+    e1=remediation_event(finding,e0,rr0,1); _,state=control(state,[e1])
+    before=copy.deepcopy(state["finding_checkpoint"])
+    root,_,state=recovery_root(state,rv0)
+    carried=root["payload"]["recovery_root"]
+    assert carried["finding_checkpoint"]==before
+    assert carried["finding_checkpoint"]["event_count"]==2
+    assert carried["max_prior_ordinal"]==1
+    assert state["finding_checkpoint"]==before
+    return state
+
+def scenario_review_binding():
+    rr0=run(0)[0]; rv0=review(ordinal=0)[0]
+    rr1=run(1)[0]; rv1=review(ordinal=1)[0]
+    finding=finding_observation()
+    e0=review_event(rv0,rr0,finding,0)
+    e1=review_event(rv1,rr1,finding,0)
+    assert e0["payload"]["evidence_bindings"][0]["source_record_id"]==rr0["record_id"]
+    assert e1["payload"]["evidence_bindings"][0]["source_record_id"]==rr1["record_id"]
+    return rr0,rv0,e0,rr1,rv1,e1
+
+def scenario_decision_relocation():
+    requirement,binding0,pending0,resolution0,application0,evidence=offline_bundle()
+    series1="00000000-0000-4000-8000-000000000099"
+    binding_before,pending_before=rebound_bundle(requirement,series1,1,binding0,
+      hb(b"pending-path-obstruction"))
+    resolution_after,application_after=resolution_for(requirement,binding_before,pending_before,
+      "AUTHORIZE_OFFLINE","Offline execution is authorized for this fixture.")
+    binding1,pending1,resolution1,application1=relocate_resolution(requirement,binding0,
+      pending0,resolution0,application0,series1)
+    evidence1=relocate_offline_evidence(evidence,binding1,pending1,resolution1,application1)
+    assert evidence1["resolution_semantic_hash"]==evidence["resolution_semantic_hash"]
+    assert evidence1["resolution_record_hash"]!=evidence["resolution_record_hash"]
+    assert evidence1["pending_card_record_hash"]!=evidence["pending_card_record_hash"]
+    assert resolution_after["payload"]["resolution_semantic_input"]["answered_requirement_hash"]== \
+           requirement["decision_requirement_hash"]
+    assert application_after["binding_key"]==binding_before["binding_key"]
+    return {"requirement":requirement,"binding0":binding0,"pending0":pending0,
+      "resolution0":resolution0,"application0":application0,"binding1":binding1,
+      "pending1":pending1,"resolution1":resolution1,"application1":application1,
+      "binding_before":binding_before,"pending_before":pending_before,
+      "resolution_after":resolution_after,"application_after":application_after,
+      "offline_evidence0":evidence,"offline_evidence1":evidence1}
+
+def scenario_mutation():
+    base=gate0()[0]
+    mutated=replace(base,"/payload/manifest/scope_hash","0"*64)
+    stale=NO_REHASH(mutated); current=REHASH(mutated)
+    assert stale["record_hash"]==base["record_hash"]
+    assert current["record_hash"]!=base["record_hash"]
+    return {"base":base,"pointer":"/payload/manifest/scope_hash",
+      "operation":"replace","value":"0"*64,"REHASH":current,
+      "REHASH_disposition":"AUTHORITY_CONFLICT","NO_REHASH":stale,
+      "NO_REHASH_disposition":"HASH_MISMATCH"}
+
+def case_environment():
+    state=oracle_lineage_state(); decision=scenario_decision_relocation()
+    rr0,rv0,e0,rr1,rv1,e1=scenario_review_binding()
+    executor0=executor_exchange(0)[0]; intent0=publication_intent(state["active_gate"],rv0,rv0)[0]
+    slot0=intent0["payload"]["publication_intent"]["slot"]
+    root0,pending_recovery,state0=recovery_root(copy.deepcopy(state),rv0,0)
+    root1,_,_=recovery_root(copy.deepcopy(state),rv0,1)
+    key=root0["payload"]["recovery_root"]["recovery_discovery_key"]
+    return {"state":state,"fs":copy.deepcopy(state["vfs"]),"gate0":gate0()[0],
+      "ready":ready()[0],"run0":rr0,"run1":rr1,"review0":rv0,"review1":rv1,
+      "event0":e0,"event1":e1,"key":key,"root0":root0,"root1":root1,
+      "executor0":executor0,"intent0":intent0,"slot0":slot0,
+      "stage0":intent0["payload"]["publication_intent"]["stage_locator"],
+      "candidate0":canonical_path("fal002.gate-record.v1",successor_id(key,0),"gate-00000000"),
+      "candidate1":canonical_path("fal002.gate-record.v1",successor_id(key,1),"gate-00000000"),
+      "pending_recovery":pending_recovery,"finding_chain":scenario_finding_chain(),
+      "finding_recovery":scenario_finding_recovery(),"mutation":scenario_mutation(),**decision}
+```
+
+### 48.10 Exact CORR-014 fixture matrix
+
+Every row begins independently with `e=case_environment()`; a bare constructor name means the exact
+same-named function in §§48.1–48.9. Before its operation, each row assigns every bare local from
+this closed map: `state=e["state"]`, `fs=e["fs"]`, `gate0=e["gate0"]`, `ready=e["ready"]`,
+`run0=e["run0"]`, `run1=e["run1"]`, `review0=e["review0"]`, `review1=e["review1"]`,
+`target=e["review0"]`, `intent=e["intent0"]`, `stage=e["stage0"]`, `key=e["key"]`,
+`root0=e["root0"]`, `root1=e["root1"]`, `candidate0=e["candidate0"]`,
+`candidate1=e["candidate1"]`, and the `requirement`, `binding0`, `binding1`, `pending0`, `pending1`,
+`resolution0`, `resolution1`, `application0`, `application1`, `offline_evidence0`,
+`offline_evidence1`, `binding_before`, `pending_before`, `resolution_after`, `application_after`,
+`event0` and
+`event1` locals are the dictionary members whose keys exactly equal those local names. A row that
+names `x` initializes it explicitly
+from one of those locals. No row inherits a mutated object or VFS from another row. Operations
+execute left-to-right. `REHASH` means the executable
+function with `e["state"]`; `NO_REHASH` means its executable function. Expected valid files are
+exact `cf(record)` and expected hashes are §48.1 outputs. Invalid input is never published as an
+authoritative final.
 
 | Case ID | Base; exact operation | Expected |
 | --- | --- | --- |
@@ -3776,38 +4199,40 @@ Invalid input is never published as an authoritative final.
 | `hash-domain-missing` | gate0; replace record_hash with sha256(cj(record without hash)); NO_REHASH | HASH_MISMATCH |
 | `intent-not-required` | ready; derive reconstructable next GateRecord | PUBLICATION_INTENT forbidden; ordinary gate append |
 | `intent-required-missing` | `fs=vfs(); target=executor_exchange()[0]; publish_record(fs,canonical_path(target["schema_id"],ORIGIN,target["record_id"]),target)` with no PUBLICATION_INTENT gate | FORBIDDEN_TRANSITION; target ignored |
-| `intent-valid` | completed reviewer target; publication_intent | intent gate final; retained reviewing state |
-| `intent-wrong-predecessor` | intent-valid; replace `/payload/publication_intent/slot/predecessor_gate_hash` with 64 `0` | HASH_MISMATCH |
-| `intent-wrong-slot` | intent-valid; replace `/payload/publication_intent/slot/target_record_id` with `review-wrong` | MALFORMED_BOUNDARY |
-| `intent-wrong-hash` | intent-valid; replace `/payload/publication_intent/intended_record_hash` with 64 `0` | HASH_MISMATCH |
-| `intent-replay` | publish intent-valid twice byte-identically | one final; idempotent |
+| `intent-valid` | `target=review0; intent=publication_intent(state["active_gate"],target,target)[0]` | intent gate final; retained reviewing state |
+| `intent-wrong-predecessor` | `x=replace(intent,"/payload/publication_intent/slot/predecessor_gate_hash","0"*64); NO_REHASH(x)` | HASH_MISMATCH |
+| `intent-wrong-slot` | `x=replace(intent,"/payload/publication_intent/slot/target_record_id","review-wrong"); REHASH(x,state)` | MALFORMED_BOUNDARY |
+| `intent-wrong-hash` | `x=replace(intent,"/payload/publication_intent/intended_record_hash","0"*64); REHASH(x,state)` | HASH_MISMATCH |
+| `intent-replay` | `publish_record(fs,canonical_path(intent["schema_id"],intent["series_id"],intent["record_id"]),intent)` twice | one final; idempotent |
 | `intent-crash-stage` | write first floor(len(cf(target))/2) bytes at attempt-0000 | preserve; complete attempt-0001; predecessor active until intent final |
 | `intent-crash-after-final` | publish intent; no target | intent gate active; replay publishes exact stage without actor invocation |
 | `discovery-zero` | obstruct intent target with raw `7b`; recovery_root n=0 | exact UUID candidate 0 authoritative awaiting_human |
-| `discovery-candidate-invalid` | `write_bytes(fs,host_path(canonical_path("fal002.gate-record.v1",successor_id(key,0),"gate-00000000")),b"\x7b")` | preserve exact byte; candidate-1 eligible |
+| `discovery-candidate-invalid` | `raw(fs,host_path(candidate0),"7b")` | preserve exact byte; candidate-1 eligible |
 | `discovery-later` | candidate-0 stable malformed; recovery_root n=1 | ordinal 1 root authoritative |
-| `discovery-first-absent` | candidate-0 absent; `publish_record(fs,canonical_path("fal002.gate-record.v1",successor_id(key,1),"gate-00000000"),root1)` | candidate-1 ignored; predecessor remains active |
+| `discovery-first-absent` | assert `host_path(candidate0)` absent; `publish_record(fs,candidate1,root1)` | candidate-1 ignored; predecessor remains active |
 | `discovery-wrong-lineage` | recovery n=0; replace `/payload/recovery_root/origin_series_id` with `00000000-0000-4000-8000-000000000003` | invalid stable candidate; no authority |
 | `discovery-no-directory-heuristic` | `publish_record(fs,canonical_path("fal002.gate-record.v1","00000000-0000-4000-8000-000000000099","gate-00000000"),root0)` | ignored evidence |
 | `recovery-crash-before-root` | complete root stage; fault before final link | predecessor active; replay identical root |
 | `recovery-crash-after-root` | root final valid; decision final absent | successor authoritative; replay exact bound decision |
 | `recovery-chain-two` | root0 active; obstruct its decision path; derive root1 from root0 slot | one logical lineage; binding generation 1 |
 | `decision-binding-zero` | recovery root with generation-0 binding | exact active locator/read succeeds |
-| `decision-path-obstructed` | `write_bytes(fs,host_path(binding0["pending_card_locator"]),b"\x7b")` | same decision identity pending; successor recovery and generation 1 |
+| `decision-path-obstructed` | `raw(fs,host_path(binding0["pending_card_locator"]),"7b")` | same decision identity pending; successor recovery and generation 1 |
 | `decision-pending-only` | `offline_bundle()`; remove resolution and application files/state | PENDING; no state authority |
 | `decision-resolution-separate` | publish pending and resolution to their distinct canonical locators; carry application | ACCEPTED AUTHORIZE_OFFLINE; pending bytes unchanged |
-| `decision-resolution-obstructed` | `write_bytes(fs,host_path(application0["resolution_locator"]),b"\x7b")`; retain ResolutionSemanticInput; rebound generation 1 | PENDING during recovery; same semantic hash; one applied answer after replay |
-| `decision-resolution-replay` | publish byte-identical rebound resolution twice | one semantic resolution; idempotent |
-| `decision-resolution-conflict` | clone resolution; replace selected choice with `DECLINE`; REHASH | AUTHORITY_CONFLICT; no application |
+| `decision-pending-rebound-after-answer` | `scenario_decision_relocation()` | `pending0.record_hash != pending1.record_hash`; stable semantic input/hash; application1 binds pending1 and historical presentation0 |
+| `decision-pending-rebound-before-answer` | `binding_before,pending_before,resolution_after,application_after` from `scenario_decision_relocation()` | P1 presentation is answered; semantic answer validates against the unchanged requirement; application binds P1 |
+| `decision-resolution-obstructed` | `raw(fs,host_path(application0["resolution_locator"]),"7b")`; use `resolution1`/`application1` from `scenario_decision_relocation()` | R0 physical obstruction; R1 physical hash differs; semantic hash identical; one applied answer |
+| `decision-resolution-replay` | `publish_record(fs,application1["resolution_locator"],resolution1)` twice with create-only identical-byte adoption | one semantic resolution; idempotent |
+| `decision-resolution-conflict` | `x=replace(resolution1,"/payload/resolution_semantic_input/selected_choice","DECLINE"); x=REHASH(x)` | different semantic hash/choice; AUTHORITY_CONFLICT; no application |
 | `decision-resolution-orphan` | publish accepted resolution at canonical path for inactive series `00000000-0000-4000-8000-000000000099` | STALE_RECORD; ignored for authority |
 | `decision-recovery-n` | repeat `recovery_root` for n=0,1,2 with obstruction at each active bound path | same decision identity at every depth; contiguous binding generations |
-| `decision-rebound` | prior obstruction; bind same identity at generation 1 | semantic input/hash identical; new series locator |
+| `decision-rebound` | compare `binding0,pending0,resolution0` to `binding1,pending1,resolution1` | same decision identity and semantic answer hash; new physical pending/resolution records |
 | `decision-generation-gap` | generation 0 then 2 | AUTHORITY_CONFLICT |
 | `decision-orphan` | valid record at unbound locator | ignored evidence; cannot resolve |
 | `decision-inactive` | valid generation-0 record after generation-1 binding | STALE_RECORD for lookup |
 | `decision-wrong-hash` | active record; replace `/record_hash` with 64 `0`; NO_REHASH | HASH_MISMATCH |
 | `offline-origin` | gate0 + valid origin offline resolution | pre-spawn resolution succeeds |
-| `offline-rebound` | same decision identity rebound generation 1 and explicitly carried resolution | same AUTHORIZE_OFFLINE semantic result |
+| `offline-rebound` | validate `application1`, `resolution1` and `offline_evidence1` through §46.4 | same AUTHORIZE_OFFLINE semantic result despite P0/P1 and R0/R1 hash differences |
 | `offline-wrong-locator` | gate0; replace `/payload/manifest/offline_evidence/resolution_locator` with `x.json` | HASH_MISMATCH |
 | `offline-wrong-identity` | replace offline `decision_identity` with `D-00000000000000000000000000000000` | HASH_MISMATCH |
 | `offline-nonaccepted` | resolution status DECLINED, choice DECLINE | MALFORMED_BOUNDARY; no spawn |
@@ -3828,6 +4253,10 @@ Invalid input is never published as an authoritative final.
 | `finding-duplicate-identical` | carry the same event ID/hash/bytes twice at the same logical position | idempotent one event |
 | `finding-duplicate-conflict` | reuse event ID and ordinal with changed statement; REHASH | AUTHORITY_CONFLICT |
 | `finding-restart` | serialize each CONTROL with CF; discard memory; traverse origin and fold stored deltas | byte-identical checkpoint/current state |
+| `finding-control-chain` | `state=scenario_finding_chain()` | event count 3; max global ordinal 2; online and restart checkpoints identical |
+| `finding-recovery-carry` | `state=scenario_finding_recovery()` | recovery event count 2; max prior ordinal 1; finding/current/progress state retained |
+| `review-binding-zero` | `scenario_review_binding()` values `run0,review0,event0` | event0 EvidenceBinding source equals run0 ID/hash |
+| `review-binding-one` | `scenario_review_binding()` values `run1,review1,event1` | event1 EvidenceBinding source equals run1 ID/hash |
 | `finding-recurrence` | independently verified then STILL_PRESENT | OPEN same occurrence |
 | `finding-recurrence-after-close` | CLOSED occurrence 0 then NEW with terminal event hash | occurrence 1 OPEN |
 | `finding-bad-recurrence` | CLOSED then NEW without terminal event hash | FORBIDDEN_TRANSITION |
@@ -3843,32 +4272,42 @@ Invalid input is never published as an authoritative final.
 | `progress-severity-only` | raise current severity only | NO_PROGRESS; introduced_blocker when CRITICAL |
 | `progress-blocking-only` | false→true only | NO_PROGRESS; introduced_blocker |
 | `progress-verification-only` | ADDRESSED→INDEPENDENTLY_VERIFIED only | NO_PROGRESS without diff/evidence change |
+| `mutation-rehash` | `scenario_mutation()["REHASH"]` after exact scope pointer replacement | new canonical record hash; AUTHORITY_CONFLICT against frozen scope |
+| `mutation-no-rehash` | `scenario_mutation()["NO_REHASH"]` after same replacement | stale record hash; HASH_MISMATCH |
 
 ### 48.11 Legacy fixture coverage under final constructors
 
 The 19 committed fixture filenames remain planned, but their historical bytes/hashes are withdrawn.
-They are regenerated only from §§48.1–48.9. Their subcases use these exact normalized operations:
+They are regenerated only from §§48.1–48.9. Every subcase starts with a fresh
+`e=case_environment()` and the indicated base; no object, VFS or mutation is shared. Their exact
+normalized operations are:
 
-- GATE invalid predecessor: `remove /predecessor`; unknown field: `add /unknown 1`;
-- EXEC forbidden PASS: `add /result/outcome "PASS"`;
-- RUN bad record hash: `replace /record_hash` with 64 zeroes and NO_REHASH; unknown:
-  `add /unknown 1`; missing executable: `replace /commands/1/termination "SPAWN_ERROR"`,
-  `replace /commands/1/exit_code null`, `replace /commands/1/parsed
-  {"available":false,"failure_reason":"COMMAND_FAILURE"}`; timeout uses the same exact three
-  pointers at `/commands/13` with TIMEOUT;
-- invalid UTF-8: `raw("PYTEST","stdout","ff")`; malformed Git version:
-  `raw("GIT-VERSION","stdout","676974203f3f3f0a")`; ambiguous pytest uses
-  `raw("PYTEST","stdout","312070617373656420696e20302e3031730a312070617373656420696e20302e3031730a")`;
-- REVIEW missing binding: `remove /result/criterion_evidence/0`; same principal:
-  `replace /reviewer_execution/grant/principal_id "principal-executor"`; inherited context:
-  `add /reviewer_execution/grant/prior_context_id "ctx-old"`;
-- DECISION missing owner: `remove /owner`; unknown: `add /unknown 1`; stale target:
-  `replace /payload/decision_card/original_target/target_semantic_hash` with 64 zeroes; declined uses
-  status DECLINED and exact domain DECLINE choice;
-- HASH order wrong predecessor replaces `/predecessor` with zero hash; gap replaces `/sequence` with
-  3 and `/record_id` with `gate-00000003`; stale replaces both with zero equivalents;
+- GATE invalid predecessor: `remove(e["gate0"],"/predecessor")`; unknown field:
+  `add(e["gate0"],"/unknown",1)`;
+- EXEC forbidden PASS: `add(e["executor0"],"/result/outcome","PASS")`;
+- RUN bad record hash: `NO_REHASH(replace(e["run0"],"/record_hash","0"*64))`; unknown:
+  `add(e["run0"],"/unknown",1)`; missing executable begins `x=e["run0"]` and applies, in order,
+  `replace(x,"/commands/1/termination","SPAWN_ERROR")`,
+  `replace(x,"/commands/1/exit_code",None)` and
+  `replace(x,"/commands/1/parsed",{"available":False,"failure_reason":"COMMAND_FAILURE"})`;
+  timeout applies the same three operations at command index 13 with termination `TIMEOUT`;
+- invalid UTF-8: `raw_command(e["run0"],"PYTEST","stdout","ff")`; malformed Git version:
+  `raw_command(e["run0"],"GIT-VERSION","stdout","676974203f3f3f0a")`; ambiguous pytest:
+  `raw_command(e["run0"],"PYTEST","stdout","312070617373656420696e20302e3031730a312070617373656420696e20302e3031730a")`;
+- REVIEW missing binding: `remove(e["review0"],"/result/criterion_evidence/0")`; same
+  principal: `replace(e["review0"],"/reviewer_execution/grant/principal_id","principal-executor")`;
+  inherited context: `add(e["review0"],"/reviewer_execution/grant/prior_context_id","ctx-old")`;
+- DECISION missing owner: `remove(e["pending0"],"/owner")`; unknown:
+  `add(e["pending0"],"/unknown",1)`; stale target replaces the exact
+  `/payload/decision_card/original_target/target_semantic_hash` in the applicable closure-card
+  constructor with `"0"*64`; declined resolution uses status `DECLINED` and the exact domain choice
+  `DECLINE`;
+- HASH order wrong predecessor is `replace(e["gate0"],"/predecessor","0"*64)`; gap begins
+  `x=e["gate0"]` and applies
+  `replace(x,"/sequence",3)` then `replace(x,"/record_id","gate-00000003")`; stale replaces both
+  fields with their exact zero equivalents;
 - duplicate same publishes exact CF bytes; duplicate different uses
-  `replace /payload/manifest/scope_hash` with `hb(b"different")` and REHASH;
+  `REHASH(replace(e["gate0"],"/payload/manifest/scope_hash",hb(b"different")))`;
 - partial uses exactly `cf(record)[:len(cf(record))//2]` at attempt zero;
 - redaction raw input is UTF-8 `criterion=abc token='x y'` and exact persisted replacement
   `criterion=abc token='<REDACTED>'`;
@@ -3909,14 +4348,14 @@ the independence test.
 
 | Chain | Required final proof |
 | --- | --- |
-| A — requirement → pending card → resolution → application | Pending and resolution are distinct immutable HumanDecisionRecords; only an exact DecisionApplication in GateRecord changes state |
-| B — obstruction → recovery → rebinding → resolution | One semantic identity survives pending/resolution obstruction and recovery-N; generations are contiguous and conflicting answers fail closed |
+| A — requirement → pending card → resolution → application | ResolutionSemanticInput binds the stable requirement and answer, PresentationEvidence binds what the human saw, current binding/application bind physical records, and only an exact DecisionApplication in GateRecord changes state |
+| B — obstruction → recovery → rebinding → resolution | One resolution semantic hash survives P0/P1 and R0/R1 physical relocation and recovery-N; generations are contiguous and conflicting semantic answers fail closed |
 | C — offline authority → lineage → accepted resolution | MANIFEST legally carries bootstrap requirement/binding/application; the common resolver rejects pending-only, orphan, stale or unapplied records |
 | D — review → GateRecord event → remediation → restart | CONTROL deltas and checkpoints reconstruct byte-identical current state; remediation is evidence-backed but remains unverified |
 | E — human downgrade → reviewer escalation → current state | A human reclassification starts a severity epoch; a later higher reviewer observation escalates deterministically while a lower one cannot downgrade |
 | F — current finding state → PASS | OPEN or ADDRESSED_AWAITING_REVIEW blocker denies PASS; only independent absence produces INDEPENDENTLY_VERIFIED and closure remains human-only |
 | G — current state → no-progress → ceiling | Logical-lineage fingerprints and correction count survive recovery; progress is computed before the unchanged 2-correction ceiling |
-| H — final models → independent oracle | Five surface constructors, embedded decision/finding objects, VFS operations, mutations and expected hashes instantiate §§44–47 without production imports |
+| H — final models → independent oracle | Five surface constructors, embedded decision/finding objects, explicit test-only lineage state, VFS operations, mutations and expected hashes instantiate §§44–47 without production imports |
 
 Failure of any link is `HASH_MISMATCH`, `AUTHORITY_CONFLICT`, `MISSING_EVIDENCE` or
 `FORBIDDEN_TRANSITION` as specified; no chain may synthesize PASS.
@@ -3972,7 +4411,7 @@ hash, recovery locator, decision lookup, finding evolution and fixture statement
 force. Sections 44–48 explicitly incorporate only named unchanged structures, parser rules and raw
 fixture inputs. No competing normative answer remains.
 
-## 50. Final budget, scope and CORR-013 state
+## 50. Final budget, scope and CORR-014 state
 
 The corrected design retains four new production modules plus unchanged `forge/__init__.py`
 attribution, one executor adapter, one reviewer adapter, five schema surfaces and zero new dependency.
@@ -3982,13 +4421,13 @@ decision binding and finding derivation refine responsibilities already allocate
 they add no module or surface. Implementation inventory must continuously prove the limit and stop
 `BUDGET AUTHORITY REQUIRED` on contrary concrete evidence. `EB006-FR-07` is not reopened.
 
-Only EB-006 and necessary documentation index/project-memory text may change in CORR-013. Runtime,
+Only EB-006 and necessary documentation index/project-memory text may change in CORR-014. Runtime,
 tests, schemas, committed fixture implementation, dependencies, versions, Audio Recorder,
 FAL-002 specification, FAL-001 and unrelated artifacts remain unchanged.
 
-All four objectives `CORR-013-01` through `CORR-013-04`, mapped respectively to `EB006-IR5-01`
-through `EB006-IR5-04`, are `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only the correction
-agent's remediation claim: no IR5 finding is independently verified, closed, accepted or PASS.
+Both objectives `CORR-014-01` and `CORR-014-02`, mapped respectively to `EB006-IR6-01` and
+`EB006-IR6-02`, are `ADDRESSED — AWAITING INDEPENDENT REVIEW`. This is only the correction agent's
+remediation claim: neither IR6 finding is independently verified, closed, accepted or PASS.
 FAL-002 remains `NOT AUTHORIZED`; no runtime implementation occurred. FAL-001 remains permanently
 `TERMINATED BLOCKED`, unaccepted and unclosed, correction count 2/2. The only next gate is a fresh
-independent read-only Standard-Assurance Review IR6 against the dedicated CORR-013 commit.
+independent read-only Standard-Assurance Review IR7 against the dedicated CORR-014 commit.
