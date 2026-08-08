@@ -112,7 +112,12 @@ Forge may eventually include:
   series segments form one logical append-only lineage; a `RECOVERY_ROOT` GateRecord is the sole
   authority transition; HumanDecision conflict cards explain/resolve but never establish state;
   discovery is derived and pointer-free. The five surfaces and budget remain unchanged. IR3-04 and
-  IR3-05 remain open, and CORR-011 requires a separate Human Decision.
+  IR3-05 remain open; HD-FAL-013 subsequently supplies the separate CORR-011 authorization.
+- Treat `HD-FAL-013` as authorization for one coherent bounded documentation campaign containing
+  `CORR-011-01`–`CORR-011-08`. It may change EB-006 and only necessary project-memory/index text,
+  must implement `HD-FAL-012` without redesign, and must stop on specification, architecture,
+  surface, dependency or budget authority needs. Findings may become only `ADDRESSED — AWAITING
+  INDEPENDENT REVIEW`; FAL-002 remains `NOT AUTHORIZED`.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

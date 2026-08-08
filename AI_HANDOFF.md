@@ -17,9 +17,11 @@ review of corrected EB-006 returned `FAIL — IMPLEMENTATION AUTHORIZATION NOT R
 eight findings `EB006-IR3-01`–`EB006-IR3-08` blocking. `HD-FAL-012` now selects deterministic
 successor state-series segments as one logical authoritative lineage. The recovery root remains a
 GateRecord and conflict cards remain HumanDecisionRecords, so no sixth surface or mutable global
-pointer is introduced. IR3-04 and IR3-05 remain open. `CORR-011-01` through `CORR-011-08` are
-reserved but `NOT AUTHORIZED`. The `HD-FAL-009` envelope remains approximately 1,660 expected and at
-most 1,800 new production LOC. Do not implement FAL-002. The album capability remains unstarted.
+pointer is introduced. IR3-04 and IR3-05 remain open. `HD-FAL-013` authorizes `CORR-011-01` through
+`CORR-011-08` as one bounded EB-006 documentation correction campaign, but the correction has not
+started and no finding is verified or closed. The `HD-FAL-009` envelope remains approximately 1,660
+expected and at most 1,800 new production LOC. FAL-002 remains `NOT AUTHORIZED`; the album capability
+remains unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -211,11 +213,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Create a separate Human Decision deciding whether to authorize one coherent bounded CORR-011
-documentation correction implementing the `HD-FAL-012` architecture and the other IR3 repairs. Do
-not edit EB-006, start CORR-011 or implement FAL-002 before that decision. Completed correction must
-receive fresh independent review; even a later PASS still requires separate Implementation
-Authorization.
+Execute the `HD-FAL-013`-authorized bounded CORR-011 documentation correction against EB-006 in a
+separate commit. Modify no runtime, test, schema, fixture, dependency, version, Audio Recorder or
+FAL-002 specification artifact. Record findings only as `ADDRESSED — AWAITING INDEPENDENT REVIEW`,
+then conduct a fresh independent read-only Standard-Assurance Review. Even a later PASS still
+requires separate Implementation Authorization.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
