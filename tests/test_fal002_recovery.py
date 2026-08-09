@@ -7,6 +7,7 @@ from forge.fal002_inventory import inventory
 from forge.fal002_io import (
     canonical_record_path,
     discover_recovery_root,
+    load_record,
     publish_create_only,
     publish_staged,
     stage_committed_record,
@@ -15,6 +16,7 @@ from forge.fal002_model import (
     FAL002Error,
     H,
     decision_identity,
+    decision_requirement,
     empty_finding_checkpoint,
     fold_finding_events,
     publication_slot,
@@ -62,7 +64,7 @@ def origin_gate(series=ORIGIN, corrections=2):
     )
 
 
-def recovery_root(predecessor, ordinal=0):
+def recovery_root(predecessor, ordinal=0, checkpoint=None, pending=None):
     slot = publication_slot(
         {
             "origin_series_id": ORIGIN,
@@ -113,8 +115,8 @@ def recovery_root(predecessor, ordinal=0):
         "frozen_hash": "3" * 64,
         "correction_count": predecessor["payload"]["correction_count"],
         "max_prior_ordinal": 0,
-        "finding_checkpoint": empty_finding_checkpoint(),
-        "pending_decisions": [],
+        "finding_checkpoint": checkpoint or empty_finding_checkpoint(),
+        "pending_decisions": pending or [],
         "active_decision_bindings": [],
         "applied_decisions": [],
         "no_progress_history": [],
@@ -409,3 +411,40 @@ def test_full_severity_epoch_matrix(initial, human, reviewer, expected):
     )
     current, _ = fold_finding_events(events)
     assert current[0]["current_severity"] == expected
+
+
+def test_restart_recovery_carries_decisions_and_findings_together(tmp_path):
+    predecessor = origin_gate()
+    first = event(0, "REVIEW_OBSERVATION", review_payload("NEW"))
+    _, checkpoint = fold_finding_events([first])
+    semantic = {
+        "domain": "RECOVERY",
+        "question": "Resume recovered lineage?",
+        "allowed_choices": ["AUTHORIZE_RECOVERY_RESUME", "ABANDON_LINEAGE"],
+        "original_target": {
+            "target_kind": "RECOVERY_ROOT",
+            "origin_series_id": ORIGIN,
+            "target_record_id": predecessor["record_id"],
+            "target_semantic_hash": predecessor["record_hash"],
+        },
+        "semantic_sources": [],
+    }
+    requirement = decision_requirement(
+        {
+            "semantic_input": semantic,
+            "required_authority": "HUMAN",
+            "originating_series_id": ORIGIN,
+            "originating_gate_id": predecessor["record_id"],
+            "originating_gate_hash": predecessor["record_hash"],
+            "created_at": STAMP,
+        }
+    )
+    root = recovery_root(predecessor, checkpoint=checkpoint, pending=[requirement])
+    publish_create_only(canonical_record_path(tmp_path, predecessor), predecessor)
+    path = canonical_record_path(tmp_path, root)
+    publish_create_only(path, root)
+    del root, checkpoint, requirement
+    recovered = load_record(path)["payload"]["recovery_root"]
+    assert recovered["finding_checkpoint"]["current_findings"][0]["state"] == "OPEN"
+    assert recovered["pending_decisions"][0]["semantic_input"]["domain"] == "RECOVERY"
+    assert recovered["correction_count"] == 2
