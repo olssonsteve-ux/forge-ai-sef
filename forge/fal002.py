@@ -18,8 +18,11 @@ from forge.fal002_io import (
     FAL002ExecutorAdapter,
     FAL002ReviewerAdapter,
     canonical_record_path,
+    load_record,
     publish_create_only,
+    publish_staged,
     run_command,
+    stage_committed_record,
     write_current,
 )
 from forge.fal002_model import (
@@ -32,6 +35,8 @@ from forge.fal002_model import (
     fold_finding_events,
     generate_schemas,
     pass_eligible,
+    progress_snapshot,
+    publication_slot,
     seal_record,
     validate_record,
     validate_reviewer_run,
@@ -182,6 +187,56 @@ def persist_transition(root: Path, gate: dict[str, Any]) -> str:
     return status
 
 
+def publish_committed(
+    root: Path,
+    predecessor: dict[str, Any],
+    record: dict[str, Any],
+    *,
+    created_at: str,
+    source_authority: str,
+    source_record: dict[str, Any],
+) -> dict[str, Any]:
+    """Stage and final-publish one COMMITTED record through its authoritative intent."""
+    target_path = canonical_record_path(root, record).relative_to(root).as_posix()
+    origin = predecessor["payload"].get("recovery_root", {}).get("origin_series_id", predecessor["series_id"])
+    slot = publication_slot(
+        {
+            "origin_series_id": origin,
+            "predecessor_series_id": predecessor["series_id"],
+            "predecessor_gate_id": predecessor["record_id"],
+            "predecessor_gate_hash": predecessor["record_hash"],
+            "target_surface": record["schema_id"],
+            "target_record_id": record["record_id"],
+            "target_path": target_path,
+            "reconstruction": "COMMITTED",
+        }
+    )
+    staged, attempt, file_hash = stage_committed_record(root, predecessor["series_id"], slot["slot_id"], record)
+    intent = {
+        "slot": slot,
+        "retained_state": predecessor["state"],
+        "intended_record_hash": record["record_hash"],
+        "intended_file_hash": file_hash,
+        "stage_locator": staged.relative_to(root).as_posix(),
+        "stage_attempt": attempt,
+        "stage_file_hash": file_hash,
+        "source_authority": source_authority,
+        "source_record_id": source_record["record_id"],
+        "source_record_hash": source_record["record_hash"],
+    }
+    intent["intent_commitment_hash"] = H("fal002-publication-intent-v1", intent)
+    intent_gate = transition(
+        predecessor,
+        event="PUBLICATION_INTENT_COMMITTED",
+        created_at=created_at,
+        variant_kind="PUBLICATION_INTENT",
+        variant=intent,
+    )
+    persist_transition(root, intent_gate)
+    publish_staged(root, staged, intent_gate, record)
+    return intent_gate
+
+
 def reconstruct_findings(
     gates: list[dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -204,6 +259,40 @@ def reconstruct_findings(
             if value["finding_checkpoint"] != expected_checkpoint:
                 raise FAL002Error("HASH_MISMATCH", "recovery finding checkpoint mismatch")
     return fold_finding_events(events)
+
+
+def reconstruct_decisions(gates: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    requirements: list[dict[str, Any]] = []
+    bindings: list[dict[str, Any]] = []
+    applications: list[dict[str, Any]] = []
+    for gate in gates:
+        variant = gate["payload"]["variant_kind"]
+        value = gate["payload"][variant.lower()]
+        if variant in {"MANIFEST", "CONTROL"}:
+            requirements = value["decision_requirements"]
+            bindings = value["decision_bindings"]
+            applications = value["decision_applications"]
+        elif variant == "RECOVERY_ROOT":
+            requirements = value["pending_decisions"]
+            bindings = value["active_decision_bindings"]
+            applications = value["applied_decisions"]
+    return requirements, bindings, applications
+
+
+def decisions_pending(root: Path, gates: list[dict[str, Any]]) -> tuple[bool, tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]]:
+    authority = reconstruct_decisions(gates)
+    requirements, bindings, applications = authority
+    pending = False
+    for requirement in requirements:
+        status, _ = resolve_decision(
+            requirement["decision_identity"],
+            requirements,
+            bindings,
+            applications,
+            lambda locator: load_record(root / locator),
+        )
+        pending = pending or status != "ACCEPTED"
+    return pending, authority
 
 
 def evaluate_review(
@@ -232,12 +321,14 @@ def evaluate_review(
 
 
 def correction_disposition(
-    previous_snapshot: dict[str, Any],
+    previous_snapshot: dict[str, Any] | None,
     current_snapshot: dict[str, Any],
     previous_findings: list[dict[str, Any]],
     current_findings: list[dict[str, Any]],
     correction_count: int,
 ) -> str:
+    if previous_snapshot is None:
+        return "MATERIAL"
     if correction_count >= 2:
         return "CEILING"
     previous_unresolved = {(item["finding_id"], item["occurrence"]): item for item in previous_findings if item["state"] in {"OPEN", "ADDRESSED_AWAITING_REVIEW"}}
@@ -345,6 +436,20 @@ def run_engineering_loop(
     chain = __import__("forge.fal002_io", fromlist=["load_gate_chain"]).load_gate_chain(root, current_gate["series_id"])
     if chain[-1] != current_gate:
         raise FAL002Error("STALE_RECORD", "current GateRecord is not authoritative tip")
+    if current_gate["state"] == "correction_required" and current_gate["payload"]["variant_kind"] == "CONTROL":
+        control = current_gate["payload"]["control"]
+        stop_event = "CEILING_REACHED" if current_gate["payload"]["correction_count"] >= 2 else "NO_PROGRESS" if control["progress"] == "NONE" else None
+        if stop_event:
+            stopped_control = {**control, "progress": "CEILING" if stop_event == "CEILING_REACHED" else "NONE"}
+            stopped = transition(
+                current_gate,
+                event=stop_event,
+                created_at=created_at,
+                variant_kind="CONTROL",
+                variant=stopped_control,
+            )
+            persist_transition(root, stopped)
+            return {"gate_record": stopped, "eligible": False, "stop_reason": stopped_control["progress"]}
     manifest = chain[0]["payload"]["manifest"]
     ordinal = max((gate["payload"].get("control", {}).get("ordinal", -1) for gate in chain), default=-1) + 1
     suffix = H("fal002-json-content-v1", {"series": current_gate["series_id"], "ordinal": ordinal})[:12]
@@ -413,7 +518,14 @@ def run_engineering_loop(
         }
     )
     exchange = __import__("forge.fal002_io", fromlist=["invoke_executor"]).invoke_executor(executor, exchange, timeout_seconds=timeout_seconds)
-    publish_create_only(canonical_record_path(root, exchange), exchange)
+    execution_tip = publish_committed(
+        root,
+        execution_gate,
+        exchange,
+        created_at=created_at,
+        source_authority="EXECUTOR_ADAPTER",
+        source_record=execution_gate,
+    )
     commands = [command_runner(root, command_id, timeout_seconds=timeout_seconds) for command_id in COMMAND_IDS]
     parsed = {item["command_id"]: item["parsed"] for item in commands}
     offline = manifest.get("offline_evidence")
@@ -460,9 +572,16 @@ def run_engineering_loop(
             "build": {"status": "not_available", "reason": "packaging_forbidden"},
         }
     )
-    publish_create_only(canonical_record_path(root, run), run)
+    run_tip = publish_committed(
+        root,
+        execution_tip,
+        run,
+        created_at=created_at,
+        source_authority="COLLECTOR",
+        source_record=execution_gate,
+    )
     evidence_gate = transition(
-        execution_gate,
+        run_tip,
         event="COLLECT_COMPLETE",
         created_at=created_at,
         variant_kind="EVIDENCE",
@@ -550,11 +669,6 @@ def run_engineering_loop(
             },
         }
     )
-    review_exchange = __import__("forge.fal002_io", fromlist=["invoke_reviewer"]).invoke_reviewer(reviewer, review_exchange, timeout_seconds=timeout_seconds)
-    if executor is reviewer or review_exchange["reviewer_execution"]["grant"]["context_id"] == exec_grant["context_id"] or review_exchange["reviewer_execution"]["observed"]["object_identity"] == exchange["invocation"]["observed"]["object_identity"]:
-        raise FAL002Error("INDEPENDENCE_FAILURE", "reviewer execution context is not fresh")
-    validate_reviewer_run(review_exchange, run)
-    publish_create_only(canonical_record_path(root, review_exchange), review_exchange)
     review_gate = transition(
         evidence_gate,
         event="START_REVIEW",
@@ -570,14 +684,53 @@ def run_engineering_loop(
         },
     )
     persist_transition(root, review_gate)
+    review_exchange = __import__("forge.fal002_io", fromlist=["invoke_reviewer"]).invoke_reviewer(reviewer, review_exchange, timeout_seconds=timeout_seconds)
+    if executor is reviewer or review_exchange["reviewer_execution"]["grant"]["context_id"] == exec_grant["context_id"] or review_exchange["reviewer_execution"]["observed"]["object_identity"] == exchange["invocation"]["observed"]["object_identity"]:
+        raise FAL002Error("INDEPENDENCE_FAILURE", "reviewer execution context is not fresh")
+    validate_reviewer_run(review_exchange, run)
+    review_tip = publish_committed(
+        root,
+        review_gate,
+        review_exchange,
+        created_at=created_at,
+        source_authority="REVIEWER_ADAPTER",
+        source_record=review_gate,
+    )
     prior_events = [event for gate in chain for event in gate["payload"].get("control", {}).get("finding_events", [])]
     events = _finding_events(review_exchange, prior_events)
     findings, checkpoint = fold_finding_events(prior_events + events)
+    pending, decision_authority = decisions_pending(root, chain)
+    requirements, decision_bindings, decision_applications = decision_authority
     eligible = evaluate_review(
         review_exchange,
         findings,
-        pending_decisions=bool(manifest["decision_requirements"]),
+        pending_decisions=pending,
         evidence_loader=lambda _surface, _id: run,
+    )
+    current_snapshot = progress_snapshot(run, findings, execution_gate["payload"]["correction_count"])
+    previous_snapshot = None
+    previous_findings: list[dict[str, Any]] = []
+    if request["request_kind"] == "CORRECTION":
+        previous_control = next(
+            (gate["payload"]["control"] for gate in reversed(chain) if gate["payload"]["variant_kind"] == "CONTROL"),
+            None,
+        )
+        if previous_control is None:
+            raise FAL002Error("MISSING_EVIDENCE", "correction requires prior control state")
+        previous_findings, _ = reconstruct_findings(chain)
+        previous_run_id = next(
+            gate["payload"]["evidence"]["run_id"]
+            for gate in reversed(chain)
+            if gate["payload"]["variant_kind"] == "EVIDENCE"
+        )
+        previous_run = load_record(root / ".forge" / "fal002" / "series" / current_gate["series_id"] / "runs" / f"{previous_run_id}.json")
+        previous_snapshot = progress_snapshot(previous_run, previous_findings, previous_control["correction_count"])
+    progress = correction_disposition(
+        previous_snapshot,
+        current_snapshot,
+        previous_findings,
+        findings,
+        execution_gate["payload"]["correction_count"],
     )
     outcome_event = "REVIEW_PASS" if eligible else "REVIEW_CORRECTION" if review_exchange["result"]["outcome"] == "CORRECTION_REQUIRED" else "REVIEW_BLOCKED"
     variant_kind = "ELIGIBILITY" if eligible else "CONTROL"
@@ -594,18 +747,18 @@ def run_engineering_loop(
             "ordinal": ordinal,
             "correction_count": execution_gate["payload"]["correction_count"],
             "diff_hash": run["diff"]["sha256"],
-            "evidence_hash": evidence_gate["payload"]["evidence"]["evidence_hash"],
+            "evidence_hash": current_snapshot["progress_evidence_hash"],
             "finding_ids": [item["finding_id"] for item in findings],
-            "progress": "MATERIAL",
-            "decision_requirements": manifest["decision_requirements"],
-            "decision_bindings": manifest["decision_bindings"],
-            "decision_applications": manifest["decision_applications"],
+            "progress": progress,
+            "decision_requirements": requirements,
+            "decision_bindings": decision_bindings,
+            "decision_applications": decision_applications,
             "finding_events": events,
             "finding_checkpoint": checkpoint,
         }
     )
     final_gate = transition(
-        review_gate,
+        review_tip,
         event=outcome_event,
         created_at=created_at,
         variant_kind=variant_kind,
@@ -646,9 +799,19 @@ def resolve_decision(
     if not ordered_bindings:
         return "PENDING", None
     latest_binding = ordered_bindings[-1]
+    if latest_binding["decision_requirement_hash"] != canonical["decision_requirement_hash"]:
+        raise FAL002Error("AUTHORITY_CONFLICT", "binding targets another decision requirement")
     pending = record_loader(latest_binding["pending_card_locator"])
     validate_record(pending)
-    if pending["record_hash"] != latest_binding["pending_card_record_hash"]:
+    if (
+        pending["record_hash"] != latest_binding["pending_card_record_hash"]
+        or pending["record_id"] != latest_binding["pending_card_record_id"]
+        or pending["decision_identity"] != decision_identity
+        or pending["binding_generation"] != latest_binding["binding_generation"]
+        or pending["payload"]["decision_requirement_hash"] != canonical["decision_requirement_hash"]
+        or pending["payload"]["binding_key"] != latest_binding["binding_key"]
+        or pending["payload"]["semantic_input"] != canonical["semantic_input"]
+    ):
         raise FAL002Error("HASH_MISMATCH", "pending binding mismatch")
     ordered_applications = sorted(
         (item for item in applications if item["decision_identity"] == decision_identity),
@@ -656,6 +819,9 @@ def resolve_decision(
     )
     if not ordered_applications:
         return "PENDING", None
+    for index, item in enumerate(ordered_applications):
+        if item["application_ordinal"] != index or (index and item.get("previous_application_key") != ordered_applications[index - 1]["application_key"]):
+            raise FAL002Error("STALE_RECORD", "decision application lineage gap")
     semantic_hashes = {item["resolution_semantic_hash"] for item in ordered_applications}
     choices = {item["selected_choice"] for item in ordered_applications}
     if len(semantic_hashes) != 1 or len(choices) != 1:
@@ -664,11 +830,35 @@ def resolve_decision(
     expected_application = decision_application({key: value for key, value in application.items() if key != "application_key"})
     if application != expected_application:
         raise FAL002Error("HASH_MISMATCH", "decision application key mismatch")
-    if application["binding_key"] != latest_binding["binding_key"]:
+    if (
+        application["decision_requirement_hash"] != canonical["decision_requirement_hash"]
+        or application["binding_key"] != latest_binding["binding_key"]
+        or application["binding_generation"] != latest_binding["binding_generation"]
+        or application["pending_card_record_id"] != pending["record_id"]
+        or application["pending_card_record_hash"] != pending["record_hash"]
+    ):
         raise FAL002Error("STALE_RECORD", "application uses stale binding")
     resolution = record_loader(application["resolution_locator"])
     validate_record(resolution)
-    if resolution["record_hash"] != application["resolution_record_hash"] or resolution["payload"]["resolution_semantic_hash"] != application["resolution_semantic_hash"]:
+    semantic = resolution["payload"]["resolution_semantic_input"]
+    presentation = resolution["payload"]["presentation_evidence"]
+    if (
+        resolution["decision_identity"] != decision_identity
+        or resolution["binding_generation"] != latest_binding["binding_generation"]
+        or resolution["record_id"] != application["resolution_record_id"]
+        or resolution["record_hash"] != application["resolution_record_hash"]
+        or resolution["payload"]["resolution_semantic_hash"] != application["resolution_semantic_hash"]
+        or semantic["decision_identity"] != decision_identity
+        or semantic["answered_requirement_hash"] != canonical["decision_requirement_hash"]
+        or semantic["answered_semantic_payload_hash"] != canonical["semantic_payload_hash"]
+        or semantic["selected_choice"] not in canonical["semantic_input"]["allowed_choices"]
+        or semantic["selected_choice"] != application["selected_choice"]
+        or presentation["answered_pending_card_record_id"] != pending["record_id"]
+        or presentation["answered_pending_card_record_hash"] != pending["record_hash"]
+        or presentation["answered_binding_generation"] != latest_binding["binding_generation"]
+        or presentation["answered_binding_key"] != latest_binding["binding_key"]
+        or presentation["presentation_evidence_hash"] != application["presentation_evidence_hash"]
+    ):
         raise FAL002Error("HASH_MISMATCH", "resolution application mismatch")
     return resolution["status"], resolution
 

@@ -24,9 +24,12 @@ authorized `FAL002-CORR-001`. Independent
 Implementation Review II returned `FAIL — IMPLEMENTATION CORRECTION REQUIRED`: `IR1-02`, `IR1-06`
 and `IR1-07` are independently verified but not closed; `IR1-01`, `IR1-03`, `IR1-04` and `IR1-05`
 remain open/blocking; no new finding was created; and STOP #9/#13 remain triggered. `HD-FAL-023`
-authorizes only `FAL002-CORR-002` for those four residuals, without architecture or scope reopening.
-Four modules, two adapters, five surfaces and zero dependencies remain frozen; production LOC is
-2,998 with a revised hard maximum of 3,400. FAL-002 remains unaccepted and unclosed, both planning
+authorized only `FAL002-CORR-002` for those four residuals, without architecture or scope reopening.
+All four objectives are now `ADDRESSED — AWAITING INDEPENDENT REVIEW`; the findings remain open. The
+corrected runtime uses exclusive intent-aware COMMITTED publication, actual recovery-predecessor
+validation, full decision cross-binding, I/O-owned reviewer provenance and deterministic
+no-progress. Inventory is four modules, two adapters, five surfaces, zero new dependencies and
+3,316/3,400 LOC; 40 focused and 182 full tests pass. FAL-002 remains unaccepted and unclosed, both planning
 IR6 findings remain `INDEPENDENTLY VERIFIED — NOT CLOSED`, and the album capability remains
 unstarted.
 
@@ -220,11 +223,10 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Execute the committed `HD-FAL-023`-authorized `FAL002-CORR-002-01` through `-04` implementation
-correction within four modules, two adapters, five surfaces, zero dependencies and the 3,400-LOC
-ceiling. Preserve independently verified `IR1-02`, `IR1-06` and `IR1-07`; stop on regression or a
-new material defect. Then perform one fresh independent implementation review. Do not verify/close
-findings or infer FAL-002 acceptance, closure or release, and do not begin the album capability.
+Perform one fresh independent implementation review of the committed CORR-002 baseline. Review the
+four residual findings and preserve independently verified `IR1-02`, `IR1-06` and `IR1-07`. Do not
+verify/close findings from implementation evidence, infer FAL-002 acceptance, closure or release, or
+begin the album capability.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

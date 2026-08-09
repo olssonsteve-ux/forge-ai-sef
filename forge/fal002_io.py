@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+import threading
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,8 +18,12 @@ from forge.fal002_model import (
     CF,
     HB,
     FAL002Error,
+    H,
+    fold_finding_events,
     parse_cf,
+    progress_snapshot,
     recovery_candidate_uuid,
+    seal_record,
     validate_record,
     validate_reviewer_run,
 )
@@ -107,16 +112,22 @@ def _beneath(root: Path, target: Path) -> None:
 
 
 def publish_create_only(path: Path, record: dict[str, Any]) -> str:
-    """Create canonical authoritative bytes; identical replay is idempotent."""
+    """Publish a reconstructable GateRecord; COMMITTED surfaces require intent."""
     validate_record(record)
     root = _repository_root_from_target(path)
     if path.resolve(strict=False) != canonical_record_path(root, record).resolve(strict=False):
         raise FAL002Error("AUTHORITY_CONFLICT", "noncanonical authoritative target")
-    if record["schema_id"] == "fal002.reviewer-exchange.v1":
-        run_path = root / ".forge" / "fal002" / "series" / record["series_id"] / "runs" / f"{record['run_id']}.json"
-        validate_reviewer_run(record, load_record(run_path))
-    if record["schema_id"] != "fal002.gate-record.v1" or record["payload"]["variant_kind"] != "RECOVERY_ROOT":
+    if record["schema_id"] != "fal002.gate-record.v1":
+        raise FAL002Error("MISSING_EVIDENCE", "COMMITTED final publication requires PUBLICATION_INTENT")
+    if record["payload"]["variant_kind"] == "RECOVERY_ROOT":
+        _validate_recovery_predecessor(root, record)
+    if record["payload"]["variant_kind"] != "RECOVERY_ROOT":
         _assert_series_unsealed(root, record["series_id"])
+    return _publish_raw_create_only(path, record)
+
+
+def _publish_raw_create_only(path: Path, record: dict[str, Any]) -> str:
+    """Low-level canonical create/adopt primitive; conveys no authority by itself."""
     raw = CF(record)
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -209,8 +220,16 @@ def publish_staged(
     validate_record(target_record)
     if intent_gate["payload"]["variant_kind"] != "PUBLICATION_INTENT":
         raise FAL002Error("MISSING_EVIDENCE", "PUBLICATION_INTENT required")
+    persisted_intent = load_record(canonical_record_path(root, intent_gate))
+    if persisted_intent != intent_gate:
+        raise FAL002Error("AUTHORITY_CONFLICT", "publication intent is not authoritative")
+    intent_chain = load_gate_chain(root, intent_gate["series_id"])
+    if intent_chain[-1] != intent_gate:
+        raise FAL002Error("STALE_RECORD", "publication intent is not authoritative tip")
     intent = intent_gate["payload"]["publication_intent"]
     slot = intent["slot"]
+    if len(intent_chain) < 2 or slot["predecessor_gate_id"] != intent_chain[-2]["record_id"] or slot["predecessor_gate_hash"] != intent_chain[-2]["record_hash"]:
+        raise FAL002Error("AUTHORITY_CONFLICT", "publication intent predecessor mismatch")
     expected_stage = root / intent["stage_locator"]
     if staged_path.resolve(strict=False) != expected_stage.resolve(strict=False):
         raise FAL002Error("AUTHORITY_CONFLICT", "staging locator mismatch")
@@ -225,7 +244,10 @@ def publish_staged(
     target = canonical_record_path(root, record)
     if target.relative_to(root).as_posix() != slot["target_path"]:
         raise FAL002Error("AUTHORITY_CONFLICT", "publication target mismatch")
-    return publish_create_only(target, record)
+    if record["schema_id"] == "fal002.reviewer-exchange.v1":
+        run_path = root / ".forge" / "fal002" / "series" / record["series_id"] / "runs" / f"{record['run_id']}.json"
+        validate_reviewer_run(record, load_record(run_path))
+    return _publish_raw_create_only(target, record)
 
 
 def _repository_root_from_target(path: Path) -> Path:
@@ -253,6 +275,82 @@ def _assert_series_unsealed(root: Path, series_id: str) -> None:
             raise FAL002Error("STALE_RECORD", "predecessor physical series is sealed")
 
 
+def _contains_value(value: Any, expected: str) -> bool:
+    if isinstance(value, dict):
+        return any(_contains_value(item, expected) for item in value.values())
+    if isinstance(value, list):
+        return any(_contains_value(item, expected) for item in value)
+    return value == expected
+
+
+def _validate_recovery_predecessor(root: Path, record: dict[str, Any]) -> None:
+    recovery = record["payload"]["recovery_root"]
+    series_id = recovery["predecessor_series_id"]
+    gate_id = recovery["predecessor_gate_id"]
+    try:
+        sequence = int(gate_id.removeprefix("gate-"))
+    except ValueError as exc:
+        raise FAL002Error("AUTHORITY_CONFLICT", "invalid recovery predecessor identity") from exc
+    path = root / ".forge" / "fal002" / "series" / series_id / "gate" / f"{sequence:08d}.json"
+    predecessor = load_record(path)
+    chain = load_gate_chain(root, series_id)
+    if chain[-1] != predecessor or predecessor["record_id"] != gate_id or predecessor["record_hash"] != recovery["predecessor_gate_hash"]:
+        raise FAL002Error("AUTHORITY_CONFLICT", "recovery predecessor is not authoritative tip")
+    prior_recovery = predecessor["payload"].get("recovery_root")
+    origin = prior_recovery["origin_series_id"] if prior_recovery else chain[0]["series_id"]
+    if recovery["origin_series_id"] != origin or recovery["retained_state"] != predecessor["state"] or recovery["correction_count"] != predecessor["payload"]["correction_count"]:
+        raise FAL002Error("AUTHORITY_CONFLICT", "recovery predecessor authority mismatch")
+    slot = recovery["publication_slot"]
+    if slot["target_surface"] == "fal002.gate-record.v1":
+        if slot["target_record_id"] != f"gate-{predecessor['sequence'] + 1:08d}":
+            raise FAL002Error("AUTHORITY_CONFLICT", "recovery slot is not the next gate")
+    elif not _contains_value(predecessor["payload"], slot["target_record_id"]):
+        raise FAL002Error("AUTHORITY_CONFLICT", "recovery slot target is not predecessor-authorized")
+    if prior_recovery:
+        carried = (
+            "finding_checkpoint",
+            "pending_decisions",
+            "active_decision_bindings",
+            "applied_decisions",
+            "no_progress_history",
+        )
+        if any(recovery[key] != prior_recovery[key] for key in carried):
+            raise FAL002Error("AUTHORITY_CONFLICT", "recovery carry-forward mismatch")
+    else:
+        manifest = chain[0]["payload"]["manifest"]
+        checkpoint = manifest["finding_checkpoint"]
+        requirements = manifest["decision_requirements"]
+        bindings = manifest["decision_bindings"]
+        applications = manifest["decision_applications"]
+        events: list[dict[str, Any]] = []
+        history: list[dict[str, Any]] = []
+        latest_run: dict[str, Any] | None = None
+        for gate in chain:
+            if gate["payload"]["variant_kind"] == "EVIDENCE":
+                run_id = gate["payload"]["evidence"]["run_id"]
+                latest_run = load_record(root / ".forge" / "fal002" / "series" / series_id / "runs" / f"{run_id}.json")
+            if gate["payload"]["variant_kind"] == "CONTROL":
+                control = gate["payload"]["control"]
+                checkpoint = control["finding_checkpoint"]
+                requirements = control["decision_requirements"]
+                bindings = control["decision_bindings"]
+                applications = control["decision_applications"]
+                events.extend(control["finding_events"])
+                findings, _ = fold_finding_events(events)
+                if latest_run is not None:
+                    history.append(progress_snapshot(latest_run, findings, control["correction_count"]))
+        expected = (checkpoint, requirements, bindings, applications, history)
+        observed = (
+            recovery["finding_checkpoint"],
+            recovery["pending_decisions"],
+            recovery["active_decision_bindings"],
+            recovery["applied_decisions"],
+            recovery["no_progress_history"],
+        )
+        if observed != expected:
+            raise FAL002Error("AUTHORITY_CONFLICT", "recovery carry-forward mismatch")
+
+
 def discover_recovery_root(root: Path, discovery_key: str, *, max_ordinal: int = 9999) -> dict[str, Any] | None:
     """Probe deterministic candidates without enumerating the series directory."""
     for ordinal in range(max_ordinal + 1):
@@ -264,6 +362,7 @@ def discover_recovery_root(root: Path, discovery_key: str, *, max_ordinal: int =
             record = load_record(path)
             recovery = record["payload"]["recovery_root"]
             if record["series_id"] == candidate and recovery["recovery_discovery_key"] == discovery_key and recovery["recovery_ordinal"] == ordinal:
+                _validate_recovery_predecessor(root, record)
                 return record
         except FAL002Error:
             continue
@@ -290,6 +389,7 @@ def invoke_executor(adapter: FAL002ExecutorAdapter, exchange: dict[str, Any], *,
 def invoke_reviewer(adapter: FAL002ReviewerAdapter, exchange: dict[str, Any], *, timeout_seconds: float) -> dict[str, Any]:
     before = deepcopy(exchange)
     validate_record(exchange)
+    started_at = _timestamp()
     output = adapter.review(deepcopy(exchange), timeout_seconds=timeout_seconds)
     validate_record(output)
     for key in before:
@@ -297,9 +397,25 @@ def invoke_reviewer(adapter: FAL002ReviewerAdapter, exchange: dict[str, Any], *,
             raise FAL002Error("AUTHORITY_CONFLICT", f"reviewer changed {key}")
     if output["result"] is None:
         raise FAL002Error("MISSING_EVIDENCE", "reviewer returned no result")
-    if output["reviewer_execution"]["grant"] != before["reviewer_execution"]["grant"]:
-        raise FAL002Error("AUTHORITY_CONFLICT", "reviewer changed invocation grant")
-    return output
+    authoritative = deepcopy(before)
+    authoritative["result"] = output["result"]
+    observed = authoritative["reviewer_execution"]["observed"]
+    observed.update(
+        {
+            "grant_id": authoritative["reviewer_execution"]["grant"]["grant_id"],
+            "resolved_adapter_path": "forge/fal002_io.py",
+            "adapter_content_hash": HB(Path(__file__).read_bytes()),
+            "process_id": os.getpid(),
+            "thread_id": threading.get_ident(),
+            "object_identity": id(adapter),
+            "started_at": started_at,
+            "ended_at": _timestamp(),
+            "input_hash": H("fal002-json-content-v1", authoritative["packet"]),
+            "output_hash": H("fal002-json-content-v1", authoritative["result"]),
+            "termination": "RETURNED",
+        }
+    )
+    return seal_record({key: value for key, value in authoritative.items() if key not in {"payload_hash", "record_hash"}})
 
 
 def redact(raw: bytes) -> tuple[bytes, int]:

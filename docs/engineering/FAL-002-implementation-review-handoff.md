@@ -1,5 +1,52 @@
 # FAL-002 Implementation Review Handoff
 
+## FAL002-CORR-002 correction handoff — 2026-08-09
+
+Status: `Implemented — correction addressed — awaiting independent implementation review`.
+
+Starting from committed `HD-FAL-023` baseline
+`3082a8ae731b670cb6a77af754cea28527c6b65d`, objectives `FAL002-CORR-002-01` through `-04` are
+`ADDRESSED — AWAITING INDEPENDENT REVIEW`. Mapped `FAL002-IR1-01`, `FAL002-IR1-03`,
+`FAL002-IR1-04` and `FAL002-IR1-05` remain open. Independently verified `FAL002-IR1-02`,
+`FAL002-IR1-06` and `FAL002-IR1-07` remain verified but not closed. No verification, closure or
+FAL-002 acceptance is claimed by the implementation agent.
+
+The existing orchestrator now stages each COMMITTED exchange/run, persists an exact
+PUBLICATION_INTENT and final-publishes only through the authoritative intent route. The public
+create-only API is GateRecord-only; its raw primitive remains internal. Publication resolves the
+persisted intent tip and exact predecessor/slot/stage/target/hashes. RECOVERY_ROOT publication and
+discovery/adoption validate the actual canonical predecessor tip, logical origin and carried state.
+Decision resolution cross-checks requirement, card, binding, presentation, resolution, legal choice
+and application; persisted pending/applied state feeds eligibility. Runtime/I/O rebuilds reviewer
+observations despite callback tampering. Deterministic progress snapshots yield `NONE` for unchanged
+correction state and stop before another executor invocation.
+
+### Publication call-site audit
+
+| Module/function | Classification and validated route | Bypass possible |
+| --- | --- | --- |
+| `fal002.persist_transition` | GateRecord-only publication; RECOVERY_ROOT validates persisted predecessor | no COMMITTED-surface bypass |
+| `fal002.publish_committed` | stage → persisted intent → `publish_staged` | no |
+| `fal002_io.publish_create_only` | rejects all four non-gate surfaces | no |
+| `fal002_io.publish_staged` | sole COMMITTED route; resolves authoritative intent tip | no |
+| `fal002_io._publish_raw_create_only` | internal byte primitive; only the two policy functions call it | no operational caller |
+
+Adversarial results: no-intent HumanDecisionRecord, ExecutorExchange, RunRecord and ReviewerExchange
+all reject with absent targets; exact intent succeeds and corrupt stage rejects; phantom, wrong-hash
+and wrong-series recovery predecessors reject; valid predecessor/recovery depth three and sealing
+pass; Decision B resolution rejects for Decision A; valid same-decision online/offline resolution
+agrees; persisted pending/applied states differ correctly; reviewer provenance tampering is replaced;
+and unchanged correction state derives `NONE` then stops before retry.
+
+Final inventory: **3,316/3,400 LOC**, four modules, two adapters, five surfaces and zero new direct or
+transitive dependencies. Verification: 40 focused FAL-002 tests and 182 full tests pass; Ruff,
+format, schema check and inventory pass. Packaging was not run because it is prohibited.
+
+Correction evidence addresses the implementation causes of STOP #9/#13 without weakening their
+contracts. Only the required fresh independent implementation review may verify the four findings.
+Architecture, FAL-002, EB-006 and HD-FAL-021/022/023 remain unchanged. The exact next permitted step
+is **one fresh independent implementation review of the corrected FAL-002 baseline**.
+
 ## Independent Implementation Review II and CORR-002 authority — 2026-08-09
 
 Independent Implementation Review II of corrected HEAD

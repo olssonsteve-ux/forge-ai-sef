@@ -19,10 +19,11 @@ conditions #9 and #13 crossed.
 returned `FAIL — IMPLEMENTATION CORRECTION REQUIRED`: `FAL002-IR1-02`, `IR1-06` and `IR1-07` are
 independently verified but not closed; `IR1-01`, `IR1-03`, `IR1-04` and `IR1-05` remain
 `OPEN — BLOCKING`; no new finding was created; and STOP #9/#13 remain triggered. `HD-FAL-023`
-authorizes `FAL002-CORR-002` for only those four residuals, with no architecture reopening. The
-limits remain four production modules, two adapters, five surfaces and zero new dependencies. The
-hard production-LOC ceiling is explicitly revised to 3,400 from the current 2,998. FAL-002 remains
-implemented, unaccepted and unclosed. Both planning IR6 findings remain
+authorized `FAL002-CORR-002` for only those four residuals, with no architecture reopening. All four
+objectives are now `ADDRESSED — AWAITING INDEPENDENT REVIEW`; the findings remain open. Correction
+evidence is 3,316/3,400 production LOC in four modules, two adapters, five surfaces and zero new
+dependencies, with 40 focused and 182 full tests passing. FAL-002 remains implemented, unaccepted
+and unclosed. Both planning IR6 findings remain
 `INDEPENDENTLY VERIFIED — NOT CLOSED`.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
@@ -38,11 +39,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Execute committed `HD-FAL-023` campaign `FAL002-CORR-002-01` through `-04`, limited to residual
-`IR1-01`, `IR1-03`, `IR1-04` and `IR1-05`, then perform one fresh independent implementation review.
-Preserve independently verified `IR1-02`, `IR1-06` and `IR1-07`. Do not accept or close FAL-002 or
-any finding from correction evidence alone. Manual Digital Album Authoring and Export remains
-unstarted and unauthorized.
+Perform one fresh independent implementation review of the corrected FAL-002 baseline. CORR-002-01
+through `-04` are addressed but not independently verified. Preserve independently verified
+`IR1-02`, `IR1-06` and `IR1-07`; do not accept or close FAL-002 or any finding from correction
+evidence alone. Manual Digital Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -255,6 +255,10 @@ unstarted and unauthorized.
   finding; accepted `HD-FAL-023` authorizes only `FAL002-CORR-002-01` through `-04`, preserves the
   three independently verified findings, keeps STOP #9/#13 triggered and revises only the
   production-LOC hard maximum from 3,000 to 3,400
+- addressed all four HD-FAL-023 CORR-002 objectives through exclusive intent-aware publication,
+  actual recovery-predecessor validation, exact decision authority, I/O-owned reviewer provenance
+  and deterministic no-progress; inventory is 3,316/3,400 with 40 focused tests, and the findings
+  remain awaiting independent review
 
 ## What Does Not Exist
 
@@ -388,8 +392,6 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Execute the committed `HD-FAL-023`-authorized `FAL002-CORR-002-01` through `-04` correction
-   without crossing four modules, two adapters, five surfaces, zero dependencies or 3,400 LOC.
-2. Perform one fresh independent implementation review after correction. Keep FAL-002 unaccepted
-   and unclosed; preserve `IR1-02`, `IR1-06` and `IR1-07` as independently verified but not closed;
-   no release work is authorized.
+1. Perform one fresh independent implementation review of the committed CORR-002 baseline against
+   the four residual findings and preserved verified regressions.
+2. Keep FAL-002 unaccepted and unclosed; no release work is authorized.

@@ -65,6 +65,7 @@ def origin_gate(series=ORIGIN, corrections=2):
 
 
 def recovery_root(predecessor, ordinal=0, checkpoint=None, pending=None):
+    target_id = f"gate-{predecessor['sequence'] + 1:08d}"
     slot = publication_slot(
         {
             "origin_series_id": ORIGIN,
@@ -72,8 +73,11 @@ def recovery_root(predecessor, ordinal=0, checkpoint=None, pending=None):
             "predecessor_gate_id": predecessor["record_id"],
             "predecessor_gate_hash": predecessor["record_hash"],
             "target_surface": "fal002.gate-record.v1",
-            "target_record_id": "gate-00000001",
-            "target_path": f".forge/fal002/series/{predecessor['series_id']}/gate/00000001.json",
+            "target_record_id": target_id,
+            "target_path": (
+                f".forge/fal002/series/{predecessor['series_id']}/gate/"
+                f"{predecessor['sequence'] + 1:08d}.json"
+            ),
             "reconstruction": "RECONSTRUCTABLE",
         }
     )
@@ -235,6 +239,43 @@ def test_wrong_predecessor_and_transient_probe_fail_closed(tmp_path, monkeypatch
     )
     with pytest.raises(FAL002Error, match="transient"):
         discover_recovery_root(tmp_path, "a" * 64)
+
+
+def test_recovery_root_requires_actual_authoritative_predecessor(tmp_path):
+    phantom = origin_gate()
+    root = recovery_root(phantom)
+    target = canonical_record_path(tmp_path, root)
+    with pytest.raises(FAL002Error, match="MISSING_EVIDENCE"):
+        publish_create_only(target, root)
+    assert not target.exists()
+
+    actual = origin_gate()
+    publish_create_only(canonical_record_path(tmp_path, actual), actual)
+    changed_manifest = manifest()
+    changed_manifest["scope_hash"] = "f" * 64
+    wrong_hash = make_gate(
+        series_id=ORIGIN,
+        sequence=0,
+        predecessor=None,
+        state="draft",
+        actor="human",
+        event="INITIALIZE",
+        created_at=STAMP,
+        frozen_hash="3" * 64,
+        correction_count=2,
+        variant_kind="MANIFEST",
+        variant=changed_manifest,
+    )
+    wrong_root = recovery_root(wrong_hash)
+    with pytest.raises(FAL002Error, match="authoritative tip"):
+        publish_create_only(canonical_record_path(tmp_path, wrong_root), wrong_root)
+
+    other_series = "22222222-2222-4222-8222-222222222222"
+    other = origin_gate(series=other_series)
+    publish_create_only(canonical_record_path(tmp_path, other), other)
+    wrong_series_root = recovery_root(other)
+    with pytest.raises(FAL002Error, match="authority mismatch"):
+        publish_create_only(canonical_record_path(tmp_path, wrong_series_root), wrong_series_root)
 
 
 def pending_decision():
@@ -414,7 +455,7 @@ def test_full_severity_epoch_matrix(initial, human, reviewer, expected):
 
 
 def test_restart_recovery_carries_decisions_and_findings_together(tmp_path):
-    predecessor = origin_gate()
+    origin = origin_gate()
     first = event(0, "REVIEW_OBSERVATION", review_payload("NEW"))
     _, checkpoint = fold_finding_events([first])
     semantic = {
@@ -424,8 +465,8 @@ def test_restart_recovery_carries_decisions_and_findings_together(tmp_path):
         "original_target": {
             "target_kind": "RECOVERY_ROOT",
             "origin_series_id": ORIGIN,
-            "target_record_id": predecessor["record_id"],
-            "target_semantic_hash": predecessor["record_hash"],
+            "target_record_id": origin["record_id"],
+            "target_semantic_hash": origin["record_hash"],
         },
         "semantic_sources": [],
     }
@@ -434,12 +475,38 @@ def test_restart_recovery_carries_decisions_and_findings_together(tmp_path):
             "semantic_input": semantic,
             "required_authority": "HUMAN",
             "originating_series_id": ORIGIN,
-            "originating_gate_id": predecessor["record_id"],
-            "originating_gate_hash": predecessor["record_hash"],
+            "originating_gate_id": origin["record_id"],
+            "originating_gate_hash": origin["record_hash"],
             "created_at": STAMP,
         }
     )
+    predecessor = make_gate(
+        series_id=ORIGIN,
+        sequence=1,
+        predecessor=origin["record_hash"],
+        state="blocked",
+        actor="reviewer",
+        event="REVIEW_BLOCKED",
+        created_at=STAMP,
+        frozen_hash="3" * 64,
+        correction_count=2,
+        variant_kind="CONTROL",
+        variant={
+            "ordinal": 0,
+            "correction_count": 2,
+            "diff_hash": "8" * 64,
+            "evidence_hash": "9" * 64,
+            "finding_ids": [first["finding_id"]],
+            "progress": "NONE",
+            "decision_requirements": [requirement],
+            "decision_bindings": [],
+            "decision_applications": [],
+            "finding_events": [first],
+            "finding_checkpoint": checkpoint,
+        },
+    )
     root = recovery_root(predecessor, checkpoint=checkpoint, pending=[requirement])
+    publish_create_only(canonical_record_path(tmp_path, origin), origin)
     publish_create_only(canonical_record_path(tmp_path, predecessor), predecessor)
     path = canonical_record_path(tmp_path, root)
     publish_create_only(path, root)

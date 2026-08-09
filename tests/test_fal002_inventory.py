@@ -1,3 +1,4 @@
+import ast
 from pathlib import Path
 
 import pytest
@@ -13,7 +14,7 @@ def test_self_inventory_is_deterministic_and_within_hard_limits():
     assert first == second
     assert first["disposition"] == "PASS"
     assert first["counts"]["modules"] == 4
-    assert first["counts"]["new_production_loc"] <= 3000
+    assert first["counts"]["new_production_loc"] <= 3400
     assert first["counts"]["executor_adapters"] == 1
     assert first["counts"]["reviewer_adapters"] == 1
     assert first["counts"]["schema_surfaces"] == 5
@@ -37,6 +38,33 @@ def test_counted_loc_excludes_blank_comment_and_docstring(tmp_path):
 def test_hard_limit_failure_requires_budget_authority():
     result = inventory(Path(__file__).parents[1])
     result["disposition"] = "AWAITING_HUMAN"
-    result["counts"]["new_production_loc"] = 1801
+    result["counts"]["new_production_loc"] = 3401
     with pytest.raises(FAL002Error, match="BUDGET_AUTHORITY_REQUIRED"):
         enforce_limits(result)
+
+
+def test_publication_call_sites_have_one_authority_route():
+    root = Path(__file__).parents[1]
+    calls = {}
+    for name in ("fal002.py", "fal002_io.py"):
+        tree = ast.parse((root / "forge" / name).read_text(encoding="utf-8"))
+        for function in (
+            node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        ):
+            invoked = {
+                node.func.id
+                for node in ast.walk(function)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            }
+            if invoked & {"publish_create_only", "publish_staged", "_publish_raw_create_only"}:
+                calls[(name, function.name)] = invoked & {
+                    "publish_create_only",
+                    "publish_staged",
+                    "_publish_raw_create_only",
+                }
+    assert calls == {
+        ("fal002.py", "persist_transition"): {"publish_create_only"},
+        ("fal002.py", "publish_committed"): {"publish_staged"},
+        ("fal002_io.py", "publish_create_only"): {"_publish_raw_create_only"},
+        ("fal002_io.py", "publish_staged"): {"_publish_raw_create_only"},
+    }

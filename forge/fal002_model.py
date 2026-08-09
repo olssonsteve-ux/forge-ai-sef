@@ -1436,7 +1436,7 @@ def _validate_gate_variant(variant: str, value: Any) -> None:
         _validate_decision_arrays(value)
         _validate_checkpoint(value["finding_checkpoint"])
     elif variant == "INVENTORY":
-        if value["counts"]["modules"] > 4 or value["counts"]["new_production_loc"] > 3000 or value["counts"]["executor_adapters"] != 1 or value["counts"]["reviewer_adapters"] != 1 or value["counts"]["schema_surfaces"] != 5:
+        if value["counts"]["modules"] > 4 or value["counts"]["new_production_loc"] > 3400 or value["counts"]["executor_adapters"] != 1 or value["counts"]["reviewer_adapters"] != 1 or value["counts"]["schema_surfaces"] != 5:
             if value["disposition"] != "AWAITING_HUMAN":
                 raise FAL002Error("BUDGET_AUTHORITY_REQUIRED", "inventory limit mismatch")
     elif variant == "EXECUTION":
@@ -1913,6 +1913,34 @@ def unresolved_fingerprint(current: list[dict[str, Any]]) -> str:
         if item["state"] in UNRESOLVED_STATES
     ]
     return H("fal002-unresolved-findings-v1", projection)
+
+
+def progress_snapshot(run: dict[str, Any], findings: list[dict[str, Any]], correction_count: int) -> dict[str, Any]:
+    commands = [
+        {
+            "command_id": item["command_id"],
+            "termination": item["termination"],
+            "exit_code": item["exit_code"],
+            "classification": item["classification"],
+            "parsed": {key: value for key, value in item["parsed"].items() if "duration" not in key},
+        }
+        for item in run["commands"]
+    ]
+    evidence = {
+        "repository": {key: run["repository"][key] for key in ("baseline_head", "final_head", "status", "changed_paths")},
+        "diff": {"sha256": run["diff"]["sha256"], "numstat": run["diff"]["numstat"]},
+        "runtime": run["runtime"],
+        "tools": run["tools"],
+        "commands": commands,
+        "build": run["build"],
+    }
+    return {
+        "run_id": run["record_id"],
+        "diff_hash": run["diff"]["sha256"],
+        "progress_evidence_hash": progress_fingerprint(evidence),
+        "unresolved_finding_set_hash": unresolved_fingerprint(findings),
+        "correction_count": correction_count,
+    }
 
 
 def _schema_for(surface: str) -> dict[str, Any]:

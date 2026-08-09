@@ -267,6 +267,12 @@ Forge may eventually include:
   triggered. `HD-FAL-023` authorizes only `FAL002-CORR-002` for those four residuals. Architecture
   remains four modules, two adapters, five surfaces and zero dependencies; the explicit production-
   LOC hard maximum is 3,400 from a current 2,998 and expected corrected total near 3,208.
+- Treat the HD-FAL-023 CORR-002 implementation as correction evidence only: its four objectives are
+  `ADDRESSED — AWAITING INDEPENDENT REVIEW`, while `IR1-01`, `IR1-03`, `IR1-04` and `IR1-05`
+  remain open. It enforces one intent-aware COMMITTED publication route, actual recovery predecessor
+  authority, complete decision cross-binding, I/O-owned reviewer observation and deterministic
+  no-progress in the existing architecture. Inventory is 3,316/3,400 LOC, four modules, two
+  adapters, five surfaces and zero dependencies. Only a fresh independent review may verify them.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

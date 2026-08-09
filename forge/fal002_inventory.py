@@ -15,7 +15,7 @@ from forge.fal002_model import HB, FAL002Error
 AUTHORIZED_MODULES = tuple("forge/fal002.py forge/fal002_model.py forge/fal002_inventory.py forge/fal002_io.py".split())
 AUTHORIZED_SURFACES = tuple("fal002.gate-record.v1 fal002.executor-exchange.v1 fal002.run-record.v1 fal002.reviewer-exchange.v1 fal002.human-decision.v1".split())
 CORRECTION_BASELINE = "23b398eeac46ad19226c4f0fae42713887a39a29"
-STDLIB = set("__future__ argparse ast collections copy dataclasses datetime hashlib io json os pathlib re shutil subprocess sys tokenize typing uuid".split())
+STDLIB = set("__future__ argparse ast collections copy dataclasses datetime hashlib io json os pathlib re shutil subprocess sys threading tokenize typing uuid".split())
 
 
 def counted_loc(path: Path) -> int:
@@ -140,7 +140,7 @@ def inventory(root: Path) -> dict[str, Any]:
         "reviewer_adapters": sum("REVIEWER_ADAPTER" in item["roles"] for item in files),
         "schema_surfaces": len(AUTHORIZED_SURFACES),
     }
-    if counts["modules"] > 4 or counts["new_production_loc"] > 3000 or counts["executor_adapters"] != 1 or counts["reviewer_adapters"] != 1 or counts["schema_surfaces"] != 5:
+    if counts["modules"] > 4 or counts["new_production_loc"] > 3400 or counts["executor_adapters"] != 1 or counts["reviewer_adapters"] != 1 or counts["schema_surfaces"] != 5:
         disposition = "AWAITING_HUMAN"
     else:
         disposition = "PASS" if not unresolved else "AWAITING_HUMAN"
