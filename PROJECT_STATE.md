@@ -11,15 +11,18 @@ Independent IR10 of the CORR-017 baseline at
 `EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and concluded that
 Standard-Assurance planning is complete. `HD-FAL-021` accepts that evidence and authorizes FAL-002
 implementation strictly under the reviewed EB-006 contract. The bounded implementation at
-`36ea966222b01f550d9c32919fbd2612d2ce998b` failed its fresh Independent Implementation Review with
-`FAIL — IMPLEMENTATION CORRECTION REQUIRED`. Seven findings, `FAL002-IR1-01` through
-`FAL002-IR1-07`, remain `OPEN — BLOCKING`; HD-FAL-021 STOP conditions #9 and #13 were crossed.
-`HD-FAL-022` accepts that evidence and authorized one bounded `FAL002-CORR-001` campaign. All seven
-correction objectives are `ADDRESSED — AWAITING INDEPENDENT REVIEW`, without architecture reopening;
-the underlying findings remain open and unverified. The limits remain four production
-modules, two adapters, five surfaces and zero new dependencies; the empirically revised hard
-production-LOC ceiling is 3,000, with 2,998 counted after correction. FAL-002 remains implemented,
-unaccepted and unclosed. Both planning IR6 findings remain
+`36ea966222b01f550d9c32919fbd2612d2ce998b` failed its first fresh Independent Implementation Review
+with `FAIL — IMPLEMENTATION CORRECTION REQUIRED`. That review registered seven findings,
+`FAL002-IR1-01` through `FAL002-IR1-07`, as `OPEN — BLOCKING` and found HD-FAL-021 STOP
+conditions #9 and #13 crossed.
+`HD-FAL-022` authorized the bounded `FAL002-CORR-001` campaign. Independent Implementation Review II
+returned `FAIL — IMPLEMENTATION CORRECTION REQUIRED`: `FAL002-IR1-02`, `IR1-06` and `IR1-07` are
+independently verified but not closed; `IR1-01`, `IR1-03`, `IR1-04` and `IR1-05` remain
+`OPEN — BLOCKING`; no new finding was created; and STOP #9/#13 remain triggered. `HD-FAL-023`
+authorizes `FAL002-CORR-002` for only those four residuals, with no architecture reopening. The
+limits remain four production modules, two adapters, five surfaces and zero new dependencies. The
+hard production-LOC ceiling is explicitly revised to 3,400 from the current 2,998. FAL-002 remains
+implemented, unaccepted and unclosed. Both planning IR6 findings remain
 `INDEPENDENTLY VERIFIED — NOT CLOSED`.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
@@ -35,10 +38,11 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Perform one fresh independent implementation review of the corrected FAL-002 baseline. The
-`HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` objectives are addressed but not verified.
-Do not accept or close FAL-002 or any implementation finding from correction evidence alone. Manual
-Digital Album Authoring and Export remains unstarted and unauthorized.
+Execute committed `HD-FAL-023` campaign `FAL002-CORR-002-01` through `-04`, limited to residual
+`IR1-01`, `IR1-03`, `IR1-04` and `IR1-05`, then perform one fresh independent implementation review.
+Preserve independently verified `IR1-02`, `IR1-06` and `IR1-07`. Do not accept or close FAL-002 or
+any finding from correction evidence alone. Manual Digital Album Authoring and Export remains
+unstarted and unauthorized.
 
 ## What Exists
 
@@ -247,6 +251,10 @@ Digital Album Authoring and Export remains unstarted and unauthorized.
   `FAL002-IR1-01`–`07`; accepted `HD-FAL-022` authorizes one bounded `FAL002-CORR-001` campaign,
   revises only the production-LOC ceiling to 3,000 and leaves architecture, scope, FAL-002
   acceptance/closure and all finding states unchanged
+- failed Independent Implementation Review II with four residual blocking findings and no new
+  finding; accepted `HD-FAL-023` authorizes only `FAL002-CORR-002-01` through `-04`, preserves the
+  three independently verified findings, keeps STOP #9/#13 triggered and revises only the
+  production-LOC hard maximum from 3,000 to 3,400
 
 ## What Does Not Exist
 
@@ -380,7 +388,8 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Execute the committed `HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` correction
-   without crossing four modules, two adapters, five surfaces, zero dependencies or 3,000 LOC.
+1. Execute the committed `HD-FAL-023`-authorized `FAL002-CORR-002-01` through `-04` correction
+   without crossing four modules, two adapters, five surfaces, zero dependencies or 3,400 LOC.
 2. Perform one fresh independent implementation review after correction. Keep FAL-002 unaccepted
-   and unclosed and all seven findings open until that review; no release work is authorized.
+   and unclosed; preserve `IR1-02`, `IR1-06` and `IR1-07` as independently verified but not closed;
+   no release work is authorized.

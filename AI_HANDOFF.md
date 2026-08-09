@@ -17,13 +17,16 @@ correct, accept, close or restart it. Independent IR10 of the CORR-017 baseline 
 `EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and completed
 Standard-Assurance planning. `HD-FAL-021` authorized FAL-002 implementation strictly under that
 reviewed EB-006 contract. The implementation at `36ea966222b01f550d9c32919fbd2612d2ce998b`
-received `FAIL — IMPLEMENTATION CORRECTION REQUIRED` from its fresh Independent Implementation
-Review. `FAL002-IR1-01` through `FAL002-IR1-07` remain `OPEN — BLOCKING`; HD-FAL-021 STOP
-conditions #9 and #13 were crossed. `HD-FAL-022` authorized the single `FAL002-CORR-001` campaign;
-all seven correction objectives are now `ADDRESSED — AWAITING INDEPENDENT REVIEW`, without
-architecture or scope reopening. Four modules, two adapters, five surfaces and zero dependencies
-remain frozen; corrected production LOC is 2,998/3,000. FAL-002 remains unaccepted and unclosed, all
-seven implementation findings remain open pending independent verification, both planning
+received `FAIL — IMPLEMENTATION CORRECTION REQUIRED` from its first fresh Independent
+Implementation Review. That review registered `FAL002-IR1-01` through `FAL002-IR1-07` as
+`OPEN — BLOCKING` and found HD-FAL-021 STOP conditions #9 and #13 crossed. `HD-FAL-022`
+authorized `FAL002-CORR-001`. Independent
+Implementation Review II returned `FAIL — IMPLEMENTATION CORRECTION REQUIRED`: `IR1-02`, `IR1-06`
+and `IR1-07` are independently verified but not closed; `IR1-01`, `IR1-03`, `IR1-04` and `IR1-05`
+remain open/blocking; no new finding was created; and STOP #9/#13 remain triggered. `HD-FAL-023`
+authorizes only `FAL002-CORR-002` for those four residuals, without architecture or scope reopening.
+Four modules, two adapters, five surfaces and zero dependencies remain frozen; production LOC is
+2,998 with a revised hard maximum of 3,400. FAL-002 remains unaccepted and unclosed, both planning
 IR6 findings remain `INDEPENDENTLY VERIFIED — NOT CLOSED`, and the album capability remains
 unstarted.
 
@@ -217,11 +220,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Execute the committed `HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` implementation
-correction within four modules, two adapters, five surfaces, zero dependencies and the 3,000-LOC
-ceiling. Then perform one fresh independent implementation review. Do not verify/close findings or
-infer FAL-002 acceptance, closure or release from correction completion, and do not begin the album
-capability.
+Execute the committed `HD-FAL-023`-authorized `FAL002-CORR-002-01` through `-04` implementation
+correction within four modules, two adapters, five surfaces, zero dependencies and the 3,400-LOC
+ceiling. Preserve independently verified `IR1-02`, `IR1-06` and `IR1-07`; stop on regression or a
+new material defect. Then perform one fresh independent implementation review. Do not verify/close
+findings or infer FAL-002 acceptance, closure or release, and do not begin the album capability.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

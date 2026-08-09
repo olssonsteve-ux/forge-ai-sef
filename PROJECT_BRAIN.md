@@ -261,6 +261,12 @@ Forge may eventually include:
   until a fresh independent reviewer verifies them. The corrected inventory is four production
   modules, two concrete adapters, five surfaces, zero new dependencies and 2,998/3,000 production
   LOC. No architecture, specification, EB-006 or Human Decision was reopened or changed.
+- Treat Independent Implementation Review II as `FAIL — IMPLEMENTATION CORRECTION REQUIRED` with no
+  new finding. Preserve `FAL002-IR1-02`, `IR1-06` and `IR1-07` as independently verified but not
+  closed. `IR1-01`, `IR1-03`, `IR1-04` and `IR1-05` remain open/blocking, and STOP #9/#13 remain
+  triggered. `HD-FAL-023` authorizes only `FAL002-CORR-002` for those four residuals. Architecture
+  remains four modules, two adapters, five surfaces and zero dependencies; the explicit production-
+  LOC hard maximum is 3,400 from a current 2,998 and expected corrected total near 3,208.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

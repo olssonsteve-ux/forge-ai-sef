@@ -1,5 +1,21 @@
 # FAL-002 Implementation Review Handoff
 
+## Independent Implementation Review II and CORR-002 authority — 2026-08-09
+
+Independent Implementation Review II of corrected HEAD
+`92c16e9e7e2b6871a65bd545be2e3d0dce88e5fc` returned
+`FAIL — IMPLEMENTATION CORRECTION REQUIRED`. It independently verified `FAL002-IR1-02`,
+`FAL002-IR1-06` and `FAL002-IR1-07` without closing them. `FAL002-IR1-01`, `FAL002-IR1-03`,
+`FAL002-IR1-04` and `FAL002-IR1-05` remain `OPEN — BLOCKING`; no new finding was created; and
+HD-FAL-021 STOP #9/#13 remain triggered.
+
+`HD-FAL-023` is `ACCEPTED` and authorizes `FAL002-CORR-002-01` through `-04` only for those four
+residuals. Architecture remains frozen at four modules, two adapters, five surfaces and zero new
+dependencies. Current governed production LOC is 2,998; the explicit hard maximum is 3,400, with an
+expected corrected total near 3,208. FAL-002 remains `Implemented — correction required`, unaccepted
+and unclosed. The next permitted step is to execute CORR-002 against the committed HD-FAL-023
+baseline, then perform one fresh independent implementation review.
+
 ## FAL002-CORR-001 correction handoff — 2026-08-09
 
 Status: `Implemented — correction addressed — awaiting independent implementation review`.
