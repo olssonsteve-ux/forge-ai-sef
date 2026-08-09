@@ -255,6 +255,12 @@ Forge may eventually include:
   remain frozen. Only the production-LOC ceiling changes, from 1,800 to 3,000, for an expected
   corrected total near 2,750. Correction cannot verify findings or accept/close FAL-002; one fresh
   independent implementation review is mandatory afterward.
+- Treat the correction commit containing the updated FAL-002 implementation handoff as
+  `Implemented — correction addressed — awaiting independent implementation review`. All seven
+  `FAL002-CORR-001` objectives are addressed; `FAL002-IR1-01` through `FAL002-IR1-07` remain open
+  until a fresh independent reviewer verifies them. The corrected inventory is four production
+  modules, two concrete adapters, five surfaces, zero new dependencies and 2,998/3,000 production
+  LOC. No architecture, specification, EB-006 or Human Decision was reopened or changed.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

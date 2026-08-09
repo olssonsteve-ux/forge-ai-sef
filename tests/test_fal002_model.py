@@ -20,6 +20,7 @@ from forge.fal002_model import (
     pass_eligible,
     seal_record,
     validate_record,
+    validate_schema_instance,
 )
 
 SERIES = "11111111-1111-4111-8111-111111111111"
@@ -97,14 +98,14 @@ def test_gate_is_closed_and_hash_validated():
     gate = origin_gate()
     assert validate_record(gate) is gate
     unknown = {**gate, "surprise": True}
-    with pytest.raises(FAL002Error, match="closed model"):
+    with pytest.raises(FAL002Error, match="MALFORMED_BOUNDARY"):
         validate_record(unknown)
     corrupt = {**gate, "record_hash": "f" * 64}
     with pytest.raises(FAL002Error, match="HASH_MISMATCH"):
         validate_record(corrupt)
     nested = json.loads(json.dumps(gate))
     nested["payload"]["manifest"]["surprise"] = True
-    with pytest.raises(FAL002Error, match="closed model"):
+    with pytest.raises(FAL002Error, match="MALFORMED_BOUNDARY"):
         seal_record(
             {
                 key: value
@@ -180,5 +181,22 @@ def test_schema_generation_is_exact_and_only_five(tmp_path):
         "fal002.reviewer-exchange.v1",
         "fal002.human-decision.v1",
     }
-    assert all(json.loads(item.path.read_text())["additionalProperties"] is False for item in first)
+    schemas = [json.loads(item.path.read_text()) for item in first]
+    assert all(
+        schema.get("additionalProperties") is False or "oneOf" in schema for schema in schemas
+    )
+    assert all("$defs" in schema for schema in schemas)
     assert uuid.UUID(SERIES) == uuid.UUID(SERIES)
+
+
+def test_runtime_and_generated_schema_accept_and_reject_same_gate(tmp_path):
+    generated = {item.schema_id: item for item in generate_schemas(tmp_path)}
+    schema = json.loads(generated["fal002.gate-record.v1"].path.read_text())
+    valid = origin_gate()
+    validate_record(valid)
+    validate_schema_instance(valid, schema)
+    invalid = json.loads(json.dumps(valid))
+    invalid["payload"]["manifest"]["unexpected"] = True
+    for validator in (validate_record, lambda value: validate_schema_instance(value, schema)):
+        with pytest.raises(FAL002Error, match="MALFORMED_BOUNDARY"):
+            validator(invalid)

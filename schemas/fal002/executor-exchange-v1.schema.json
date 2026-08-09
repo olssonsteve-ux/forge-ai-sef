@@ -1,4 +1,3999 @@
 {
+  "$defs": {
+    "Build": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "const": "packaging_forbidden"
+        },
+        "status": {
+          "const": "not_available"
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ],
+      "type": "object"
+    },
+    "Checkpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "interruption_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "reason_code": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "resume_state": {
+          "enum": [
+            "ready",
+            "evidence_ready",
+            "correction_required"
+          ]
+        },
+        "source_hashes": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "source_record_ids": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "staging_path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason_code",
+        "source_record_ids",
+        "source_hashes"
+      ],
+      "type": "object"
+    },
+    "Closure": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "decision_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "eligible_gate_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "eligible_gate_id": {
+          "pattern": "^gate-[0-9]{8}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_id",
+        "decision_hash",
+        "eligible_gate_id",
+        "eligible_gate_hash"
+      ],
+      "type": "object"
+    },
+    "CommandEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "classification": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "NOT_AVAILABLE",
+            "BLOCKED",
+            "AWAITING_HUMAN"
+          ]
+        },
+        "command_id": {
+          "enum": [
+            "GIT-ROOT",
+            "PYTHON-VERSION",
+            "GIT-VERSION",
+            "PYTEST-VERSION",
+            "RUFF-VERSION",
+            "GIT-HEAD-BASELINE",
+            "GIT-BRANCH",
+            "INVENTORY",
+            "GIT-HEAD-FINAL",
+            "GIT-STATUS",
+            "GIT-DIFF",
+            "GIT-NUMSTAT",
+            "SCHEMA-CHECK",
+            "PYTEST",
+            "RUFF-LINT",
+            "RUFF-FORMAT",
+            "FORGE-STATUS"
+          ]
+        },
+        "cwd": {
+          "const": "."
+        },
+        "ended_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "environment_keys": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 6,
+          "minItems": 6,
+          "type": "array"
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "parsed": {
+          "$ref": "#/$defs/CommandParsed"
+        },
+        "parser_version": {
+          "const": 1
+        },
+        "phase": {
+          "enum": [
+            "preflight",
+            "pre-execution",
+            "post-executor",
+            "verification"
+          ]
+        },
+        "redaction_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "started_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "stderr_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "stderr_text": {
+          "type": "string"
+        },
+        "stdout_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "stdout_text": {
+          "type": "string"
+        },
+        "termination": {
+          "enum": [
+            "EXITED",
+            "TIMEOUT",
+            "INTERRUPTED",
+            "SPAWN_ERROR"
+          ]
+        }
+      },
+      "required": [
+        "command_id",
+        "phase",
+        "argv",
+        "cwd",
+        "environment_keys",
+        "started_at",
+        "ended_at",
+        "exit_code",
+        "termination",
+        "stdout_sha256",
+        "stderr_sha256",
+        "stdout_text",
+        "stderr_text",
+        "redaction_count",
+        "parser_version",
+        "parsed",
+        "classification"
+      ],
+      "type": "object"
+    },
+    "CommandParsed": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "root": {
+              "const": "."
+            }
+          },
+          "required": [
+            "available",
+            "root"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "implementation": {
+              "const": "CPython"
+            },
+            "version": {
+              "pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "available",
+            "implementation",
+            "version"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "version": {
+              "minLength": 1,
+              "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "available",
+            "version"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "head": {
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "BASELINE",
+                "FINAL"
+              ]
+            }
+          },
+          "required": [
+            "available",
+            "head",
+            "kind"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "branch": {
+              "minLength": 1,
+              "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "available",
+            "branch"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "counts": {
+              "$ref": "#/$defs/InventoryCounts"
+            },
+            "disposition": {
+              "enum": [
+                "PASS",
+                "AWAITING_HUMAN"
+              ]
+            },
+            "inventory_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "available",
+            "inventory_hash",
+            "disposition",
+            "counts"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "changed_paths": {
+              "items": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+                "type": "string"
+              },
+              "maxItems": 65535,
+              "minItems": 0,
+              "type": "array"
+            },
+            "entries": {
+              "items": {
+                "$ref": "#/$defs/StatusEntry"
+              },
+              "maxItems": 65535,
+              "minItems": 0,
+              "type": "array"
+            }
+          },
+          "required": [
+            "available",
+            "entries",
+            "changed_paths"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "byte_count": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "redacted_content_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "available",
+            "redacted_content_hash",
+            "byte_count"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "entries": {
+              "items": {
+                "$ref": "#/$defs/NumstatEntry"
+              },
+              "maxItems": 65535,
+              "minItems": 0,
+              "type": "array"
+            }
+          },
+          "required": [
+            "available",
+            "entries"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "schemas": {
+              "items": {
+                "$ref": "#/$defs/SchemaDigest"
+              },
+              "maxItems": 5,
+              "minItems": 5,
+              "type": "array"
+            }
+          },
+          "required": [
+            "available",
+            "schemas"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "duration_seconds_decimal": {
+              "minLength": 1,
+              "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+              "type": "string"
+            },
+            "errors": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "failed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "passed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "skipped": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "warnings": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "xfailed": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "xpassed": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "available",
+            "passed",
+            "failed",
+            "skipped",
+            "xfailed",
+            "xpassed",
+            "errors",
+            "warnings",
+            "duration_seconds_decimal"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "status": {
+              "enum": [
+                "PASS",
+                "FAIL"
+              ]
+            }
+          },
+          "required": [
+            "available",
+            "status"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": true
+            },
+            "categories": {
+              "items": {
+                "$ref": "#/$defs/StatusCategory"
+              },
+              "maxItems": 65535,
+              "minItems": 0,
+              "type": "array"
+            }
+          },
+          "required": [
+            "available",
+            "categories"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "available": {
+              "const": false
+            },
+            "failure_reason": {
+              "minLength": 1,
+              "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "available",
+            "failure_reason"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Control": {
+      "additionalProperties": false,
+      "properties": {
+        "correction_count": {
+          "maximum": 2,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "decision_applications": {
+          "items": {
+            "$ref": "#/$defs/DecisionApplication"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "decision_bindings": {
+          "items": {
+            "$ref": "#/$defs/DecisionBinding"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "decision_requirements": {
+          "items": {
+            "$ref": "#/$defs/DecisionRequirement"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "diff_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "finding_checkpoint": {
+          "$ref": "#/$defs/FindingCheckpoint"
+        },
+        "finding_events": {
+          "items": {
+            "$ref": "#/$defs/FindingEvent"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "finding_ids": {
+          "items": {
+            "pattern": "^F-[0-9a-f]{20}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "ordinal": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "progress": {
+          "enum": [
+            "MATERIAL",
+            "NONE",
+            "CEILING"
+          ]
+        }
+      },
+      "required": [
+        "ordinal",
+        "correction_count",
+        "diff_hash",
+        "evidence_hash",
+        "finding_ids",
+        "progress",
+        "decision_requirements",
+        "decision_bindings",
+        "decision_applications",
+        "finding_events",
+        "finding_checkpoint"
+      ],
+      "type": "object"
+    },
+    "CurrentFindingState": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion_ids": {
+          "items": {
+            "pattern": "^FAL2-CC-[0-9]{2}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "current_blocking": {
+          "type": "boolean"
+        },
+        "current_severity": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "epoch_baseline_severity": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "finding_id": {
+          "pattern": "^F-[0-9a-f]{20}$",
+          "type": "string"
+        },
+        "finding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "last_event_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "latest_statement": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "occurrence": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "remediation_evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "replacement_finding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "severity_epoch": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "state": {
+          "enum": [
+            "OPEN",
+            "ADDRESSED_AWAITING_REVIEW",
+            "INDEPENDENTLY_VERIFIED",
+            "CLOSED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      "required": [
+        "finding_id",
+        "finding_key",
+        "occurrence",
+        "state",
+        "severity_epoch",
+        "epoch_baseline_severity",
+        "current_severity",
+        "current_blocking",
+        "latest_statement",
+        "criterion_ids",
+        "last_event_hash"
+      ],
+      "type": "object"
+    },
+    "DecisionApplication": {
+      "additionalProperties": false,
+      "properties": {
+        "application_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "application_ordinal": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "binding_generation": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "binding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "decision_identity": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "decision_requirement_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "pending_card_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "pending_card_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "presentation_evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "previous_application_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "resolution_locator": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "resolution_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "resolution_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "resolution_semantic_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "selected_choice": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_identity",
+        "decision_requirement_hash",
+        "binding_generation",
+        "binding_key",
+        "pending_card_record_id",
+        "pending_card_record_hash",
+        "resolution_record_id",
+        "resolution_locator",
+        "resolution_record_hash",
+        "resolution_semantic_hash",
+        "presentation_evidence_hash",
+        "selected_choice",
+        "application_ordinal",
+        "application_key"
+      ],
+      "type": "object"
+    },
+    "DecisionBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_generation": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "binding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "binding_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "decision_identity": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "decision_requirement_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "obstruction_evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "pending_card_locator": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "pending_card_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "pending_card_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "previous_binding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_identity",
+        "decision_requirement_hash",
+        "binding_generation",
+        "binding_series_id",
+        "pending_card_record_id",
+        "pending_card_locator",
+        "pending_card_record_hash",
+        "binding_key"
+      ],
+      "type": "object"
+    },
+    "DecisionOriginalTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "origin_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "target_kind": {
+          "enum": [
+            "GATE",
+            "SERIES_INTENT",
+            "RECOVERY_ROOT"
+          ]
+        },
+        "target_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "target_semantic_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_kind",
+        "origin_series_id",
+        "target_record_id",
+        "target_semantic_hash"
+      ],
+      "type": "object"
+    },
+    "DecisionRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "decision_identity": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "decision_requirement_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "originating_gate_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "originating_gate_id": {
+          "pattern": "^gate-[0-9]{8}$",
+          "type": "string"
+        },
+        "originating_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "required_authority": {
+          "const": "HUMAN"
+        },
+        "semantic_input": {
+          "$ref": "#/$defs/DecisionSemanticInput"
+        },
+        "semantic_payload_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_identity",
+        "semantic_input",
+        "semantic_payload_hash",
+        "required_authority",
+        "originating_series_id",
+        "originating_gate_id",
+        "originating_gate_hash",
+        "created_at",
+        "decision_requirement_hash"
+      ],
+      "type": "object"
+    },
+    "DecisionSemanticInput": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_choices": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 16,
+          "minItems": 2,
+          "type": "array"
+        },
+        "domain": {
+          "enum": [
+            "AUTHORITY_CONFLICT",
+            "BUDGET",
+            "CRITERIA",
+            "EXECUTOR_RETRY",
+            "FINDING_DISPOSITION",
+            "FINDING_RECLASSIFICATION",
+            "OFFLINE_EXECUTION",
+            "RECOVERY",
+            "REVIEWER_RETRY",
+            "SCOPE"
+          ]
+        },
+        "original_target": {
+          "$ref": "#/$defs/DecisionOriginalTarget"
+        },
+        "question": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "semantic_sources": {
+          "items": {
+            "$ref": "#/$defs/DecisionSemanticSource"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "domain",
+        "question",
+        "allowed_choices",
+        "original_target",
+        "semantic_sources"
+      ],
+      "type": "object"
+    },
+    "DecisionSemanticSource": {
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "enum": [
+            "HUMAN",
+            "COLLECTOR",
+            "CANONICAL_MODEL",
+            "REVIEWER",
+            "STATE_SERIES",
+            "REPOSITORY_HISTORY"
+          ]
+        },
+        "locator": {
+          "pattern": "^(?:|(?:/(?:[^~/]|~[01])*)+)$",
+          "type": "string"
+        },
+        "record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authority",
+        "record_id",
+        "record_hash",
+        "locator"
+      ],
+      "type": "object"
+    },
+    "DependencyInventory": {
+      "additionalProperties": false,
+      "properties": {
+        "existing_third_party": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "lock_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "manifest_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "new_direct": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "new_transitive": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "stdlib": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "stdlib",
+        "existing_third_party",
+        "new_direct",
+        "new_transitive",
+        "manifest_hash"
+      ],
+      "type": "object"
+    },
+    "Diff": {
+      "additionalProperties": false,
+      "properties": {
+        "numstat": {
+          "items": {
+            "$ref": "#/$defs/NumstatEntry"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "redacted_text": {
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "redacted_text",
+        "sha256",
+        "numstat"
+      ],
+      "type": "object"
+    },
+    "DispositionEventPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_application_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "CLOSE_VERIFIED",
+            "SUPERSEDE"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "replacement_finding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "disposition",
+        "rationale",
+        "decision_application_key"
+      ],
+      "type": "object"
+    },
+    "Eligibility": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion_ids": {
+          "items": {
+            "pattern": "^FAL2-CC-[0-9]{2}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "finding_ids": {
+          "items": {
+            "pattern": "^F-[0-9a-f]{20}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "review_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "review_id": {
+          "pattern": "^review-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "review_id",
+        "review_hash",
+        "criterion_ids",
+        "finding_ids",
+        "eligible"
+      ],
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "command_ids": {
+          "items": {
+            "enum": [
+              "GIT-ROOT",
+              "PYTHON-VERSION",
+              "GIT-VERSION",
+              "PYTEST-VERSION",
+              "RUFF-VERSION",
+              "GIT-HEAD-BASELINE",
+              "GIT-BRANCH",
+              "INVENTORY",
+              "GIT-HEAD-FINAL",
+              "GIT-STATUS",
+              "GIT-DIFF",
+              "GIT-NUMSTAT",
+              "SCHEMA-CHECK",
+              "PYTEST",
+              "RUFF-LINT",
+              "RUFF-FORMAT",
+              "FORGE-STATUS"
+            ]
+          },
+          "maxItems": 17,
+          "minItems": 17,
+          "type": "array"
+        },
+        "evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "execution_id": {
+          "pattern": "^exec-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^run-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "run_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "run_record_hash",
+        "execution_id",
+        "command_ids",
+        "evidence_hash"
+      ],
+      "type": "object"
+    },
+    "EvidenceBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "criterion_id": {
+          "pattern": "^FAL2-CC-[0-9]{2}$",
+          "type": "string"
+        },
+        "evidence_kind": {
+          "enum": [
+            "BUILD_RESULT",
+            "COMMAND_RESULT",
+            "DIFF",
+            "HUMAN_DECISION",
+            "INVENTORY",
+            "REPOSITORY_STATE",
+            "REVIEW_FINDING",
+            "SCHEMA",
+            "TEST_RESULT"
+          ]
+        },
+        "locator": {
+          "pattern": "^(?:|(?:/(?:[^~/]|~[01])*)+)$",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/EvidenceProvenance"
+        },
+        "source_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "source_surface": {
+          "enum": [
+            "fal002.executor-exchange.v1",
+            "fal002.gate-record.v1",
+            "fal002.human-decision.v1",
+            "fal002.reviewer-exchange.v1",
+            "fal002.run-record.v1"
+          ]
+        }
+      },
+      "required": [
+        "criterion_id",
+        "evidence_kind",
+        "source_surface",
+        "source_record_id",
+        "locator",
+        "assertion",
+        "content_hash",
+        "provenance"
+      ],
+      "type": "object"
+    },
+    "EvidencePredicate": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ref": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "VERIFIED_TRUE",
+            "VERIFIED_FALSE",
+            "UNKNOWN",
+            "NOT_EVALUATED"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "evidence_ref"
+      ],
+      "type": "object"
+    },
+    "EvidenceProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "enum": [
+            "COLLECTOR",
+            "REVIEWER",
+            "HUMAN"
+          ]
+        },
+        "collector_id": {
+          "enum": [
+            "GIT-ROOT",
+            "PYTHON-VERSION",
+            "GIT-VERSION",
+            "PYTEST-VERSION",
+            "RUFF-VERSION",
+            "GIT-HEAD-BASELINE",
+            "GIT-BRANCH",
+            "INVENTORY",
+            "GIT-HEAD-FINAL",
+            "GIT-STATUS",
+            "GIT-DIFF",
+            "GIT-NUMSTAT",
+            "SCHEMA-CHECK",
+            "PYTEST",
+            "RUFF-LINT",
+            "RUFF-FORMAT",
+            "FORGE-STATUS"
+          ]
+        },
+        "record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authority",
+        "record_id",
+        "record_hash"
+      ],
+      "type": "object"
+    },
+    "Execution": {
+      "additionalProperties": false,
+      "properties": {
+        "execution_id": {
+          "pattern": "^exec-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "invocation_grant": {
+          "$ref": "#/$defs/InvocationGrant"
+        },
+        "ordinal": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "request": {
+          "$ref": "#/$defs/ExecutorRequest"
+        },
+        "request_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "request_kind": {
+          "enum": [
+            "INITIAL",
+            "CORRECTION"
+          ]
+        },
+        "run_id": {
+          "pattern": "^run-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "execution_id",
+        "run_id",
+        "ordinal",
+        "request_kind",
+        "request",
+        "request_hash",
+        "invocation_grant"
+      ],
+      "type": "object"
+    },
+    "ExecutorInvocation": {
+      "additionalProperties": false,
+      "properties": {
+        "grant": {
+          "$ref": "#/$defs/InvocationGrant"
+        },
+        "observed": {
+          "$ref": "#/$defs/ObservedInvocation"
+        }
+      },
+      "required": [
+        "grant",
+        "observed"
+      ],
+      "type": "object"
+    },
+    "ExecutorRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_paths": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "command_ids": {
+          "items": {
+            "enum": [
+              "GIT-ROOT",
+              "PYTHON-VERSION",
+              "GIT-VERSION",
+              "PYTEST-VERSION",
+              "RUFF-VERSION",
+              "GIT-HEAD-BASELINE",
+              "GIT-BRANCH",
+              "INVENTORY",
+              "GIT-HEAD-FINAL",
+              "GIT-STATUS",
+              "GIT-DIFF",
+              "GIT-NUMSTAT",
+              "SCHEMA-CHECK",
+              "PYTEST",
+              "RUFF-LINT",
+              "RUFF-FORMAT",
+              "FORGE-STATUS"
+            ]
+          },
+          "maxItems": 17,
+          "minItems": 17,
+          "type": "array"
+        },
+        "correction_count": {
+          "maximum": 2,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "criteria": {
+          "items": {
+            "pattern": "^FAL2-CC-[0-9]{2}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "frozen_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "request_kind": {
+          "enum": [
+            "INITIAL",
+            "CORRECTION"
+          ]
+        },
+        "scope": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "work_packet_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frozen_hash",
+        "scope",
+        "criteria",
+        "allowed_paths",
+        "command_ids",
+        "correction_count",
+        "work_packet_hash",
+        "request_kind"
+      ],
+      "type": "object"
+    },
+    "ExecutorResult": {
+      "additionalProperties": false,
+      "properties": {
+        "changed_paths": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "error_code": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "COMPLETED",
+            "FAILED"
+          ]
+        },
+        "summary": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "changed_paths",
+        "summary"
+      ],
+      "type": "object"
+    },
+    "Exemption": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "classification": {
+          "enum": [
+            "EXEMPT",
+            "COUNT",
+            "AWAITING_HUMAN"
+          ]
+        },
+        "closure": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "current_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "predicates": {
+          "items": {
+            "$ref": "#/$defs/EvidencePredicate"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "provenance_ref": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "baseline_hash",
+        "current_hash",
+        "provenance_ref",
+        "closure",
+        "predicates",
+        "classification"
+      ],
+      "type": "object"
+    },
+    "FindingCheckpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "current_findings": {
+          "items": {
+            "$ref": "#/$defs/CurrentFindingState"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "event_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "finding_history_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "finding_ledger_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_count",
+        "finding_history_hash",
+        "current_findings",
+        "finding_ledger_hash"
+      ],
+      "type": "object"
+    },
+    "FindingEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "event_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "event_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "event_kind": {
+          "enum": [
+            "REVIEW_OBSERVATION",
+            "REMEDIATION_CLAIM",
+            "HUMAN_RECLASSIFICATION",
+            "HUMAN_DISPOSITION"
+          ]
+        },
+        "event_ordinal": {
+          "maximum": 99999999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "finding_id": {
+          "pattern": "^F-[0-9a-f]{20}$",
+          "type": "string"
+        },
+        "finding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "occurrence": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ReviewEventPayload"
+            },
+            {
+              "$ref": "#/$defs/RemediationEventPayload"
+            },
+            {
+              "$ref": "#/$defs/ReclassificationEventPayload"
+            },
+            {
+              "$ref": "#/$defs/DispositionEventPayload"
+            }
+          ]
+        },
+        "previous_event_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_authority": {
+          "enum": [
+            "REVIEWER",
+            "CORRECTION_AGENT",
+            "HUMAN"
+          ]
+        },
+        "source_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_id",
+        "event_ordinal",
+        "event_kind",
+        "finding_id",
+        "finding_key",
+        "occurrence",
+        "created_at",
+        "source_authority",
+        "source_record_id",
+        "source_record_hash",
+        "payload",
+        "event_hash"
+      ],
+      "type": "object"
+    },
+    "FindingObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "assurance_property": {
+          "enum": [
+            "BOUNDARY",
+            "EVIDENCE",
+            "INDEPENDENCE",
+            "RECOVERY",
+            "AUTHORITY",
+            "CLOSURE",
+            "DETERMINISM",
+            "SCOPE",
+            "BUDGET"
+          ]
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "criterion_ids": {
+          "items": {
+            "pattern": "^FAL2-CC-[0-9]{2}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "defect_locator": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "finding_id": {
+          "pattern": "^F-[0-9a-f]{20}$",
+          "type": "string"
+        },
+        "finding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "observation": {
+          "enum": [
+            "NEW",
+            "STILL_PRESENT",
+            "ABSENT_AFTER_CORRECTION"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "statement": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "finding_key",
+        "assurance_property",
+        "defect_locator",
+        "severity",
+        "blocking",
+        "criterion_ids",
+        "statement",
+        "observation"
+      ],
+      "type": "object"
+    },
+    "GatePayload": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "manifest": {
+              "$ref": "#/$defs/Manifest"
+            },
+            "variant_kind": {
+              "const": "MANIFEST"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "manifest"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "inventory": {
+              "$ref": "#/$defs/Inventory"
+            },
+            "variant_kind": {
+              "const": "INVENTORY"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "inventory"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "execution": {
+              "$ref": "#/$defs/Execution"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "variant_kind": {
+              "const": "EXECUTION"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "execution"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "evidence": {
+              "$ref": "#/$defs/Evidence"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "variant_kind": {
+              "const": "EVIDENCE"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "evidence"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "review": {
+              "$ref": "#/$defs/Review"
+            },
+            "variant_kind": {
+              "const": "REVIEW"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "review"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "control": {
+              "$ref": "#/$defs/Control"
+            },
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "variant_kind": {
+              "const": "CONTROL"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "control"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "checkpoint": {
+              "$ref": "#/$defs/Checkpoint"
+            },
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "variant_kind": {
+              "const": "CHECKPOINT"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "checkpoint"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "eligibility": {
+              "$ref": "#/$defs/Eligibility"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "variant_kind": {
+              "const": "ELIGIBILITY"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "eligibility"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "closure": {
+              "$ref": "#/$defs/Closure"
+            },
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "variant_kind": {
+              "const": "CLOSURE"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "closure"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "recovery_root": {
+              "$ref": "#/$defs/RecoveryRoot"
+            },
+            "variant_kind": {
+              "const": "RECOVERY_ROOT"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "recovery_root"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "correction_count": {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "frozen_hash": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "publication_intent": {
+              "$ref": "#/$defs/PublicationIntent"
+            },
+            "variant_kind": {
+              "const": "PUBLICATION_INTENT"
+            }
+          },
+          "required": [
+            "frozen_hash",
+            "correction_count",
+            "variant_kind",
+            "publication_intent"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Inventory": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_commit": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "type": "string"
+        },
+        "counts": {
+          "$ref": "#/$defs/InventoryCounts"
+        },
+        "dependencies": {
+          "$ref": "#/$defs/DependencyInventory"
+        },
+        "disposition": {
+          "enum": [
+            "PASS",
+            "AWAITING_HUMAN"
+          ]
+        },
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/InventoryEdge"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "entrypoint": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "exemptions": {
+          "items": {
+            "$ref": "#/$defs/Exemption"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "files": {
+          "items": {
+            "$ref": "#/$defs/InventoryFile"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "type": "array"
+        },
+        "python_version": {
+          "const": "3.14"
+        },
+        "unresolved_targets": {
+          "items": {
+            "$ref": "#/$defs/UnresolvedTarget"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "entrypoint",
+        "baseline_commit",
+        "python_version",
+        "files",
+        "edges",
+        "exemptions",
+        "counts",
+        "dependencies",
+        "unresolved_targets",
+        "disposition"
+      ],
+      "type": "object"
+    },
+    "InventoryCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "executor_adapters": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "modules": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "new_production_loc": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reviewer_adapters": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "schema_surfaces": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "modules",
+        "new_production_loc",
+        "executor_adapters",
+        "reviewer_adapters",
+        "schema_surfaces"
+      ],
+      "type": "object"
+    },
+    "InventoryEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "edge_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "IMPORT",
+            "DYNAMIC",
+            "SUBPROCESS",
+            "PACKAGE_INIT"
+          ]
+        },
+        "locator": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "target": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edge_id",
+        "source",
+        "target",
+        "kind",
+        "locator"
+      ],
+      "type": "object"
+    },
+    "InventoryFile": {
+      "additionalProperties": false,
+      "properties": {
+        "classification": {
+          "enum": [
+            "COUNT",
+            "EXEMPT"
+          ]
+        },
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "counted_loc": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "inbound_edges": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "parent_edge": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "ENTRYPOINT",
+            "STATIC_IMPORT",
+            "DYNAMIC_LITERAL",
+            "SUBPROCESS_LITERAL",
+            "PACKAGE_INIT"
+          ]
+        },
+        "roles": {
+          "items": {
+            "enum": [
+              "EXECUTOR_ADAPTER",
+              "REVIEWER_ADAPTER"
+            ]
+          },
+          "maxItems": 2,
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "path",
+        "content_hash",
+        "inbound_edges",
+        "reason",
+        "classification",
+        "counted_loc",
+        "roles"
+      ],
+      "type": "object"
+    },
+    "InvocationGrant": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "allowed_effect": {
+          "enum": [
+            "RETURN_EXECUTOR_RESULT",
+            "RETURN_REVIEW_RESULT"
+          ]
+        },
+        "context_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "grant_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "input_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "input_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "issued_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "issued_by": {
+          "const": "FORGE_CORE"
+        },
+        "principal_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "prior_context_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "EXECUTOR",
+            "REVIEWER"
+          ]
+        }
+      },
+      "required": [
+        "grant_id",
+        "role",
+        "principal_id",
+        "adapter_id",
+        "context_id",
+        "input_record_id",
+        "input_hash",
+        "issued_by",
+        "issued_at",
+        "allowed_effect"
+      ],
+      "type": "object"
+    },
+    "Manifest": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_paths": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "command_policy_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "criteria_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "decision_applications": {
+          "items": {
+            "$ref": "#/$defs/DecisionApplication"
+          },
+          "maxItems": 16,
+          "minItems": 0,
+          "type": "array"
+        },
+        "decision_bindings": {
+          "items": {
+            "$ref": "#/$defs/DecisionBinding"
+          },
+          "maxItems": 16,
+          "minItems": 0,
+          "type": "array"
+        },
+        "decision_requirements": {
+          "items": {
+            "$ref": "#/$defs/DecisionRequirement"
+          },
+          "maxItems": 16,
+          "minItems": 0,
+          "type": "array"
+        },
+        "executor_adapter_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "executor_principal_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "finding_checkpoint": {
+          "$ref": "#/$defs/FindingCheckpoint"
+        },
+        "offline_evidence": {
+          "$ref": "#/$defs/OfflineEvidence"
+        },
+        "reviewer_adapter_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "reviewer_principal_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "scope_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope_hash",
+        "criteria_hash",
+        "allowed_paths",
+        "command_policy_hash",
+        "executor_principal_id",
+        "reviewer_principal_id",
+        "executor_adapter_id",
+        "reviewer_adapter_id",
+        "decision_requirements",
+        "decision_bindings",
+        "decision_applications",
+        "finding_checkpoint"
+      ],
+      "type": "object"
+    },
+    "NumstatEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "added": {
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "deleted": {
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "added",
+        "deleted"
+      ],
+      "type": "object"
+    },
+    "ObservedInvocation": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "ended_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "grant_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "input_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "object_identity": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "process_id": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "resolved_adapter_path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "started_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "termination": {
+          "enum": [
+            "RETURNED",
+            "TIMEOUT",
+            "INTERRUPTED",
+            "ERROR"
+          ]
+        },
+        "thread_id": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "grant_id",
+        "resolved_adapter_path",
+        "adapter_content_hash",
+        "process_id",
+        "thread_id",
+        "object_identity",
+        "started_at",
+        "input_hash",
+        "termination"
+      ],
+      "type": "object"
+    },
+    "ObstructionDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "frozen_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intended_file_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intended_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intent_gate_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intent_gate_id": {
+          "pattern": "^gate-[0-9]{8}$",
+          "type": "string"
+        },
+        "observed_content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "obstruction_kind": {
+          "enum": [
+            "CONFLICTING_FILE",
+            "MALFORMED_FILE",
+            "NONREGULAR_PATH",
+            "UNREADABLE_PATH"
+          ]
+        },
+        "origin_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "path_object_kind": {
+          "enum": [
+            "REGULAR",
+            "SYMLINK",
+            "DIRECTORY",
+            "OTHER"
+          ]
+        },
+        "predecessor_gate_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "predecessor_gate_id": {
+          "pattern": "^gate-[0-9]{8}$",
+          "type": "string"
+        },
+        "predecessor_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "publication_slot": {
+          "$ref": "#/$defs/PublicationSlot"
+        },
+        "target_path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "origin_series_id",
+        "predecessor_series_id",
+        "predecessor_gate_id",
+        "predecessor_gate_hash",
+        "publication_slot",
+        "intended_record_hash",
+        "intended_file_hash",
+        "target_path",
+        "obstruction_kind",
+        "path_object_kind",
+        "frozen_hash"
+      ],
+      "type": "object"
+    },
+    "OfflineEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_generation": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "binding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "collected_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "command_policy_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "decision_identity": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "decision_requirement_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "evidence_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "locator": {
+          "const": "/payload/resolution_semantic_input/selected_choice"
+        },
+        "pending_card_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "pending_card_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "presentation_evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "resolution_locator": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "resolution_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "resolution_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "resolution_semantic_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "valid_until": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "decision_identity",
+        "decision_requirement_hash",
+        "binding_generation",
+        "binding_key",
+        "pending_card_record_id",
+        "pending_card_record_hash",
+        "resolution_record_id",
+        "resolution_record_hash",
+        "resolution_locator",
+        "resolution_semantic_hash",
+        "presentation_evidence_hash",
+        "locator",
+        "content_hash",
+        "collected_at",
+        "valid_until",
+        "command_policy_hash"
+      ],
+      "type": "object"
+    },
+    "PresentationEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "answered_binding_generation": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "answered_binding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "answered_pending_card_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "answered_pending_card_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "presentation_evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "presented_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "answered_pending_card_record_id",
+        "answered_pending_card_record_hash",
+        "answered_binding_generation",
+        "answered_binding_key",
+        "presented_at",
+        "presentation_evidence_hash"
+      ],
+      "type": "object"
+    },
+    "ProgressSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "correction_count": {
+          "maximum": 2,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "diff_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "progress_evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^run-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "unresolved_finding_set_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "diff_hash",
+        "progress_evidence_hash",
+        "unresolved_finding_set_hash",
+        "correction_count"
+      ],
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "locator": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "locator",
+        "content_hash"
+      ],
+      "type": "object"
+    },
+    "PublicationIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "intended_file_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intended_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intent_commitment_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "retained_state": {
+          "enum": [
+            "accepted",
+            "awaiting_human",
+            "blocked",
+            "correction_required",
+            "draft",
+            "evidence_ready",
+            "executing",
+            "ready",
+            "reviewing"
+          ]
+        },
+        "slot": {
+          "$ref": "#/$defs/PublicationSlot"
+        },
+        "source_authority": {
+          "enum": [
+            "FORGE_CORE",
+            "COLLECTOR",
+            "EXECUTOR_ADAPTER",
+            "REVIEWER_ADAPTER",
+            "HUMAN_BOUNDARY"
+          ]
+        },
+        "source_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "stage_attempt": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stage_file_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "stage_locator": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slot",
+        "retained_state",
+        "intended_record_hash",
+        "intended_file_hash",
+        "stage_locator",
+        "stage_attempt",
+        "stage_file_hash",
+        "source_authority",
+        "source_record_id",
+        "source_record_hash",
+        "intent_commitment_hash"
+      ],
+      "type": "object"
+    },
+    "PublicationSlot": {
+      "additionalProperties": false,
+      "properties": {
+        "origin_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "predecessor_gate_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "predecessor_gate_id": {
+          "pattern": "^gate-[0-9]{8}$",
+          "type": "string"
+        },
+        "predecessor_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "reconstruction": {
+          "enum": [
+            "RECONSTRUCTABLE",
+            "COMMITTED"
+          ]
+        },
+        "slot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "target_path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "target_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "target_surface": {
+          "enum": [
+            "fal002.executor-exchange.v1",
+            "fal002.gate-record.v1",
+            "fal002.human-decision.v1",
+            "fal002.reviewer-exchange.v1",
+            "fal002.run-record.v1"
+          ]
+        }
+      },
+      "required": [
+        "slot_id",
+        "origin_series_id",
+        "predecessor_series_id",
+        "predecessor_gate_id",
+        "predecessor_gate_hash",
+        "target_surface",
+        "target_record_id",
+        "target_path",
+        "reconstruction"
+      ],
+      "type": "object"
+    },
+    "ReclassificationEventPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_application_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "new_blocking": {
+          "type": "boolean"
+        },
+        "new_effective_severity": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "new_effective_severity",
+        "new_blocking",
+        "rationale",
+        "decision_application_key"
+      ],
+      "type": "object"
+    },
+    "RecoveryDiscoveryMaterial": {
+      "additionalProperties": false,
+      "properties": {
+        "origin_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "predecessor_gate_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "predecessor_gate_id": {
+          "pattern": "^gate-[0-9]{8}$",
+          "type": "string"
+        },
+        "predecessor_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "publication_slot": {
+          "additionalProperties": false,
+          "properties": {
+            "slot_id": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "target_path": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+              "type": "string"
+            },
+            "target_record_id": {
+              "minLength": 1,
+              "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+              "type": "string"
+            },
+            "target_surface": {
+              "enum": [
+                "fal002.executor-exchange.v1",
+                "fal002.gate-record.v1",
+                "fal002.human-decision.v1",
+                "fal002.reviewer-exchange.v1",
+                "fal002.run-record.v1"
+              ]
+            }
+          },
+          "required": [
+            "slot_id",
+            "target_surface",
+            "target_record_id",
+            "target_path"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "origin_series_id",
+        "predecessor_series_id",
+        "predecessor_gate_id",
+        "predecessor_gate_hash",
+        "publication_slot"
+      ],
+      "type": "object"
+    },
+    "RecoveryRoot": {
+      "additionalProperties": false,
+      "properties": {
+        "active_decision_bindings": {
+          "items": {
+            "$ref": "#/$defs/DecisionBinding"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "allowed_paths_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "applied_decisions": {
+          "items": {
+            "$ref": "#/$defs/DecisionApplication"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "command_policy_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "correction_count": {
+          "maximum": 2,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "criteria_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "finding_checkpoint": {
+          "$ref": "#/$defs/FindingCheckpoint"
+        },
+        "frozen_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intended_decision_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "intended_decision_record_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "max_prior_ordinal": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "no_progress_history": {
+          "items": {
+            "$ref": "#/$defs/ProgressSnapshot"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "obstruction": {
+          "$ref": "#/$defs/ObstructionDescriptor"
+        },
+        "origin_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "pending_decisions": {
+          "items": {
+            "$ref": "#/$defs/DecisionRequirement"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "predecessor_gate_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "predecessor_gate_id": {
+          "pattern": "^gate-[0-9]{8}$",
+          "type": "string"
+        },
+        "predecessor_sealed": {
+          "const": true
+        },
+        "predecessor_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "publication_slot": {
+          "$ref": "#/$defs/PublicationSlot"
+        },
+        "recovery_condition_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "recovery_discovery_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "recovery_discovery_material": {
+          "$ref": "#/$defs/RecoveryDiscoveryMaterial"
+        },
+        "recovery_ordinal": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "retained_state": {
+          "enum": [
+            "accepted",
+            "awaiting_human",
+            "blocked",
+            "closed",
+            "correction_required",
+            "draft",
+            "evidence_ready",
+            "executing",
+            "ready",
+            "reviewing"
+          ]
+        },
+        "scope_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "successor_series_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "origin_series_id",
+        "predecessor_series_id",
+        "predecessor_gate_id",
+        "predecessor_gate_hash",
+        "publication_slot",
+        "recovery_discovery_material",
+        "recovery_discovery_key",
+        "obstruction",
+        "recovery_condition_hash",
+        "successor_series_id",
+        "recovery_ordinal",
+        "predecessor_sealed",
+        "retained_state",
+        "scope_hash",
+        "criteria_hash",
+        "allowed_paths_hash",
+        "command_policy_hash",
+        "frozen_hash",
+        "correction_count",
+        "max_prior_ordinal",
+        "finding_checkpoint",
+        "pending_decisions",
+        "active_decision_bindings",
+        "applied_decisions",
+        "no_progress_history",
+        "intended_decision_record_id",
+        "intended_decision_record_hash"
+      ],
+      "type": "object"
+    },
+    "RemediationEventPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "remediation": {
+          "$ref": "#/$defs/RemediationEvidence"
+        }
+      },
+      "required": [
+        "remediation"
+      ],
+      "type": "object"
+    },
+    "RemediationEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "authorization_decision_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "authorization_decision_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "claim": {
+          "const": "ADDRESSED_AWAITING_REVIEW"
+        },
+        "corrected_artifact_path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "corrected_content_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "corrected_locator": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "correction_actor": {
+          "const": "CORRECTION_AGENT"
+        },
+        "correction_baseline_head": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "type": "string"
+        },
+        "correction_objective_id": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "correction_result_head": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "type": "string"
+        },
+        "created_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "finding_id": {
+          "pattern": "^F-[0-9a-f]{20}$",
+          "type": "string"
+        },
+        "finding_key": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "occurrence": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "remediation_evidence_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_run_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "source_run_id": {
+          "pattern": "^run-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "finding_key",
+        "occurrence",
+        "correction_objective_id",
+        "authorization_decision_id",
+        "authorization_decision_hash",
+        "corrected_artifact_path",
+        "corrected_locator",
+        "corrected_content_hash",
+        "correction_baseline_head",
+        "correction_actor",
+        "claim",
+        "created_at",
+        "source_run_id",
+        "source_run_hash",
+        "remediation_evidence_hash"
+      ],
+      "type": "object"
+    },
+    "Repository": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_head": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "type": "string"
+        },
+        "branch": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "changed_paths": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "final_head": {
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+          "type": "string"
+        },
+        "offline_evidence_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "offline_evidence_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "root": {
+          "const": "."
+        },
+        "status": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "root",
+        "branch",
+        "baseline_head",
+        "final_head",
+        "status",
+        "changed_paths",
+        "offline_evidence_id",
+        "offline_evidence_record_hash"
+      ],
+      "type": "object"
+    },
+    "ResolutionSemanticInput": {
+      "additionalProperties": false,
+      "properties": {
+        "answered_requirement_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "answered_semantic_payload_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "decided_at": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "decision_identity": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "human_owner": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "human_provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "rationale": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "selected_choice": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_identity",
+        "answered_requirement_hash",
+        "answered_semantic_payload_hash",
+        "selected_choice",
+        "rationale",
+        "human_owner",
+        "human_provenance",
+        "decided_at"
+      ],
+      "type": "object"
+    },
+    "Review": {
+      "additionalProperties": false,
+      "properties": {
+        "invocation_grant": {
+          "$ref": "#/$defs/InvocationGrant"
+        },
+        "ordinal": {
+          "maximum": 9999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "packet": {
+          "$ref": "#/$defs/ReviewerPacket"
+        },
+        "packet_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "review_id": {
+          "pattern": "^review-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^run-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "review_id",
+        "run_id",
+        "ordinal",
+        "packet",
+        "packet_hash",
+        "invocation_grant"
+      ],
+      "type": "object"
+    },
+    "ReviewEventPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion_ids": {
+          "items": {
+            "pattern": "^FAL2-CC-[0-9]{2}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "evidence_bindings": {
+          "items": {
+            "$ref": "#/$defs/EvidenceBinding"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "observation": {
+          "enum": [
+            "NEW",
+            "STILL_PRESENT",
+            "ABSENT_AFTER_CORRECTION"
+          ]
+        },
+        "observed_blocking": {
+          "type": "boolean"
+        },
+        "observed_severity": {
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+          ]
+        },
+        "rationale": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "recurs_after_event_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation",
+        "observed_severity",
+        "observed_blocking",
+        "statement",
+        "criterion_ids",
+        "evidence_bindings",
+        "rationale"
+      ],
+      "type": "object"
+    },
+    "ReviewResult": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion_evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceBinding"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/FindingObservation"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "outcome": {
+          "enum": [
+            "PASS",
+            "CORRECTION_REQUIRED",
+            "BLOCKED",
+            "INCONCLUSIVE"
+          ]
+        },
+        "semantic_rationale": {
+          "items": {
+            "$ref": "#/$defs/SemanticRationale"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        }
+      },
+      "required": [
+        "outcome",
+        "findings",
+        "criterion_evidence",
+        "semantic_rationale"
+      ],
+      "type": "object"
+    },
+    "ReviewerExecution": {
+      "additionalProperties": false,
+      "properties": {
+        "fresh_context_verified": {
+          "const": true
+        },
+        "grant": {
+          "$ref": "#/$defs/InvocationGrant"
+        },
+        "observed": {
+          "$ref": "#/$defs/ObservedInvocation"
+        },
+        "read_only_packet_verified": {
+          "const": true
+        },
+        "separation_checks": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 7,
+          "minItems": 7,
+          "type": "array"
+        }
+      },
+      "required": [
+        "grant",
+        "observed",
+        "fresh_context_verified",
+        "read_only_packet_verified",
+        "separation_checks"
+      ],
+      "type": "object"
+    },
+    "ReviewerPacket": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion_ids": {
+          "items": {
+            "pattern": "^FAL2-CC-[0-9]{2}$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "evidence_index": {
+          "items": {
+            "$ref": "#/$defs/EvidenceBinding"
+          },
+          "maxItems": 65535,
+          "minItems": 1,
+          "type": "array"
+        },
+        "frozen_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "instructions_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "run_record_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "run_record_id": {
+          "pattern": "^run-[0-9]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frozen_hash",
+        "run_record_id",
+        "run_record_hash",
+        "criterion_ids",
+        "evidence_index",
+        "instructions_hash"
+      ],
+      "type": "object"
+    },
+    "Runtime": {
+      "additionalProperties": false,
+      "properties": {
+        "python_executable": {
+          "pattern": "^(?:[A-Z]:/|/).+",
+          "type": "string"
+        },
+        "python_executable_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "python_implementation": {
+          "const": "CPython"
+        },
+        "python_version": {
+          "pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "python_implementation",
+        "python_version",
+        "python_executable",
+        "python_executable_sha256"
+      ],
+      "type": "object"
+    },
+    "SchemaDigest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_id": {
+          "enum": [
+            "fal002.executor-exchange.v1",
+            "fal002.gate-record.v1",
+            "fal002.human-decision.v1",
+            "fal002.reviewer-exchange.v1",
+            "fal002.run-record.v1"
+          ]
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_id",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "SemanticRationale": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion_id": {
+          "pattern": "^FAL2-CC-[0-9]{2}$",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "criterion_id",
+        "rationale"
+      ],
+      "type": "object"
+    },
+    "StatusCategory": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_lines": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+            "type": "string"
+          },
+          "maxItems": 65535,
+          "minItems": 0,
+          "type": "array"
+        },
+        "name": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "WARNING",
+            "NOT_APPLICABLE"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "evidence_lines"
+      ],
+      "type": "object"
+    },
+    "StatusEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "original_path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        },
+        "xy": {
+          "maxLength": 2,
+          "minLength": 2,
+          "type": "string"
+        }
+      },
+      "required": [
+        "xy",
+        "path"
+      ],
+      "type": "object"
+    },
+    "Tool": {
+      "additionalProperties": false,
+      "properties": {
+        "executable": {
+          "pattern": "^(?:[A-Z]:/|/).+",
+          "type": "string"
+        },
+        "executable_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "name": {
+          "enum": [
+            "git",
+            "python",
+            "pytest",
+            "ruff"
+          ]
+        },
+        "version": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "version_command_id": {
+          "enum": [
+            "GIT-ROOT",
+            "PYTHON-VERSION",
+            "GIT-VERSION",
+            "PYTEST-VERSION",
+            "RUFF-VERSION",
+            "GIT-HEAD-BASELINE",
+            "GIT-BRANCH",
+            "INVENTORY",
+            "GIT-HEAD-FINAL",
+            "GIT-STATUS",
+            "GIT-DIFF",
+            "GIT-NUMSTAT",
+            "SCHEMA-CHECK",
+            "PYTEST",
+            "RUFF-LINT",
+            "RUFF-FORMAT",
+            "FORGE-STATUS"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "executable",
+        "executable_sha256",
+        "version_command_id"
+      ],
+      "type": "object"
+    },
+    "UnresolvedTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "expression": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "DYNAMIC",
+            "SUBPROCESS",
+            "IMPORT"
+          ]
+        },
+        "locator": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "pattern": "^[^ \\t\\r\\n](?:[\\s\\S]*[^ \\t\\r\\n])?$",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))(?!.*\\\\)(?!.*//).+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "locator",
+        "expression",
+        "kind",
+        "reason"
+      ],
+      "type": "object"
+    }
+  },
   "$id": "fal002.executor-exchange.v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
@@ -8,14 +4003,13 @@
       "type": "string"
     },
     "invocation": {
-      "additionalProperties": false,
-      "properties": {
-        "grant": {},
-        "observed": {}
-      },
-      "type": "object"
+      "$ref": "#/$defs/ExecutorInvocation"
     },
-    "ordinal": {},
+    "ordinal": {
+      "maximum": 9999,
+      "minimum": 0,
+      "type": "integer"
+    },
     "payload_hash": {
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
@@ -25,42 +4019,26 @@
       "type": "string"
     },
     "record_id": {
-      "minLength": 1,
+      "pattern": "^exec-[0-9]{4}-[0-9a-f]{12}$",
       "type": "string"
     },
     "request": {
-      "additionalProperties": false,
-      "properties": {
-        "allowed_paths": {},
-        "command_ids": {},
-        "correction_count": {},
-        "criteria": {},
-        "execution_id": {},
-        "frozen_hash": {},
-        "request_kind": {},
-        "scope": {},
-        "work_packet_hash": {}
-      },
-      "type": "object"
+      "$ref": "#/$defs/ExecutorRequest"
     },
     "result": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "null"
         },
         {
-          "additionalProperties": false,
-          "properties": {
-            "changed_paths": {},
-            "error_code": {},
-            "status": {},
-            "summary": {}
-          },
-          "type": "object"
+          "$ref": "#/$defs/ExecutorResult"
         }
       ]
     },
-    "run_id": {},
+    "run_id": {
+      "pattern": "^run-[0-9]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
     "schema_id": {
       "const": "fal002.executor-exchange.v1"
     },
@@ -68,23 +4046,23 @@
       "const": 1
     },
     "series_id": {
-      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
       "type": "string"
     }
   },
   "required": [
+    "schema_id",
+    "schema_version",
+    "series_id",
     "created_at",
-    "invocation",
-    "ordinal",
     "payload_hash",
     "record_hash",
     "record_id",
+    "run_id",
+    "ordinal",
     "request",
     "result",
-    "run_id",
-    "schema_id",
-    "schema_version",
-    "series_id"
+    "invocation"
   ],
   "title": "ExecutorExchange",
   "type": "object"

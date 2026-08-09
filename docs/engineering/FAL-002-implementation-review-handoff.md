@@ -1,5 +1,26 @@
 # FAL-002 Implementation Review Handoff
 
+## FAL002-CORR-001 correction handoff — 2026-08-09
+
+Status: `Implemented — correction addressed — awaiting independent implementation review`.
+
+Under `HD-FAL-022`, objectives `FAL002-CORR-001-01` through `-07` are
+`ADDRESSED — AWAITING INDEPENDENT REVIEW`. The seven `FAL002-IR1-01` through `-07` findings remain
+open; this handoff verifies neither findings nor FAL-002 acceptance/closure.
+
+The corrected implementation adds the executable sequential loop, the exact 17-command collector,
+two concrete authority-limited adapters, exact shared runtime/schema models, intent-bound staged
+publication, recovery predecessor validation and sealing, authoritative RunRecord/reviewer binding,
+resolvable criterion evidence, and occurrence-local recurrence with prior-terminal linkage. Tests
+cover the real orchestrator, malformed nested records, schema/runtime agreement, missing or corrupt
+publication authority, recovery-N, wrong predecessor, transient I/O, sealed predecessor append,
+fabricated evidence/run hashes, exact remediation and recurrence after human closure.
+
+Corrected governed inventory: four production modules, 2,998/3,000 counted production LOC, one
+executor adapter, one reviewer adapter, five generated persisted/external surfaces, and zero new
+dependencies. Packaging remains prohibited and was not run. The exact next permitted step is one
+fresh independent implementation review of the corrected FAL-002 baseline.
+
 Status: `Implemented — awaiting independent implementation review`
 
 Date: 2026-08-09

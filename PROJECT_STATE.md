@@ -14,11 +14,12 @@ implementation strictly under the reviewed EB-006 contract. The bounded implemen
 `36ea966222b01f550d9c32919fbd2612d2ce998b` failed its fresh Independent Implementation Review with
 `FAIL — IMPLEMENTATION CORRECTION REQUIRED`. Seven findings, `FAL002-IR1-01` through
 `FAL002-IR1-07`, remain `OPEN — BLOCKING`; HD-FAL-021 STOP conditions #9 and #13 were crossed.
-`HD-FAL-022` accepts that evidence and authorizes one bounded `FAL002-CORR-001` campaign,
-`AUTHORIZED — NOT STARTED`, without architecture reopening. The limits remain four production
+`HD-FAL-022` accepts that evidence and authorized one bounded `FAL002-CORR-001` campaign. All seven
+correction objectives are `ADDRESSED — AWAITING INDEPENDENT REVIEW`, without architecture reopening;
+the underlying findings remain open and unverified. The limits remain four production
 modules, two adapters, five surfaces and zero new dependencies; the empirically revised hard
-production-LOC ceiling is 3,000, with approximately 2,750 expected after correction. FAL-002 remains
-implemented, unaccepted and unclosed. Both planning IR6 findings remain
+production-LOC ceiling is 3,000, with 2,998 counted after correction. FAL-002 remains implemented,
+unaccepted and unclosed. Both planning IR6 findings remain
 `INDEPENDENTLY VERIFIED — NOT CLOSED`.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
@@ -34,8 +35,8 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Execute the `HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` implementation correction
-against its committed decision baseline, then perform one fresh independent implementation review.
+Perform one fresh independent implementation review of the corrected FAL-002 baseline. The
+`HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` objectives are addressed but not verified.
 Do not accept or close FAL-002 or any implementation finding from correction evidence alone. Manual
 Digital Album Authoring and Export remains unstarted and unauthorized.
 

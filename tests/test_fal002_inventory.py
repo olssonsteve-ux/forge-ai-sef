@@ -13,7 +13,7 @@ def test_self_inventory_is_deterministic_and_within_hard_limits():
     assert first == second
     assert first["disposition"] == "PASS"
     assert first["counts"]["modules"] == 4
-    assert first["counts"]["new_production_loc"] <= 1800
+    assert first["counts"]["new_production_loc"] <= 3000
     assert first["counts"]["executor_adapters"] == 1
     assert first["counts"]["reviewer_adapters"] == 1
     assert first["counts"]["schema_surfaces"] == 5

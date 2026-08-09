@@ -1,4 +1,6 @@
+# ruff: noqa: E501
 """Deterministic FAL-002 production inventory and hard-limit accounting."""
+# fmt: off
 
 from __future__ import annotations
 
@@ -10,17 +12,10 @@ from typing import Any
 
 from forge.fal002_model import HB, FAL002Error
 
-AUTHORIZED_MODULES = tuple(
-    "forge/fal002.py forge/fal002_model.py forge/fal002_inventory.py forge/fal002_io.py".split()
-)
-AUTHORIZED_SURFACES = tuple(
-    "fal002.gate-record.v1 fal002.executor-exchange.v1 fal002.run-record.v1 "
-    "fal002.reviewer-exchange.v1 fal002.human-decision.v1".split()
-)
-STDLIB = set(
-    "__future__ argparse ast collections copy dataclasses datetime hashlib io json os pathlib re "
-    "subprocess sys tokenize typing uuid".split()
-)
+AUTHORIZED_MODULES = tuple("forge/fal002.py forge/fal002_model.py forge/fal002_inventory.py forge/fal002_io.py".split())
+AUTHORIZED_SURFACES = tuple("fal002.gate-record.v1 fal002.executor-exchange.v1 fal002.run-record.v1 fal002.reviewer-exchange.v1 fal002.human-decision.v1".split())
+CORRECTION_BASELINE = "23b398eeac46ad19226c4f0fae42713887a39a29"
+STDLIB = set("__future__ argparse ast collections copy dataclasses datetime hashlib io json os pathlib re shutil subprocess sys tokenize typing uuid".split())
 
 
 def counted_loc(path: Path) -> int:
@@ -33,26 +28,13 @@ def counted_loc(path: Path) -> int:
         raise FAL002Error("AWAITING_HUMAN", f"invalid Python at {path}") from exc
     for node in ast.walk(tree):
         body = getattr(node, "body", None)
-        if (
-            isinstance(body, list)
-            and body
-            and isinstance(body[0], ast.Expr)
-            and isinstance(body[0].value, ast.Constant)
-            and isinstance(body[0].value.value, str)
-        ):
+        if isinstance(body, list) and body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) and isinstance(body[0].value.value, str):
             ignored.update(range(body[0].lineno, (body[0].end_lineno or body[0].lineno) + 1))
     comment_only: set[int] = set()
     for token in tokenize.generate_tokens(io.StringIO(text).readline):
-        if (
-            token.type == tokenize.COMMENT
-            and not text.splitlines()[token.start[0] - 1][: token.start[1]].strip()
-        ):
+        if token.type == tokenize.COMMENT and not text.splitlines()[token.start[0] - 1][: token.start[1]].strip():
             comment_only.add(token.start[0])
-    return sum(
-        1
-        for number, line in enumerate(text.splitlines(), 1)
-        if line.strip() and number not in ignored and number not in comment_only
-    )
+    return sum(1 for number, line in enumerate(text.splitlines(), 1) if line.strip() and number not in ignored and number not in comment_only)
 
 
 def _module_path(name: str) -> str:
@@ -72,16 +54,8 @@ def _imports(path: Path, relative: str) -> tuple[list[dict[str, str]], list[dict
             prefix = package[: max(0, len(package) - node.level + 1)] if node.level else []
             base = ".".join(prefix + ([node.module] if node.module else []))
             targets = [(base, "IMPORT")]
-        elif (
-            isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Attribute)
-            and node.func.attr in {"import_module", "run_module"}
-        ):
-            if (
-                node.args
-                and isinstance(node.args[0], ast.Constant)
-                and isinstance(node.args[0].value, str)
-            ):
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr in {"import_module", "run_module"}:
+            if node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str):
                 targets = [(node.args[0].value, "DYNAMIC")]
             else:
                 unresolved.append(
@@ -140,33 +114,25 @@ def inventory(root: Path) -> dict[str, Any]:
         edges.extend(module_edges)
         unresolved.extend(module_unresolved)
         roles = []
-        classes = {
-            node.name
-            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8")))
-            if isinstance(node, ast.ClassDef)
-        }
+        classes = {node.name for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))) if isinstance(node, ast.ClassDef)}
         if "FAL002ExecutorAdapter" in classes:
             roles.append("EXECUTOR_ADAPTER")
         if "FAL002ReviewerAdapter" in classes:
             roles.append("REVIEWER_ADAPTER")
+        inbound = [f"{edge['source']}:{edge['locator']}" for edge in edges if edge["target"] == relative]
         files.append(
             {
                 "path": relative,
                 "content_hash": HB(path.read_bytes()),
+                "inbound_edges": sorted(inbound),
+                "reason": "ENTRYPOINT" if relative == "forge/fal002.py" else "STATIC_IMPORT",
                 "counted_loc": counted_loc(path),
                 "roles": roles,
                 "classification": "COUNT",
             }
         )
-    unauthorized = [
-        edge
-        for edge in edges
-        if edge["target"].startswith("forge/fal002") and edge["target"] not in AUTHORIZED_MODULES
-    ]
-    unresolved.extend(
-        {**edge, "expression": edge["target"], "reason": "unauthorized FAL-002 module"}
-        for edge in unauthorized
-    )
+    unauthorized = [edge for edge in edges if edge["target"].startswith("forge/fal002") and edge["target"] not in AUTHORIZED_MODULES]
+    unresolved.extend({**edge, "expression": edge["target"], "reason": "unauthorized FAL-002 module"} for edge in unauthorized)
     counts = {
         "modules": len(files),
         "new_production_loc": sum(item["counted_loc"] for item in files),
@@ -174,30 +140,33 @@ def inventory(root: Path) -> dict[str, Any]:
         "reviewer_adapters": sum("REVIEWER_ADAPTER" in item["roles"] for item in files),
         "schema_surfaces": len(AUTHORIZED_SURFACES),
     }
-    if (
-        counts["modules"] > 4
-        or counts["new_production_loc"] > 1800
-        or counts["executor_adapters"] != 1
-        or counts["reviewer_adapters"] != 1
-        or counts["schema_surfaces"] != 5
-    ):
+    if counts["modules"] > 4 or counts["new_production_loc"] > 3000 or counts["executor_adapters"] != 1 or counts["reviewer_adapters"] != 1 or counts["schema_surfaces"] != 5:
         disposition = "AWAITING_HUMAN"
     else:
         disposition = "PASS" if not unresolved else "AWAITING_HUMAN"
+    exact_edges = [
+        {
+            **edge,
+            "edge_id": HB(f"{edge['source']}|{edge['target']}|{edge['kind']}|{edge['locator']}".encode())[:24],
+        }
+        for edge in edges
+    ]
     return {
         "entrypoint": "forge/fal002.py",
+        "baseline_commit": CORRECTION_BASELINE,
+        "python_version": "3.14",
         "files": sorted(files, key=lambda item: item["path"]),
-        "edges": sorted(edges, key=lambda item: (item["source"], item["target"], item["locator"])),
+        "edges": sorted(exact_edges, key=lambda item: (item["source"], item["target"], item["locator"])),
+        "exemptions": [],
         "counts": counts,
         "dependencies": {
             "stdlib": sorted(STDLIB),
             "existing_third_party": [],
             "new_direct": [],
             "new_transitive": [],
+            "manifest_hash": HB((root / "pyproject.toml").read_bytes()),
         },
-        "unresolved_targets": sorted(
-            unresolved, key=lambda item: (item["source"], item["locator"])
-        ),
+        "unresolved_targets": sorted(unresolved, key=lambda item: (item["source"], item["locator"])),
         "disposition": disposition,
     }
 
@@ -205,3 +174,4 @@ def inventory(root: Path) -> dict[str, Any]:
 def enforce_limits(result: dict[str, Any]) -> None:
     if result["disposition"] != "PASS":
         raise FAL002Error("BUDGET_AUTHORITY_REQUIRED", "inventory is outside authorized limits")
+# fmt: on

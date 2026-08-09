@@ -19,10 +19,11 @@ Standard-Assurance planning. `HD-FAL-021` authorized FAL-002 implementation stri
 reviewed EB-006 contract. The implementation at `36ea966222b01f550d9c32919fbd2612d2ce998b`
 received `FAIL — IMPLEMENTATION CORRECTION REQUIRED` from its fresh Independent Implementation
 Review. `FAL002-IR1-01` through `FAL002-IR1-07` remain `OPEN — BLOCKING`; HD-FAL-021 STOP
-conditions #9 and #13 were crossed. `HD-FAL-022` authorizes the single `FAL002-CORR-001` campaign as
-`AUTHORIZED — NOT STARTED`, without architecture or scope reopening. Four modules, two adapters,
-five surfaces and zero dependencies remain frozen; the revised hard production-LOC ceiling is 3,000
-for an expected corrected total near 2,750. FAL-002 remains unaccepted and unclosed, both planning
+conditions #9 and #13 were crossed. `HD-FAL-022` authorized the single `FAL002-CORR-001` campaign;
+all seven correction objectives are now `ADDRESSED — AWAITING INDEPENDENT REVIEW`, without
+architecture or scope reopening. Four modules, two adapters, five surfaces and zero dependencies
+remain frozen; corrected production LOC is 2,998/3,000. FAL-002 remains unaccepted and unclosed, all
+seven implementation findings remain open pending independent verification, both planning
 IR6 findings remain `INDEPENDENTLY VERIFIED — NOT CLOSED`, and the album capability remains
 unstarted.
 

@@ -2,17 +2,19 @@ from copy import deepcopy
 
 import pytest
 
-from forge.fal002 import make_gate
+from forge.fal002 import make_gate, transition
+from forge.fal002_inventory import inventory
 from forge.fal002_io import (
     canonical_record_path,
     discover_recovery_root,
-    load_gate_chain,
     publish_create_only,
+    publish_staged,
     stage_committed_record,
 )
 from forge.fal002_model import (
     FAL002Error,
     H,
+    decision_identity,
     empty_finding_checkpoint,
     fold_finding_events,
     publication_slot,
@@ -44,9 +46,9 @@ def manifest():
     }
 
 
-def origin_gate():
+def origin_gate(series=ORIGIN, corrections=2):
     return make_gate(
-        series_id=ORIGIN,
+        series_id=series,
         sequence=0,
         predecessor=None,
         state="draft",
@@ -54,60 +56,70 @@ def origin_gate():
         event="INITIALIZE",
         created_at=STAMP,
         frozen_hash="3" * 64,
-        correction_count=2,
+        correction_count=corrections,
         variant_kind="MANIFEST",
         variant=manifest(),
     )
 
 
-def slot(predecessor_series, predecessor_hash, suffix):
-    return publication_slot(
+def recovery_root(predecessor, ordinal=0):
+    slot = publication_slot(
         {
             "origin_series_id": ORIGIN,
-            "predecessor_series_id": predecessor_series,
-            "predecessor_gate_id": "gate-00000000",
-            "predecessor_gate_hash": predecessor_hash,
+            "predecessor_series_id": predecessor["series_id"],
+            "predecessor_gate_id": predecessor["record_id"],
+            "predecessor_gate_hash": predecessor["record_hash"],
             "target_surface": "fal002.gate-record.v1",
             "target_record_id": "gate-00000001",
-            "target_path": f".forge/fal002/series/{predecessor_series}/gate/00000001.json",
+            "target_path": f".forge/fal002/series/{predecessor['series_id']}/gate/00000001.json",
             "reconstruction": "RECONSTRUCTABLE",
         }
     )
-
-
-def recovery_root(predecessor_series, predecessor_hash, suffix, ordinal=0):
-    publication = slot(predecessor_series, predecessor_hash, suffix)
-    material = recovery_discovery_material(publication)
+    material = recovery_discovery_material(slot)
     key = recovery_discovery_key(material)
     successor = recovery_candidate_uuid(key, ordinal)
-    recovery = {
+    obstruction = {
         "origin_series_id": ORIGIN,
-        "predecessor_series_id": predecessor_series,
-        "predecessor_gate_id": "gate-00000000",
-        "predecessor_gate_hash": predecessor_hash,
-        "publication_slot": publication,
+        "predecessor_series_id": predecessor["series_id"],
+        "predecessor_gate_id": predecessor["record_id"],
+        "predecessor_gate_hash": predecessor["record_hash"],
+        "publication_slot": slot,
+        "intended_record_hash": "4" * 64,
+        "intended_file_hash": "5" * 64,
+        "target_path": slot["target_path"],
+        "obstruction_kind": "CONFLICTING_FILE",
+        "path_object_kind": "REGULAR",
+        "frozen_hash": "3" * 64,
+        "observed_content_hash": "6" * 64,
+    }
+    value = {
+        "origin_series_id": ORIGIN,
+        "predecessor_series_id": predecessor["series_id"],
+        "predecessor_gate_id": predecessor["record_id"],
+        "predecessor_gate_hash": predecessor["record_hash"],
+        "publication_slot": slot,
         "recovery_discovery_material": material,
         "recovery_discovery_key": key,
-        "obstruction": {"kind": "CONFLICTING_FILE", "suffix": suffix},
-        "recovery_condition_hash": H("fal002-recovery-condition-v1", {"suffix": suffix}),
+        "obstruction": obstruction,
+        "recovery_condition_hash": H("fal002-recovery-condition-v1", obstruction),
         "successor_series_id": successor,
         "recovery_ordinal": ordinal,
         "predecessor_sealed": True,
-        "retained_state": "draft",
+        "retained_state": predecessor["state"],
         "scope_hash": SHA,
         "criteria_hash": "1" * 64,
         "allowed_paths_hash": "2" * 64,
-        "command_policy_hash": "3" * 64,
+        "command_policy_hash": "2" * 64,
         "frozen_hash": "3" * 64,
-        "correction_count": 2,
-        "max_prior_ordinal": 4,
+        "correction_count": predecessor["payload"]["correction_count"],
+        "max_prior_ordinal": 0,
         "finding_checkpoint": empty_finding_checkpoint(),
         "pending_decisions": [],
         "active_decision_bindings": [],
         "applied_decisions": [],
-        "no_progress_history": [{"diff_hash": SHA}],
+        "no_progress_history": [],
         "intended_decision_record_id": "D-recovery-pending-b0000",
-        "intended_decision_record_hash": "4" * 64,
+        "intended_decision_record_hash": "7" * 64,
     }
     return make_gate(
         series_id=successor,
@@ -118,159 +130,282 @@ def recovery_root(predecessor_series, predecessor_hash, suffix, ordinal=0):
         event="RECOVERY_SUCCESSOR",
         created_at=STAMP,
         frozen_hash="3" * 64,
-        correction_count=2,
+        correction_count=value["correction_count"],
         variant_kind="RECOVERY_ROOT",
-        variant=recovery,
+        variant=value,
     )
 
 
-def finding_event(ordinal, kind, payload, previous=None):
-    event = {
+def evidence_binding(record_id="review-0000-aaaaaaaaaaaa", record_hash="8" * 64):
+    return {
+        "criterion_id": "FAL2-CC-06",
+        "evidence_kind": "REVIEW_FINDING",
+        "source_surface": "fal002.reviewer-exchange.v1",
+        "source_record_id": record_id,
+        "locator": "/result/findings/0",
+        "assertion": "Finding observation.",
+        "content_hash": "9" * 64,
+        "provenance": {"authority": "REVIEWER", "record_id": record_id, "record_hash": record_hash},
+    }
+
+
+def event(ordinal, kind, payload, *, occurrence=0, previous=None, authority=None):
+    value = {
         "event_ordinal": ordinal,
         "event_kind": kind,
         "finding_id": "F-aaaaaaaaaaaaaaaaaaaa",
         "finding_key": "a" * 64,
-        "occurrence": 0,
+        "occurrence": occurrence,
         "created_at": STAMP,
-        "source_authority": "REVIEWER" if kind == "REVIEW_OBSERVATION" else "CORRECTION_AGENT",
+        "source_authority": authority
+        or ("REVIEWER" if kind == "REVIEW_OBSERVATION" else "CORRECTION_AGENT"),
         "source_record_id": f"source-{ordinal}",
-        "source_record_hash": str(ordinal) * 64,
-        "previous_event_hash": previous,
+        "source_record_hash": f"{ordinal + 1}" * 64,
         "payload": payload,
     }
-    event_hash = H("fal002-finding-observation-v1", event)
-    return {"event_id": "FE-" + event_hash[:20], **event, "event_hash": event_hash}
+    if previous is not None:
+        value["previous_event_hash"] = previous
+    digest = H("fal002-finding-observation-v1", value)
+    return {"event_id": "FE-" + digest[:20], **value, "event_hash": digest}
 
 
-def test_create_only_create_adopt_and_conflict(tmp_path):
-    gate = origin_gate()
-    path = canonical_record_path(tmp_path, gate)
-    assert publish_create_only(path, gate) == "CREATED"
-    original = path.read_bytes()
-    assert publish_create_only(path, gate) == "ADOPTED"
-    conflicting = deepcopy(gate)
-    conflicting["created_at"] = "2026-08-09T12:00:01.000000Z"
-    conflicting = seal_record(
-        {
-            key: value
-            for key, value in conflicting.items()
-            if key not in {"payload_hash", "record_hash"}
-        }
-    )
-    with pytest.raises(FAL002Error, match="AUTHORITY_CONFLICT"):
-        publish_create_only(path, conflicting)
-    assert path.read_bytes() == original
-    assert load_gate_chain(tmp_path, ORIGIN) == [gate]
+def review_payload(observation, *, recurrence=None):
+    value = {
+        "observation": observation,
+        "observed_severity": "HIGH",
+        "observed_blocking": True,
+        "statement": "defect",
+        "criterion_ids": ["FAL2-CC-06"],
+        "evidence_bindings": [evidence_binding()],
+        "rationale": "fresh independent evidence",
+    }
+    if recurrence is not None:
+        value["recurs_after_event_hash"] = recurrence
+    return value
 
 
-def test_committed_stage_is_preserved_and_hash_bound(tmp_path):
-    gate = origin_gate()
-    path, attempt, file_hash = stage_committed_record(tmp_path, ORIGIN, "a" * 64, gate)
-    assert attempt == 0
-    assert path.exists()
-    with pytest.raises(FAL002Error, match="HASH_MISMATCH"):
-        from forge.fal002_io import publish_staged
-
-        publish_staged(path, tmp_path / "wrong.json", "f" * 64)
-    assert path.exists()
-    assert len(file_hash) == 64
-
-
-def test_pointer_free_recovery_n_preserves_lineage_and_correction_state(tmp_path):
+def test_recovery_n_seals_each_predecessor(tmp_path):
     predecessor = origin_gate()
+    publish_create_only(canonical_record_path(tmp_path, predecessor), predecessor)
     roots = []
-    for suffix in range(1, 4):
-        root = recovery_root(predecessor["series_id"], predecessor["record_hash"], suffix)
+    for _ in range(3):
+        root = recovery_root(predecessor)
         publish_create_only(canonical_record_path(tmp_path, root), root)
-        discovered = discover_recovery_root(
-            tmp_path, root["payload"]["recovery_root"]["recovery_discovery_key"]
+        assert (
+            discover_recovery_root(
+                tmp_path, root["payload"]["recovery_root"]["recovery_discovery_key"]
+            )
+            == root
         )
-        assert discovered == root
-        assert root["payload"]["recovery_root"]["origin_series_id"] == ORIGIN
-        assert root["payload"]["correction_count"] == 2
+        ordinary_append = make_gate(
+            series_id=predecessor["series_id"],
+            sequence=predecessor["sequence"] + 1,
+            predecessor=predecessor["record_hash"],
+            state=predecessor["state"],
+            actor="core",
+            event="ORDINARY_APPEND",
+            created_at=STAMP,
+            frozen_hash=predecessor["payload"]["frozen_hash"],
+            correction_count=predecessor["payload"]["correction_count"],
+            variant_kind="INVENTORY",
+            variant=inventory(__import__("pathlib").Path(__file__).parents[1]),
+        )
+        with pytest.raises(FAL002Error, match="sealed"):
+            publish_create_only(canonical_record_path(tmp_path, ordinary_append), ordinary_append)
         roots.append(root)
         predecessor = root
-    assert len({root["series_id"] for root in roots}) == 3
-    assert [root["payload"]["recovery_root"]["predecessor_series_id"] for root in roots] == [
-        ORIGIN,
-        roots[0]["series_id"],
-        roots[1]["series_id"],
-    ]
+    assert len({item["series_id"] for item in roots}) == 3
 
 
-def test_recovery_probe_skips_stable_obstruction_without_directory_scan(tmp_path):
-    valid = recovery_root(ORIGIN, origin_gate()["record_hash"], 9, ordinal=1)
-    key = valid["payload"]["recovery_root"]["recovery_discovery_key"]
-    obstructed_uuid = recovery_candidate_uuid(key, 0)
-    obstruction = (
-        tmp_path / ".forge" / "fal002" / "series" / obstructed_uuid / "gate" / "00000000.json"
+def test_wrong_predecessor_and_transient_probe_fail_closed(tmp_path, monkeypatch):
+    predecessor = origin_gate()
+    root = recovery_root(predecessor)
+    raw = {
+        key: deepcopy(value)
+        for key, value in root.items()
+        if key not in {"payload_hash", "record_hash"}
+    }
+    raw["payload"]["recovery_root"]["predecessor_gate_hash"] = "f" * 64
+    with pytest.raises(FAL002Error):
+        seal_record(raw)
+    monkeypatch.setattr(
+        "pathlib.Path.exists", lambda self: (_ for _ in ()).throw(OSError("transient"))
     )
-    obstruction.parent.mkdir(parents=True)
-    obstruction.write_bytes(b"not canonical\n")
-    publish_create_only(canonical_record_path(tmp_path, valid), valid)
-    assert discover_recovery_root(tmp_path, key) == valid
+    with pytest.raises(FAL002Error, match="transient"):
+        discover_recovery_root(tmp_path, "a" * 64)
 
 
-def test_finding_remediation_empty_review_and_independent_absence():
-    new = finding_event(
-        0,
-        "REVIEW_OBSERVATION",
-        {
-            "observation": "NEW",
-            "observed_severity": "HIGH",
-            "observed_blocking": True,
-            "statement": "defect",
-            "criterion_ids": ["FAL2-CC-06"],
-            "evidence_bindings": [{}],
-            "rationale": "evidence",
-            "recurs_after_event_hash": None,
+def pending_decision():
+    semantic = {
+        "domain": "RECOVERY",
+        "question": "Resume?",
+        "allowed_choices": ["AUTHORIZE_RECOVERY_RESUME", "ABANDON_LINEAGE"],
+        "original_target": {
+            "target_kind": "RECOVERY_ROOT",
+            "origin_series_id": ORIGIN,
+            "target_record_id": "gate-00000000",
+            "target_semantic_hash": SHA,
         },
+        "semantic_sources": [],
+    }
+    identity = decision_identity(semantic)
+    return seal_record(
+        {
+            "schema_id": "fal002.human-decision.v1",
+            "schema_version": 1,
+            "record_id": f"{identity}-pending-b0000",
+            "series_id": ORIGIN,
+            "created_at": STAMP,
+            "decision_identity": identity,
+            "binding_generation": 0,
+            "decision_kind": "PENDING_CARD",
+            "status": "PENDING",
+            "owner": "human",
+            "provenance": {"source": "test", "locator": "authority", "content_hash": SHA},
+            "payload": {
+                "decision_requirement_hash": "1" * 64,
+                "binding_key": "2" * 64,
+                "semantic_input": semantic,
+            },
+        }
     )
-    remediation = finding_event(
-        1,
-        "REMEDIATION_CLAIM",
-        {"remediation": {"remediation_evidence_hash": "b" * 64}},
-        new["event_hash"],
+
+
+def test_publication_requires_exact_intent_and_target(tmp_path):
+    predecessor = origin_gate(corrections=0)
+    publish_create_only(canonical_record_path(tmp_path, predecessor), predecessor)
+    target = pending_decision()
+    slot = publication_slot(
+        {
+            "origin_series_id": ORIGIN,
+            "predecessor_series_id": ORIGIN,
+            "predecessor_gate_id": predecessor["record_id"],
+            "predecessor_gate_hash": predecessor["record_hash"],
+            "target_surface": target["schema_id"],
+            "target_record_id": target["record_id"],
+            "target_path": f".forge/fal002/series/{ORIGIN}/decisions/{target['record_id']}.json",
+            "reconstruction": "COMMITTED",
+        }
     )
-    current, checkpoint = fold_finding_events([new, remediation])
-    assert current[0]["state"] == "ADDRESSED_AWAITING_REVIEW"
-    assert checkpoint["event_count"] == 2
-    assert fold_finding_events([new, remediation])[0] == current
-    absence = finding_event(
+    staged, attempt, file_hash = stage_committed_record(tmp_path, ORIGIN, slot["slot_id"], target)
+    intent = {
+        "slot": slot,
+        "retained_state": "draft",
+        "intended_record_hash": target["record_hash"],
+        "intended_file_hash": file_hash,
+        "stage_locator": staged.relative_to(tmp_path).as_posix(),
+        "stage_attempt": attempt,
+        "stage_file_hash": file_hash,
+        "source_authority": "FORGE_CORE",
+        "source_record_id": predecessor["record_id"],
+        "source_record_hash": predecessor["record_hash"],
+    }
+    intent["intent_commitment_hash"] = H("fal002-publication-intent-v1", intent)
+    intent_gate = transition(
+        predecessor,
+        event="PUBLICATION_INTENT_COMMITTED",
+        created_at=STAMP,
+        variant_kind="PUBLICATION_INTENT",
+        variant=intent,
+    )
+    publish_create_only(canonical_record_path(tmp_path, intent_gate), intent_gate)
+    assert publish_staged(tmp_path, staged, intent_gate, target) == "CREATED"
+    staged.write_bytes(b"corrupt\n")
+    with pytest.raises(FAL002Error, match="HASH_MISMATCH"):
+        publish_staged(tmp_path, staged, intent_gate, target)
+
+
+def test_exact_remediation_then_close_and_recurrence():
+    first = event(0, "REVIEW_OBSERVATION", review_payload("NEW"))
+    remediation = {
+        "finding_id": first["finding_id"],
+        "finding_key": first["finding_key"],
+        "occurrence": 0,
+        "correction_objective_id": "CORR-1",
+        "authorization_decision_id": "HD-1",
+        "authorization_decision_hash": "1" * 64,
+        "corrected_artifact_path": "forge/fal002.py",
+        "corrected_locator": "function",
+        "corrected_content_hash": "2" * 64,
+        "correction_baseline_head": "3" * 40,
+        "correction_result_head": "4" * 40,
+        "correction_actor": "CORRECTION_AGENT",
+        "claim": "ADDRESSED_AWAITING_REVIEW",
+        "created_at": STAMP,
+        "source_run_id": "run-0000-aaaaaaaaaaaa",
+        "source_run_hash": "5" * 64,
+    }
+    remediation["remediation_evidence_hash"] = H("fal002-remediation-evidence-v1", remediation)
+    claim = event(
+        1, "REMEDIATION_CLAIM", {"remediation": remediation}, previous=first["event_hash"]
+    )
+    absent = event(
         2,
         "REVIEW_OBSERVATION",
-        {
-            "observation": "ABSENT_AFTER_CORRECTION",
-            "observed_severity": "HIGH",
-            "observed_blocking": False,
-            "statement": "independently absent",
-            "criterion_ids": ["FAL2-CC-06"],
-            "evidence_bindings": [{}],
-            "rationale": "fresh review",
-            "recurs_after_event_hash": None,
-        },
-        remediation["event_hash"],
+        review_payload("ABSENT_AFTER_CORRECTION"),
+        previous=claim["event_hash"],
     )
-    verified, _ = fold_finding_events([new, remediation, absence])
-    assert verified[0]["state"] == "INDEPENDENTLY_VERIFIED"
+    close = event(
+        3,
+        "HUMAN_DISPOSITION",
+        {
+            "disposition": "CLOSE_VERIFIED",
+            "rationale": "human closure",
+            "decision_application_key": "6" * 64,
+        },
+        previous=absent["event_hash"],
+        authority="HUMAN",
+    )
+    recurrence = event(
+        4, "REVIEW_OBSERVATION", review_payload("NEW", recurrence=close["event_hash"]), occurrence=1
+    )
+    current, checkpoint = fold_finding_events([first, claim, absent, close, recurrence])
+    assert [item["state"] for item in current] == ["CLOSED", "OPEN"]
+    assert checkpoint["event_count"] == 5
+    bad = deepcopy(recurrence)
+    bad["previous_event_hash"] = close["event_hash"]
+    digest = H(
+        "fal002-finding-observation-v1",
+        {key: value for key, value in bad.items() if key not in {"event_id", "event_hash"}},
+    )
+    bad.update({"event_id": "FE-" + digest[:20], "event_hash": digest})
+    with pytest.raises(FAL002Error, match="predecessor"):
+        fold_finding_events([first, claim, absent, close, bad])
 
 
-def test_finding_checkpoint_rejects_order_and_predecessor_corruption():
-    new = finding_event(
-        0,
-        "REVIEW_OBSERVATION",
-        {
-            "observation": "NEW",
-            "observed_severity": "CRITICAL",
-            "observed_blocking": True,
-            "statement": "critical",
-            "criterion_ids": ["FAL2-CC-06"],
-            "evidence_bindings": [{}],
-            "rationale": "evidence",
-            "recurs_after_event_hash": None,
-        },
+@pytest.mark.parametrize(
+    ("initial", "human", "reviewer", "expected"),
+    [
+        ("MEDIUM", None, "HIGH", "HIGH"),
+        ("HIGH", None, "MEDIUM", "HIGH"),
+        ("HIGH", "MEDIUM", "HIGH", "HIGH"),
+        ("HIGH", "MEDIUM", "LOW", "MEDIUM"),
+        ("HIGH", None, "HIGH", "HIGH"),
+    ],
+)
+def test_full_severity_epoch_matrix(initial, human, reviewer, expected):
+    payload = review_payload("NEW")
+    payload["observed_severity"] = initial
+    events = [event(0, "REVIEW_OBSERVATION", payload)]
+    if human:
+        events.append(
+            event(
+                1,
+                "HUMAN_RECLASSIFICATION",
+                {
+                    "new_effective_severity": human,
+                    "new_blocking": False,
+                    "rationale": "human epoch",
+                    "decision_application_key": "d" * 64,
+                },
+                previous=events[-1]["event_hash"],
+                authority="HUMAN",
+            )
+        )
+    next_payload = review_payload("STILL_PRESENT")
+    next_payload["observed_severity"] = reviewer
+    events.append(
+        event(len(events), "REVIEW_OBSERVATION", next_payload, previous=events[-1]["event_hash"])
     )
-    corrupt = deepcopy(new)
-    corrupt["event_ordinal"] = 2
-    with pytest.raises(FAL002Error, match="HASH_MISMATCH"):
-        fold_finding_events([corrupt])
+    current, _ = fold_finding_events(events)
+    assert current[0]["current_severity"] == expected

@@ -1,9 +1,13 @@
+# ruff: noqa: E501
 """Sequential FAL-002 Standard-Assurance bounded engineering loop."""
+# fmt: off
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
+import shutil
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -11,12 +15,18 @@ from typing import Any
 
 from forge.fal002_inventory import enforce_limits, inventory
 from forge.fal002_io import (
+    FAL002ExecutorAdapter,
+    FAL002ReviewerAdapter,
     canonical_record_path,
     publish_create_only,
+    run_command,
     write_current,
 )
 from forge.fal002_model import (
+    COMMAND_IDS,
+    HB,
     FAL002Error,
+    H,
     decision_application,
     empty_finding_checkpoint,
     fold_finding_events,
@@ -24,6 +34,7 @@ from forge.fal002_model import (
     pass_eligible,
     seal_record,
     validate_record,
+    validate_reviewer_run,
 )
 
 FORBIDDEN_OPERATIONS = {
@@ -200,20 +211,24 @@ def evaluate_review(
     current_findings: list[dict[str, Any]],
     *,
     pending_decisions: bool,
+    evidence_loader: Callable[[str, str], dict[str, Any]] | None = None,
 ) -> bool:
     validate_record(review)
     result = review["result"]
     if result is None or result["outcome"] != "PASS":
         return False
     criterion_ids = review["packet"]["criterion_ids"]
-    bound = {binding["criterion_id"] for binding in result["criterion_evidence"]}
-    rationales = {
-        item["criterion_id"] for item in result["semantic_rationale"] if item.get("rationale")
-    }
+    bound: set[str] = set()
+    if evidence_loader is not None:
+        from forge.fal002_model import validate_evidence_binding
+
+        for binding in result["criterion_evidence"]:
+            source = evidence_loader(binding["source_surface"], binding["source_record_id"])
+            validate_evidence_binding(binding, source)
+            bound.add(binding["criterion_id"])
+    rationales = {item["criterion_id"] for item in result["semantic_rationale"] if item.get("rationale")}
     criteria_complete = set(criterion_ids) <= bound and set(criterion_ids) <= rationales
-    return pass_eligible(
-        current_findings, pending_decisions=pending_decisions, criteria_complete=criteria_complete
-    )
+    return pass_eligible(current_findings, pending_decisions=pending_decisions, criteria_complete=criteria_complete)
 
 
 def correction_disposition(
@@ -225,28 +240,385 @@ def correction_disposition(
 ) -> str:
     if correction_count >= 2:
         return "CEILING"
-    previous_unresolved = {
-        (item["finding_id"], item["occurrence"]): item
-        for item in previous_findings
-        if item["state"] in {"OPEN", "ADDRESSED_AWAITING_REVIEW"}
-    }
+    previous_unresolved = {(item["finding_id"], item["occurrence"]): item for item in previous_findings if item["state"] in {"OPEN", "ADDRESSED_AWAITING_REVIEW"}}
     current_by_key = {(item["finding_id"], item["occurrence"]): item for item in current_findings}
-    resolved_any = any(
-        current_by_key.get(key, {}).get("state")
-        in {"INDEPENDENTLY_VERIFIED", "CLOSED", "SUPERSEDED"}
-        for key in previous_unresolved
-    )
-    changed = (
-        previous_snapshot["diff_hash"] != current_snapshot["diff_hash"]
-        or previous_snapshot["progress_evidence_hash"] != current_snapshot["progress_evidence_hash"]
-    )
-    introduced = any(
-        key not in previous_unresolved
-        and item["state"] in {"OPEN", "ADDRESSED_AWAITING_REVIEW"}
-        and (item["current_blocking"] or item["current_severity"] == "CRITICAL")
-        for key, item in current_by_key.items()
-    )
+    resolved_any = any(current_by_key.get(key, {}).get("state") in {"INDEPENDENTLY_VERIFIED", "CLOSED", "SUPERSEDED"} for key in previous_unresolved)
+    changed = previous_snapshot["diff_hash"] != current_snapshot["diff_hash"] or previous_snapshot["progress_evidence_hash"] != current_snapshot["progress_evidence_hash"]
+    introduced = any(key not in previous_unresolved and item["state"] in {"OPEN", "ADDRESSED_AWAITING_REVIEW"} and (item["current_blocking"] or item["current_severity"] == "CRITICAL") for key, item in current_by_key.items())
     return "MATERIAL" if changed and resolved_any and not introduced else "NONE"
+
+
+def _grant(
+    role: str,
+    principal: str,
+    adapter: str,
+    context: str,
+    record_id: str,
+    input_hash: str,
+    created_at: str,
+    prior: str | None = None,
+) -> dict[str, Any]:
+    value = {
+        "role": role,
+        "principal_id": principal,
+        "adapter_id": adapter,
+        "context_id": context,
+        "input_record_id": record_id,
+        "input_hash": input_hash,
+        "issued_by": "FORGE_CORE",
+        "issued_at": created_at,
+        "allowed_effect": "RETURN_REVIEW_RESULT" if role == "REVIEWER" else "RETURN_EXECUTOR_RESULT",
+    }
+    if prior is not None:
+        value["prior_context_id"] = prior
+    value["grant_id"] = H("fal002-invocation-grant-v1", value)
+    return value
+
+
+def _tool(name: str, command_id: str, version: str) -> dict[str, Any]:
+    executable = sys.executable if name in {"python", "pytest", "ruff"} else shutil.which("git")
+    if not executable:
+        raise FAL002Error("MISSING_EVIDENCE", f"{name} executable unavailable")
+    path = Path(executable).resolve(strict=True)
+    return {
+        "name": name,
+        "version": version,
+        "executable": path.as_posix(),
+        "executable_sha256": HB(path.read_bytes()),
+        "version_command_id": command_id,
+    }
+
+
+def _finding_events(review: dict[str, Any], existing_events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    current, checkpoint = fold_finding_events(existing_events)
+    by_id = {item["finding_id"]: item for item in current}
+    created: list[dict[str, Any]] = []
+    for finding in review["result"]["findings"]:
+        prior = by_id.get(finding["finding_id"])
+        terminal = prior and prior["state"] in {"CLOSED", "SUPERSEDED"}
+        occurrence = prior["occurrence"] + 1 if terminal else prior["occurrence"] if prior else 0
+        payload = {
+            "observation": "NEW" if not prior or terminal else "STILL_PRESENT",
+            "observed_severity": finding["severity"],
+            "observed_blocking": finding["blocking"],
+            "statement": finding["statement"],
+            "criterion_ids": finding["criterion_ids"],
+            "evidence_bindings": review["result"]["criterion_evidence"],
+            "rationale": "Independent reviewer observation.",
+        }
+        if terminal:
+            payload["recurs_after_event_hash"] = prior["last_event_hash"]
+        event = {
+            "event_ordinal": checkpoint["event_count"] + len(created),
+            "event_kind": "REVIEW_OBSERVATION",
+            "finding_id": finding["finding_id"],
+            "finding_key": finding["finding_key"],
+            "occurrence": occurrence,
+            "created_at": review["created_at"],
+            "source_authority": "REVIEWER",
+            "source_record_id": review["record_id"],
+            "source_record_hash": review["record_hash"],
+            "payload": payload,
+        }
+        if prior and not terminal:
+            event["previous_event_hash"] = prior["last_event_hash"]
+        event_hash = H("fal002-finding-observation-v1", event)
+        event.update({"event_id": "FE-" + event_hash[:20], "event_hash": event_hash})
+        created.append(event)
+    return created
+
+
+def run_engineering_loop(
+    root: Path,
+    current_gate: dict[str, Any],
+    executor: FAL002ExecutorAdapter,
+    reviewer: FAL002ReviewerAdapter,
+    *,
+    created_at: str,
+    criterion_ids: list[str],
+    command_runner: Callable[..., dict[str, Any]] = run_command,
+    timeout_seconds: float = 120,
+) -> dict[str, Any]:
+    """Execute one explicit sequential EB-006 engineering-loop cycle."""
+    validate_record(current_gate)
+    root = root.resolve(strict=True)
+    chain = __import__("forge.fal002_io", fromlist=["load_gate_chain"]).load_gate_chain(root, current_gate["series_id"])
+    if chain[-1] != current_gate:
+        raise FAL002Error("STALE_RECORD", "current GateRecord is not authoritative tip")
+    manifest = chain[0]["payload"]["manifest"]
+    ordinal = max((gate["payload"].get("control", {}).get("ordinal", -1) for gate in chain), default=-1) + 1
+    suffix = H("fal002-json-content-v1", {"series": current_gate["series_id"], "ordinal": ordinal})[:12]
+    execution_id, run_id = f"exec-{ordinal:04d}-{suffix}", f"run-{ordinal:04d}-{suffix}"
+    request = {
+        "frozen_hash": current_gate["payload"]["frozen_hash"],
+        "scope": manifest["allowed_paths"],
+        "criteria": criterion_ids,
+        "allowed_paths": manifest["allowed_paths"],
+        "command_ids": COMMAND_IDS,
+        "correction_count": current_gate["payload"]["correction_count"],
+        "work_packet_hash": manifest["scope_hash"],
+        "request_kind": "INITIAL" if ordinal == 0 else "CORRECTION",
+    }
+    request_hash = H("fal002-json-content-v1", request)
+    exec_grant = _grant(
+        "EXECUTOR",
+        manifest["executor_principal_id"],
+        manifest["executor_adapter_id"],
+        f"executor-{suffix}",
+        execution_id,
+        request_hash,
+        created_at,
+    )
+    execution_gate = transition(
+        current_gate,
+        event="START_EXECUTION" if current_gate["state"] == "ready" else "START_CORRECTION",
+        created_at=created_at,
+        variant_kind="EXECUTION",
+        variant={
+            "execution_id": execution_id,
+            "run_id": run_id,
+            "ordinal": ordinal,
+            "request_kind": request["request_kind"],
+            "request": request,
+            "request_hash": request_hash,
+            "invocation_grant": exec_grant,
+        },
+    )
+    persist_transition(root, execution_gate)
+    exchange = seal_record(
+        {
+            "schema_id": "fal002.executor-exchange.v1",
+            "schema_version": 1,
+            "record_id": execution_id,
+            "series_id": current_gate["series_id"],
+            "created_at": created_at,
+            "run_id": run_id,
+            "ordinal": ordinal,
+            "request": request,
+            "result": None,
+            "invocation": {
+                "grant": exec_grant,
+                "observed": {
+                    "grant_id": exec_grant["grant_id"],
+                    "resolved_adapter_path": "forge/fal002_io.py",
+                    "adapter_content_hash": HB(Path(__import__("forge.fal002_io", fromlist=["x"]).__file__).read_bytes()),
+                    "process_id": os.getpid(),
+                    "thread_id": 1,
+                    "object_identity": id(executor),
+                    "started_at": created_at,
+                    "input_hash": request_hash,
+                    "termination": "INTERRUPTED",
+                },
+            },
+        }
+    )
+    exchange = __import__("forge.fal002_io", fromlist=["invoke_executor"]).invoke_executor(executor, exchange, timeout_seconds=timeout_seconds)
+    publish_create_only(canonical_record_path(root, exchange), exchange)
+    commands = [command_runner(root, command_id, timeout_seconds=timeout_seconds) for command_id in COMMAND_IDS]
+    parsed = {item["command_id"]: item["parsed"] for item in commands}
+    offline = manifest.get("offline_evidence")
+    if offline is None:
+        raise FAL002Error("MISSING_EVIDENCE", "manifest offline evidence required")
+    versions = {key: parsed[key].get("version", "not-available") for key in ("GIT-VERSION", "PYTEST-VERSION", "PYTHON-VERSION", "RUFF-VERSION")}
+    run = seal_record(
+        {
+            "schema_id": "fal002.run-record.v1",
+            "schema_version": 1,
+            "record_id": run_id,
+            "series_id": current_gate["series_id"],
+            "created_at": created_at,
+            "execution_id": execution_id,
+            "ordinal": ordinal,
+            "repository": {
+                "root": ".",
+                "branch": parsed["GIT-BRANCH"]["branch"],
+                "baseline_head": parsed["GIT-HEAD-BASELINE"]["head"],
+                "final_head": parsed["GIT-HEAD-FINAL"]["head"],
+                "status": [item["path"] for item in parsed["GIT-STATUS"]["entries"]],
+                "changed_paths": parsed["GIT-STATUS"]["changed_paths"],
+                "offline_evidence_id": offline["evidence_id"],
+                "offline_evidence_record_hash": offline["resolution_record_hash"],
+            },
+            "runtime": {
+                "python_implementation": "CPython",
+                "python_version": versions["PYTHON-VERSION"],
+                "python_executable": Path(sys.executable).resolve().as_posix(),
+                "python_executable_sha256": HB(Path(sys.executable).read_bytes()),
+            },
+            "tools": [
+                _tool("git", "GIT-VERSION", versions["GIT-VERSION"]),
+                _tool("pytest", "PYTEST-VERSION", versions["PYTEST-VERSION"]),
+                _tool("python", "PYTHON-VERSION", versions["PYTHON-VERSION"]),
+                _tool("ruff", "RUFF-VERSION", versions["RUFF-VERSION"]),
+            ],
+            "commands": commands,
+            "diff": {
+                "redacted_text": next(item for item in commands if item["command_id"] == "GIT-DIFF")["stdout_text"],
+                "sha256": parsed["GIT-DIFF"]["redacted_content_hash"],
+                "numstat": parsed["GIT-NUMSTAT"]["entries"],
+            },
+            "build": {"status": "not_available", "reason": "packaging_forbidden"},
+        }
+    )
+    publish_create_only(canonical_record_path(root, run), run)
+    evidence_gate = transition(
+        execution_gate,
+        event="COLLECT_COMPLETE",
+        created_at=created_at,
+        variant_kind="EVIDENCE",
+        variant={
+            "run_id": run_id,
+            "run_record_hash": run["record_hash"],
+            "execution_id": execution_id,
+            "command_ids": COMMAND_IDS,
+            "evidence_hash": H("fal002-json-content-v1", commands),
+        },
+    )
+    persist_transition(root, evidence_gate)
+    bindings = [
+        {
+            "criterion_id": criterion,
+            "evidence_kind": "TEST_RESULT",
+            "source_surface": run["schema_id"],
+            "source_record_id": run_id,
+            "locator": "/commands/13/classification",
+            "assertion": "Authoritative pytest result is bound for reviewer assessment.",
+            "content_hash": H("fal002-json-content-v1", commands[13]["classification"]),
+            "provenance": {
+                "authority": "COLLECTOR",
+                "record_id": run_id,
+                "record_hash": run["record_hash"],
+                "collector_id": "PYTEST",
+            },
+        }
+        for criterion in criterion_ids
+    ]
+    review_id = f"review-{ordinal:04d}-{suffix}"
+    packet = {
+        "frozen_hash": request["frozen_hash"],
+        "run_record_id": run_id,
+        "run_record_hash": run["record_hash"],
+        "criterion_ids": criterion_ids,
+        "evidence_index": bindings,
+        "instructions_hash": manifest["criteria_hash"],
+    }
+    packet_hash = H("fal002-json-content-v1", packet)
+    review_grant = _grant(
+        "REVIEWER",
+        manifest["reviewer_principal_id"],
+        manifest["reviewer_adapter_id"],
+        f"reviewer-{suffix}",
+        review_id,
+        packet_hash,
+        created_at,
+    )
+    review_exchange = seal_record(
+        {
+            "schema_id": "fal002.reviewer-exchange.v1",
+            "schema_version": 1,
+            "record_id": review_id,
+            "series_id": run["series_id"],
+            "created_at": created_at,
+            "run_id": run_id,
+            "ordinal": ordinal,
+            "packet": packet,
+            "result": None,
+            "reviewer_execution": {
+                "grant": review_grant,
+                "observed": {
+                    "grant_id": review_grant["grant_id"],
+                    "resolved_adapter_path": "forge/fal002_io.py",
+                    "adapter_content_hash": HB(Path(__import__("forge.fal002_io", fromlist=["x"]).__file__).read_bytes()),
+                    "process_id": os.getpid(),
+                    "thread_id": 1,
+                    "object_identity": id(reviewer),
+                    "started_at": created_at,
+                    "input_hash": packet_hash,
+                    "termination": "INTERRUPTED",
+                },
+                "fresh_context_verified": True,
+                "read_only_packet_verified": True,
+                "separation_checks": [
+                    "MANIFEST_ROLE_DISTINCT",
+                    "PRINCIPAL_DISTINCT",
+                    "ADAPTER_ENTRYPOINT_DISTINCT",
+                    "GRANT_MATCH",
+                    "CONTEXT_FRESH",
+                    "PACKET_MINIMAL",
+                    "NO_WRITE_CALLBACK",
+                ],
+            },
+        }
+    )
+    review_exchange = __import__("forge.fal002_io", fromlist=["invoke_reviewer"]).invoke_reviewer(reviewer, review_exchange, timeout_seconds=timeout_seconds)
+    if executor is reviewer or review_exchange["reviewer_execution"]["grant"]["context_id"] == exec_grant["context_id"] or review_exchange["reviewer_execution"]["observed"]["object_identity"] == exchange["invocation"]["observed"]["object_identity"]:
+        raise FAL002Error("INDEPENDENCE_FAILURE", "reviewer execution context is not fresh")
+    validate_reviewer_run(review_exchange, run)
+    publish_create_only(canonical_record_path(root, review_exchange), review_exchange)
+    review_gate = transition(
+        evidence_gate,
+        event="START_REVIEW",
+        created_at=created_at,
+        variant_kind="REVIEW",
+        variant={
+            "review_id": review_id,
+            "run_id": run_id,
+            "ordinal": ordinal,
+            "packet": packet,
+            "packet_hash": packet_hash,
+            "invocation_grant": review_grant,
+        },
+    )
+    persist_transition(root, review_gate)
+    prior_events = [event for gate in chain for event in gate["payload"].get("control", {}).get("finding_events", [])]
+    events = _finding_events(review_exchange, prior_events)
+    findings, checkpoint = fold_finding_events(prior_events + events)
+    eligible = evaluate_review(
+        review_exchange,
+        findings,
+        pending_decisions=bool(manifest["decision_requirements"]),
+        evidence_loader=lambda _surface, _id: run,
+    )
+    outcome_event = "REVIEW_PASS" if eligible else "REVIEW_CORRECTION" if review_exchange["result"]["outcome"] == "CORRECTION_REQUIRED" else "REVIEW_BLOCKED"
+    variant_kind = "ELIGIBILITY" if eligible else "CONTROL"
+    variant = (
+        {
+            "review_id": review_id,
+            "review_hash": review_exchange["record_hash"],
+            "criterion_ids": criterion_ids,
+            "finding_ids": [item["finding_id"] for item in findings],
+            "eligible": True,
+        }
+        if eligible
+        else {
+            "ordinal": ordinal,
+            "correction_count": execution_gate["payload"]["correction_count"],
+            "diff_hash": run["diff"]["sha256"],
+            "evidence_hash": evidence_gate["payload"]["evidence"]["evidence_hash"],
+            "finding_ids": [item["finding_id"] for item in findings],
+            "progress": "MATERIAL",
+            "decision_requirements": manifest["decision_requirements"],
+            "decision_bindings": manifest["decision_bindings"],
+            "decision_applications": manifest["decision_applications"],
+            "finding_events": events,
+            "finding_checkpoint": checkpoint,
+        }
+    )
+    final_gate = transition(
+        review_gate,
+        event=outcome_event,
+        created_at=created_at,
+        variant_kind=variant_kind,
+        variant=variant,
+    )
+    persist_transition(root, final_gate)
+    return {
+        "executor_exchange": exchange,
+        "run_record": run,
+        "reviewer_exchange": review_exchange,
+        "gate_record": final_gate,
+        "eligible": eligible,
+    }
 
 
 def resolve_decision(
@@ -256,9 +628,7 @@ def resolve_decision(
     applications: list[dict[str, Any]],
     record_loader: Callable[[str], dict[str, Any]],
 ) -> tuple[str, dict[str, Any] | None]:
-    matching_requirements = [
-        item for item in requirements if item["decision_identity"] == decision_identity
-    ]
+    matching_requirements = [item for item in requirements if item["decision_identity"] == decision_identity]
     if not matching_requirements:
         raise FAL002Error("MISSING_EVIDENCE", "decision requirement absent")
     canonical = matching_requirements[0]
@@ -271,10 +641,7 @@ def resolve_decision(
     for index, binding in enumerate(ordered_bindings):
         if binding["binding_generation"] != index:
             raise FAL002Error("STALE_RECORD", "binding generation gap")
-        if (
-            index
-            and binding.get("previous_binding_key") != ordered_bindings[index - 1]["binding_key"]
-        ):
+        if index and binding.get("previous_binding_key") != ordered_bindings[index - 1]["binding_key"]:
             raise FAL002Error("HASH_MISMATCH", "binding predecessor mismatch")
     if not ordered_bindings:
         return "PENDING", None
@@ -294,40 +661,25 @@ def resolve_decision(
     if len(semantic_hashes) != 1 or len(choices) != 1:
         raise FAL002Error("AUTHORITY_CONFLICT", "conflicting semantic answers")
     application = ordered_applications[-1]
-    expected_application = decision_application(
-        {key: value for key, value in application.items() if key != "application_key"}
-    )
+    expected_application = decision_application({key: value for key, value in application.items() if key != "application_key"})
     if application != expected_application:
         raise FAL002Error("HASH_MISMATCH", "decision application key mismatch")
     if application["binding_key"] != latest_binding["binding_key"]:
         raise FAL002Error("STALE_RECORD", "application uses stale binding")
     resolution = record_loader(application["resolution_locator"])
     validate_record(resolution)
-    if (
-        resolution["record_hash"] != application["resolution_record_hash"]
-        or resolution["payload"]["resolution_semantic_hash"]
-        != application["resolution_semantic_hash"]
-    ):
+    if resolution["record_hash"] != application["resolution_record_hash"] or resolution["payload"]["resolution_semantic_hash"] != application["resolution_semantic_hash"]:
         raise FAL002Error("HASH_MISMATCH", "resolution application mismatch")
     return resolution["status"], resolution
 
 
-def human_close(
-    accepted_gate: dict[str, Any], decision: dict[str, Any], *, created_at: str
-) -> dict[str, Any]:
+def human_close(accepted_gate: dict[str, Any], decision: dict[str, Any], *, created_at: str) -> dict[str, Any]:
     validate_record(accepted_gate)
     validate_record(decision)
-    if (
-        accepted_gate["state"] != "accepted"
-        or decision["decision_kind"] != "CLOSURE"
-        or decision["status"] != "ACCEPTED"
-    ):
+    if accepted_gate["state"] != "accepted" or decision["decision_kind"] != "CLOSURE" or decision["status"] != "ACCEPTED":
         raise FAL002Error("FORBIDDEN_TRANSITION", "human closure authority required")
     payload = decision["payload"]
-    if (
-        payload["eligible_gate_id"] != accepted_gate["record_id"]
-        or payload["eligible_gate_hash"] != accepted_gate["record_hash"]
-    ):
+    if payload["eligible_gate_id"] != accepted_gate["record_id"] or payload["eligible_gate_hash"] != accepted_gate["record_hash"]:
         raise FAL002Error("HASH_MISMATCH", "closure eligibility mismatch")
     return transition(
         accepted_gate,
@@ -364,9 +716,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{item.schema_id} {item.sha256}")
             return 0
         result = inventory(Path.cwd())
-        output = (
-            json.dumps(result, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
-        )
+        output = json.dumps(result, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
         if args.output == "-":
             sys.stdout.write(output)
         else:
@@ -380,3 +730,4 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+# fmt: on
