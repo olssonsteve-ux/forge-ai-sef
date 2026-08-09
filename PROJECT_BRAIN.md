@@ -247,6 +247,14 @@ Forge may eventually include:
   counted LOC, one executor adapter, one reviewer adapter, five persisted/external surfaces and no
   new dependency. Implementation does not close the independently verified planning findings,
   accept/close FAL-002, authorize release or start the album capability.
+- Treat the fresh Independent Implementation Review outcome as
+  `FAIL — IMPLEMENTATION CORRECTION REQUIRED`. `FAL002-IR1-01` through `FAL002-IR1-07` remain
+  `OPEN — BLOCKING`, and HD-FAL-021 STOP conditions #9 and #13 remain recorded as crossed.
+  `HD-FAL-022` authorizes the single `FAL002-CORR-001` campaign without architecture or scope
+  reopening: exactly four production modules, two adapters, five surfaces and zero dependencies
+  remain frozen. Only the production-LOC ceiling changes, from 1,800 to 3,000, for an expected
+  corrected total near 2,750. Correction cannot verify findings or accept/close FAL-002; one fresh
+  independent implementation review is mandatory afterward.
 
 - Use documentation-first development for `0.1`.
 - Use Python as the expected implementation language.

@@ -16,11 +16,15 @@ correct, accept, close or restart it. Independent IR10 of the CORR-017 baseline 
 `PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
 `EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and completed
 Standard-Assurance planning. `HD-FAL-021` authorized FAL-002 implementation strictly under that
-reviewed EB-006 contract. The bounded implementation is now `Implemented — awaiting independent
-implementation review`: exactly four new production modules, 1,777/1,800 counted LOC, one adapter
-per role, five generated surfaces, zero new dependencies and 30 focused tests. Both IR6 findings
-remain `INDEPENDENTLY VERIFIED — NOT CLOSED`; implementation does not accept or close FAL-002. No
-IR11 is required absent material planning-baseline change. The album capability remains unstarted.
+reviewed EB-006 contract. The implementation at `36ea966222b01f550d9c32919fbd2612d2ce998b`
+received `FAIL — IMPLEMENTATION CORRECTION REQUIRED` from its fresh Independent Implementation
+Review. `FAL002-IR1-01` through `FAL002-IR1-07` remain `OPEN — BLOCKING`; HD-FAL-021 STOP
+conditions #9 and #13 were crossed. `HD-FAL-022` authorizes the single `FAL002-CORR-001` campaign as
+`AUTHORIZED — NOT STARTED`, without architecture or scope reopening. Four modules, two adapters,
+five surfaces and zero dependencies remain frozen; the revised hard production-LOC ceiling is 3,000
+for an expected corrected total near 2,750. FAL-002 remains unaccepted and unclosed, both planning
+IR6 findings remain `INDEPENDENTLY VERIFIED — NOT CLOSED`, and the album capability remains
+unstarted.
 
 The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
 
@@ -212,10 +216,11 @@ Forge should be built in this order:
 
 ## Immediate Next Step
 
-Perform a fresh independent implementation review of the committed FAL-002 runtime, schemas, tests
-and `docs/engineering/FAL-002-implementation-review-handoff.md` against EB-006, HD-FAL-021, the
-frozen contracts and authorized budget. Do not infer FAL-002 acceptance, closure or release from
-implementation completion or begin the album capability.
+Execute the committed `HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` implementation
+correction within four modules, two adapters, five surfaces, zero dependencies and the 3,000-LOC
+ceiling. Then perform one fresh independent implementation review. Do not verify/close findings or
+infer FAL-002 acceptance, closure or release from correction completion, and do not begin the album
+capability.
 
 Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
 normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`

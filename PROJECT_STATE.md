@@ -10,12 +10,16 @@ Independent IR10 of the CORR-017 baseline at
 `PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
 `EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and concluded that
 Standard-Assurance planning is complete. `HD-FAL-021` accepts that evidence and authorizes FAL-002
-implementation strictly under the reviewed EB-006 contract. The bounded implementation is now
-`Implemented — awaiting independent implementation review`: four new production modules total
-1,777 counted LOC, one adapter per role, exactly five generated surfaces and zero new dependencies.
-The five-surface boundary and 1,800 maximum production-LOC ceiling remain binding. Both IR6
-findings are `INDEPENDENTLY VERIFIED — NOT CLOSED`. No IR11 is required absent material baseline
-change.
+implementation strictly under the reviewed EB-006 contract. The bounded implementation at
+`36ea966222b01f550d9c32919fbd2612d2ce998b` failed its fresh Independent Implementation Review with
+`FAIL — IMPLEMENTATION CORRECTION REQUIRED`. Seven findings, `FAL002-IR1-01` through
+`FAL002-IR1-07`, remain `OPEN — BLOCKING`; HD-FAL-021 STOP conditions #9 and #13 were crossed.
+`HD-FAL-022` accepts that evidence and authorizes one bounded `FAL002-CORR-001` campaign,
+`AUTHORIZED — NOT STARTED`, without architecture reopening. The limits remain four production
+modules, two adapters, five surfaces and zero new dependencies; the empirically revised hard
+production-LOC ceiling is 3,000, with approximately 2,750 expected after correction. FAL-002 remains
+implemented, unaccepted and unclosed. Both planning IR6 findings remain
+`INDEPENDENTLY VERIFIED — NOT CLOSED`.
 
 EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implementation commit
 `8d1ccb9854ec51c0235a06253c85019780309c32`. FCS-002 remains active.
@@ -30,10 +34,10 @@ EB-005 and CS-002.3 are `Closed` after implementation review `PASS` and implemen
 
 ## Current Objective
 
-Perform a fresh independent implementation review of the committed FAL-002 runtime, schemas, tests
-and `docs/engineering/FAL-002-implementation-review-handoff.md` against EB-006, HD-FAL-021 and the
-frozen contracts. Do not accept or close FAL-002 from implementation evidence alone. Manual Digital
-Album Authoring and Export remains unstarted and unauthorized.
+Execute the `HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` implementation correction
+against its committed decision baseline, then perform one fresh independent implementation review.
+Do not accept or close FAL-002 or any implementation finding from correction evidence alone. Manual
+Digital Album Authoring and Export remains unstarted and unauthorized.
 
 ## What Exists
 
@@ -238,6 +242,10 @@ Album Authoring and Export remains unstarted and unauthorized.
   schemas, one executor and one reviewer adapter, deterministic canonical/hash/persistence/recovery/
   decision/finding/governance behavior, 30 focused tests and no new dependency; deterministic
   inventory is 1,777/1,800 LOC and status is `Implemented` pending independent implementation review
+- failed the fresh Independent Implementation Review with seven blocking findings
+  `FAL002-IR1-01`–`07`; accepted `HD-FAL-022` authorizes one bounded `FAL002-CORR-001` campaign,
+  revises only the production-LOC ceiling to 3,000 and leaves architecture, scope, FAL-002
+  acceptance/closure and all finding states unchanged
 
 ## What Does Not Exist
 
@@ -371,7 +379,7 @@ and no release transition occurred.
 
 ## Next Recommended Work
 
-1. Perform a fresh independent implementation review of the committed FAL-002 implementation
-   against EB-006, HD-FAL-021, the frozen contracts and the implementation-review handoff.
-2. Keep FAL-002 unaccepted and unclosed pending that review. Keep both IR6 findings
-   verified but not closed, FCS-002 active and `v0.5.0` in `Planned`; no release work is authorized.
+1. Execute the committed `HD-FAL-022`-authorized `FAL002-CORR-001-01` through `-07` correction
+   without crossing four modules, two adapters, five surfaces, zero dependencies or 3,000 LOC.
+2. Perform one fresh independent implementation review after correction. Keep FAL-002 unaccepted
+   and unclosed and all seven findings open until that review; no release work is authorized.
