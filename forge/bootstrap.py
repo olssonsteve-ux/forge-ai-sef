@@ -145,6 +145,8 @@ def validate_target(target: Path, base_dir: Path) -> None:
 def load_bootstrap_templates() -> tuple[Template, ...]:
     template_dir = repository_root() / "templates" / "bootstrap"
     if not template_dir.is_dir():
+        template_dir = Path(__file__).parent / "data" / "bootstrap"
+    if not template_dir.is_dir():
         raise ForgeInitError(f"Bootstrap template directory is missing: {template_dir}")
 
     templates: list[Template] = []
@@ -315,14 +317,15 @@ def is_version_compatible(version: str, compatibility: str) -> bool:
     return True
 
 
-def parse_version(version: str) -> tuple[int, int, int]:
-    parts = version.strip().split(".")
-    if len(parts) > 3:
+def parse_version(version: str) -> tuple[int, int, int, int, int]:
+    """Compare numeric releases and explicit rcN candidates; reject other formats."""
+    match = re.fullmatch(r"([0-9]+(?:\.[0-9]+){0,2})(?:rc([0-9]+))?", version.strip())
+    if match is None:
         raise ForgeInitError(f"Unsupported version format: {version}")
-    numbers = [int(part) for part in parts]
-    while len(numbers) < 3:
-        numbers.append(0)
-    return tuple(numbers)
+    numbers = [int(part) for part in match[1].split(".")]
+    numbers.extend([0] * (3 - len(numbers)))
+    candidate = match[2]
+    return (*numbers, int(candidate is None), int(candidate or 0))
 
 
 def repository_root() -> Path:

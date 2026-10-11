@@ -314,7 +314,8 @@ def pending_decision():
     )
 
 
-def test_publication_requires_exact_intent_and_target(tmp_path):
+@pytest.mark.parametrize("sealed", [False, True])
+def test_publication_requires_exact_intent_and_target(tmp_path, sealed):
     predecessor = origin_gate(corrections=0)
     publish_create_only(canonical_record_path(tmp_path, predecessor), predecessor)
     target = pending_decision()
@@ -352,6 +353,14 @@ def test_publication_requires_exact_intent_and_target(tmp_path):
         variant=intent,
     )
     publish_create_only(canonical_record_path(tmp_path, intent_gate), intent_gate)
+    if sealed:
+        recovered = recovery_root(intent_gate)
+        publish_create_only(canonical_record_path(tmp_path, recovered), recovered)
+        with pytest.raises(FAL002Error, match="STALE_RECORD"):
+            publish_staged(tmp_path, staged, intent_gate, target)
+        assert not canonical_record_path(tmp_path, target).exists()
+        assert staged.read_bytes()
+        return
     assert publish_staged(tmp_path, staged, intent_gate, target) == "CREATED"
     staged.write_bytes(b"corrupt\n")
     with pytest.raises(FAL002Error, match="HASH_MISMATCH"):

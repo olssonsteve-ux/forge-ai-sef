@@ -4,9 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "forge-ai-sef"
-version = "0.5.0"
+version = "1.0.0rc1"
 description = "Forge AI Software Engineering Framework"
 readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["Development Status :: 4 - Beta"]
 requires-python = ">=3.11"
 dependencies = [
     "typer>=0.12",

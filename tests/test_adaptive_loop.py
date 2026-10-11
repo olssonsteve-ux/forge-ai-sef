@@ -466,16 +466,23 @@ def test_interrupted_run_can_be_reopened_only_through_policy(manifest):
     assert transition(manifest, "ready", "human", "resume approved")["state"] == "ready"
 
 
-def test_audio_recorder_baseline_fixture_is_unchanged():
-    import subprocess
-
-    repo = Path.home() / "Documents" / "Audio-Recorder"
-    if not repo.exists():
-        pytest.skip("Audio Recorder repository is not present")
-    head = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
-    status = subprocess.check_output(["git", "-C", str(repo), "status", "--porcelain"], text=True)
-    assert head == "ae09df414060664de85daf8d5b394bb7d7744f9f"
-    assert status == ""
+def test_fixture_preserves_unrelated_sibling_repository(manifest, tmp_path):
+    sibling = tmp_path / "Audio-Recorder"
+    sibling.mkdir()
+    source = sibling / "recording.bin"
+    source.write_bytes(b"unrelated user recording")
+    before = {p.relative_to(sibling): p.read_bytes() for p in sibling.rglob("*") if p.is_file()}
+    evidence_root = tmp_path / "forge-evidence"
+    result = run_controlled_fixture(
+        manifest,
+        FakeExecutor({"changed_files": [], "diff": {"text": "", "hash": "fixture"}}),
+        FakeReviewer([review("PASS", coverage=["FAL-01", "FAL-02"])]),
+        evidence_root,
+    )
+    assert result["state"]["state"] == "accepted"
+    assert list(evidence_root.rglob("*.json"))
+    after = {p.relative_to(sibling): p.read_bytes() for p in sibling.rglob("*") if p.is_file()}
+    assert after == before
 
 
 def test_end_to_end_fixture_corrects_then_passes(manifest, tmp_path):

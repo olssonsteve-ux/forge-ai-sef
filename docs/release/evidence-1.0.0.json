@@ -1,0 +1,59 @@
+{
+  "artifacts": {
+    "forge_ai_sef-1.0.0-py3-none-any.whl": {
+      "bytes": 46105,
+      "sha256": "382e58e9bc1059908f60d8136ba084dba2af6ff7ba08e5a62b2c2f3b4f5bb7b8"
+    },
+    "forge_ai_sef-1.0.0.tar.gz": {
+      "bytes": 40755,
+      "sha256": "2ea7940eb693d217fa1b642939a657e568363b80d84a99bd5eb5086f0206e14b"
+    }
+  },
+  "audio_evidence": "build/audio-snapshot-verification-2.json",
+  "baseline": {
+    "branch": "main",
+    "head": "e8d8ed05d23e5229109139836101d036fb27a7e1",
+    "root": "C:\\Users\\olsso\\Documents\\forge-ai-sef",
+    "staged_files": []
+  },
+  "current_memory_lines": {
+    "AI_HANDOFF.md": 28,
+    "PROJECT_BRAIN.md": 38,
+    "PROJECT_STATE.md": 67
+  },
+  "independent_review": {
+    "bounded_code": "PASS",
+    "release": "BLOCKED"
+  },
+  "newer_probe": "codex-cli 0.162.1 also blocked",
+  "package_smoke_evidence": "build/qualification/package-smoke-86e829d18e494b44b1f324a857b6d6ee/report.json",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.14.0",
+  "release_status": "BLOCKED_PENDING_LIVE_RUNTIME_QUALIFICATION",
+  "runtime_blocker_evidence": "build/runtime-qualification-55f287e5077a48959efd3db0aec8fc12/qualification.json",
+  "runtime_candidate": "codex-cli 0.160.0",
+  "stable_python_file_count": 11,
+  "stable_sources_sha256": {
+    "forge/__init__.py": "08de2779196b12bcfa890eff0db30a13a301a340d2e48e386b6d7fecdb47a729",
+    "forge/__main__.py": "41df9ff33d90dafa6210fdb1e8f045b09ae900258357114a424f36d0c845987a",
+    "forge/bootstrap.py": "fccd89dd015f8f0601f14a1defa409bb3d3067b53f5aac63387a93ae4adea6f4",
+    "forge/cli.py": "dd3a019325c23c7f7d790658f962c8711470928b9dd41748eb5e60bc598ef304",
+    "forge/codex_runtime.py": "8bca3f3a0ac09a0e3c054af77a212c4a770be3bbc3889e8a78c47411b5983fc6",
+    "forge/evidence.py": "5482b50af21cecfff2c768bc7a71c249da97e68e0dd548c1a342a2a6b7304182",
+    "forge/process_guard.py": "532f7ad6333e73b5e56bd154af0336f0c2d96fa87be3cd911870cc792254e7fc",
+    "forge/project_memory.py": "ba98f2c6cb51fbe72ea9e2754d48b5aeb85fe09ff7c862f9a88ff459481796dd",
+    "forge/status.py": "30be18dac11504f71daa4431197f1b58d337cee5f256cc272d27af87c1ad17f1",
+    "forge/verification.py": "a973a65ed4fb5324bcd952b946ad06e86c05f9b9c906410f9d005911d856ebe6",
+    "forge/workflow.py": "86a2444915b3f48e8cad6eacc22c7065ff1aa4ffaa0a02690a254001827bc9a5"
+  },
+  "tests": {
+    "audio_snapshot_tests": 616,
+    "diff": "PASS",
+    "format": "PASS",
+    "full": 244,
+    "installed_smoke_checks": 16,
+    "lint": "PASS",
+    "stable_focused": 61
+  },
+  "version": "1.0.0"
+}

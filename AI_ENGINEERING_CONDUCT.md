@@ -48,6 +48,21 @@ AI agents must:
 
 AI agents are responsible for making their reasoning traceable enough that a human maintainer can review the work.
 
+## Proportionate execution and one evidence owner
+
+ADR 0018 records the owner's 2026-10-10 instruction to streamline administration. Keep all
+applicable authority, specification, architecture, verification and independent-review gates,
+but put one work item's plan, evidence and finding dispositions in one linked assurance record.
+Do not duplicate command logs or reconstruct unchanged history in each handoff. PROJECT_STATE
+owns current status; PROJECT_BRAIN owns durable decisions; AI_HANDOFF links current work.
+
+A prior explicit authorization remains valid for in-scope implementation and defect repair.
+Do not ask the owner to authorize each mechanical edit or rerun. Escalate an actual scope,
+architecture, dependency, destructive-action or explicit contract stop boundary. Bounded FAL-002
+budgets, STOP conditions and human-only closure remain binding; this guidance does not clear them.
+A failed test requires an honest result and a scoped fix, not a new administrative campaign unless
+its governing contract explicitly requires one. Re-review affected invariants after correction.
+
 ## Required Session Workflow
 
 Before making changes, an AI agent must:

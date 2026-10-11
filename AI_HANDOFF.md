@@ -2,236 +2,29 @@
 
 ## Role Context
 
-You are working in Forge, an AI-Native Software Engineering Platform.
-
-Forge is not an application. Do not assume product UI, API routes, database models, or runtime services exist.
-
-Forge's motto is: Build software with intention.
+Maintain the existing Forge repository. Read CONSTITUTION.md and AI_ENGINEERING_CONDUCT.md.
+Do not bootstrap another project or confuse the separate Audio Recorder repository with Forge.
 
 ## Current Repository State
 
-FAL-001 is `TERMINATED BLOCKED` under `HD-FAL-002` and `DISP-FAL-001`, correction count 2/2. Never
-correct, accept, close or restart it. Independent IR10 of the CORR-017 baseline at
-`88e53fcbaa31ace83740699cd531f74f2d7e88b6` returned
-`PASS — RECOMMEND IMPLEMENTATION AUTHORIZATION`. It independently verified `CORR-017-01`,
-`EB006-IR6-02` and preserved `EB006-IR6-01`, found no remaining planning blocker and completed
-Standard-Assurance planning. `HD-FAL-021` authorized FAL-002 implementation strictly under that
-reviewed EB-006 contract. The implementation at `36ea966222b01f550d9c32919fbd2612d2ce998b`
-received `FAIL — IMPLEMENTATION CORRECTION REQUIRED` from its first fresh Independent
-Implementation Review. That review registered `FAL002-IR1-01` through `FAL002-IR1-07` as
-`OPEN — BLOCKING` and found HD-FAL-021 STOP conditions #9 and #13 crossed. `HD-FAL-022`
-authorized `FAL002-CORR-001`. Independent
-Implementation Review II returned `FAIL — IMPLEMENTATION CORRECTION REQUIRED`: `IR1-02`, `IR1-06`
-and `IR1-07` are independently verified but not closed; `IR1-01`, `IR1-03`, `IR1-04` and `IR1-05`
-remain open/blocking; no new finding was created; and STOP #9/#13 remain triggered. `HD-FAL-023`
-authorized only `FAL002-CORR-002` for those four residuals, without architecture or scope reopening.
-All four objectives are now `ADDRESSED — AWAITING INDEPENDENT REVIEW`; the findings remain open. The
-corrected runtime uses exclusive intent-aware COMMITTED publication, actual recovery-predecessor
-validation, full decision cross-binding, I/O-owned reviewer provenance and deterministic
-no-progress. Inventory is four modules, two adapters, five surfaces, zero new dependencies and
-3,316/3,400 LOC; 40 focused and 182 full tests pass. FAL-002 remains unaccepted and unclosed, both planning
-IR6 findings remain `INDEPENDENTLY VERIFIED — NOT CLOSED`, and the album capability remains
-unstarted.
-
-The repository is released as Forge `v0.4.1` with the Governance Runtime Status Service and Version Consistency Status implemented.
-
-`docs/standards/ai-implementation-protocol.md` is now the default implementation protocol for AI agents implementing Engineering Briefs. ADR 0015 records this decision.
-
-`docs/standards/lifecycle-standard.md` is now the lifecycle authority for Forge artifacts. ADR 0016 records this decision.
-
-`docs/architecture/AR-0002-Generated-Project-Source-Layout.md` recommends that the universal bootstrap generate no source-code directory rather than `forge/` or a universal `src/`. `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` accepts that direction with a `PASS` decision. ADR 0017 records the binding decision.
-
-`docs/contracts/forge-init-spec.md` and `docs/contracts/bootstrap-template-system.md` specify the accepted `forge-bootstrap/2.0.0` contract and manual compatibility guidance. Focused contract review returned `PASS`.
-
-`docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` is the accepted bounded Engineering Brief that governed implementation of the contract. Focused review returned `PASS` and advanced the brief to `Implementation Ready`; its implementation and closeout are now complete.
-
-The bounded EB-004 implementation is present and verified: `forge init` now plans and creates
-exactly eight contracted directories and eight generated files, generates no source-code directory,
-reports `forge-bootstrap/2.0.0`, renders the identity and architecture-discovery guidance into the
-generated README and AI handoff, and uses a language-neutral `.gitignore`. Evidence is recorded in
-`docs/release/EB-004-universal-bootstrap-output-contract-readiness.md`. DAR-EB-0003 returned `PASS
-WITH CONDITIONS`. Release Authority has resolved both conditions by selecting pre-`1.0` minor
-release target `v0.5.0` and accepting `>=0.5,<0.6` for all three changed templates. Runtime and
-package metadata target `0.5.0`. Focused condition-closure review returned `PASS`; the implementation
-was committed as `5c926759591f617a8245526cdc27cdfd10dbb8e5`, and EB-004 is now `Closed`.
-Release `v0.5.0` remains `Planned`; it is not a Release Candidate, tagged, published, or released.
-
-Product Owner selected `docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md` as
-the next Governance Runtime slice. DAR-CS-0003 returned `PASS`; its EB-005 implementation was
-committed as `8d1ccb9854ec51c0235a06253c85019780309c32` and DAR-EB-0004 returned `PASS`.
-
-`docs/engineering/EB-005-Implement-Project-Memory-Health.md` is that bounded brief. It is
-`Closed`, as is CS-002.3. Project Memory Health remains implemented, informational, and read-only.
-FCS-002 remains active for future separately governed slices.
-
-`forge status` now includes a deterministic, read-only `Project Memory Health` category after
-Runtime Memory Status and before Version Consistency Status. Evidence is recorded in
-`docs/engineering/implementation-review-handoff-EB-005.md`.
-
-PRR-0001 records a post-release version consistency issue discovered after `v0.4.0`: some active documentation still referenced Forge `0.3.3` after tagging. The documentation was corrected, and the durable lesson is that Governance Runtime needs an explicit version consistency check.
-
-CS-002.2 now specifies that future version consistency check as a read-only `forge status` extension.
-
-DAR-CS-0002 reviews CS-002.2 and gives it a decision of `PASS WITH COMMENTS`. The slice is ready for EB-002.2.
-
-`docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` is the accepted implementation brief for adding Version Consistency Status to `forge status`. The implementation is now present in `forge/status.py`.
-
-`docs/reviews/DAR-EB-0002-EB-002.2-Version-Consistency-Implementation.md` reviews the EB-002.2 implementation and gives it a `PASS` decision. CS-002.2 is now closed.
-
-The highest governing document is `CONSTITUTION.md`. Future strategy, roadmap, capability specifications, engineering briefs, implementation, testing, Design Authority Review, and release decisions should derive from it.
-
-AI agent behavior is governed by `AI_ENGINEERING_CONDUCT.md`.
-
-Governance Runtime is specified in `docs/capabilities/FCS-002-Governance-Runtime.md`. Its first read-only Status Service is implemented.
-
-AR-0001 reviews the Forge engineering hierarchy and accepts Capability Slice as the layer between Capability Specification and Engineering Brief.
-
-Capability Slices are governed by `docs/standards/capability-slice-standard.md`. New slices should start from `templates/capability-slices/CS-template.md`.
-
-The first Governance Runtime Capability Slice is `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md`. It defines a read-only Status Service that will later support `forge status`.
-
-The second Governance Runtime Capability Slice is `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md`. It defines read-only version consistency checks across Git tags, active documentation, project memory, changelog, package metadata when present, release documentation, and repository metadata.
-
-The closed third slice is
-`docs/capabilities/CS-002.3-Governance-Runtime-Project-Memory-Health.md`.
-It defines deterministic, read-only checks for required memory files, schema sections, active-work
-coherence, explicit lifecycle claims, handoff staleness, release-state labels, and active artifact
-references. It excludes semantic scoring, JSON, persistence, automatic repair, release blocking,
-and general repository consistency.
-
-`docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` records the architecture review for CS-002.2.
-
-EB-002.2 requires conservative parsing, local Git-only inspection, no new CLI command, no automatic fixes, no report persistence, no release approval, and no runtime project memory mutation.
-
-`docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` reviews CS-002.1 and gives it a decision of `PASS WITH COMMENTS`. It confirms that the slice is ready for Engineering Brief creation.
-
-`docs/engineering/EB-002.1-Implement-Status-Service.md` is the accepted implementation brief for the first Governance Runtime service and future `forge status` command.
-
-`forge/status.py` implements the read-only Status Service. `forge status` is wired in `forge/cli.py`. Version Consistency Status compares the latest local release tag with active release-facing references in README, changelog, project state, AI handoff, and package metadata when present.
-
-There is now a Python package and Typer CLI implementation for `forge init <project-name>` and `forge status`.
-
-Release readiness documentation lives under `docs/release/`.
-
-DAR-0001 lives at `docs/reviews/DAR-0001-Forge-0.2.md` and is the baseline for Forge `0.3`.
-
-Gate 1 dogfooding lives at `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md`. It verified that `python -m forge init ForgePlayground` runs successfully from outside the repository and produced a decision of `PASS WITH COMMENTS`.
-
-The current patch resolves non-blocking Gate 1 issues by aligning generated Forge version output with `v0.2.1` and strengthening first-session architecture discovery guidance in the generated README and AI handoff templates.
-
-Forge 0.3 adds the Developer Platform baseline: testing standard, code quality standard, GitHub Actions CI standard, Ruff configuration, and a CI workflow under `.github/workflows/ci.yml`.
-
-ADR 0011 records the decision to use `CONSTITUTION.md` as the highest governing document and to identify Forge as an AI-Native Software Engineering Platform.
-
-ADR 0012 records the decision to establish `AI_ENGINEERING_CONDUCT.md` as the root AI behavior contract.
-
-ADR 0013 records the decision to establish Governance Runtime as a permanent Forge capability.
-
-ADR 0014 records the decision to introduce Capability Slices.
-
-ADR 0015 records the decision to adopt the AI Implementation Protocol.
-
-ADR 0016 records the decision to adopt the Forge Lifecycle Standard.
-
-ADR 0017 records the decision that the universal bootstrap will generate no source-code directory and that existing generated projects will not be automatically migrated.
-
-Milestone 0 architecture review has been recorded in `docs/architecture/review-000.md`.
-
-Project memory schemas, ADR lifecycle rules, standard categories, template governance, and the `forge init <project-name>` pre-implementation specification are documented under `docs/contracts/`, `standards/`, and `templates/`.
-
-The bootstrap template system is defined in `docs/contracts/bootstrap-template-system.md`. `forge init` must use versioned templates from `templates/bootstrap/` and must not hardcode generated file contents.
-
-Forge Capability Specifications live under `docs/capabilities/`. FCS-001 defines the Review Capability and should be read before any `forge review` implementation work.
+Forge Concept v1.0 is frozen. Public testing version is 1.0.0rc1 (v1.0.0-rc.1).
+The owner now authorizes Forge commit/push/public access and MIT licensing.
+[PROJECT_STATE](PROJECT_STATE.md) owns current status; do not duplicate it here.
 
 ## Current Architectural Intent
 
-Forge should be built in this order:
-
-1. architecture and vision
-2. project memory contracts
-3. standards and templates
-4. bootstrap specification
-5. minimal CLI
-6. automation and governance
+Read [PROJECT_BRAIN](PROJECT_BRAIN.md), ADR 0018, ADR 0019 and the
+[1.0 assurance record](docs/engineering/Forge-1.0-assurance.md).
+The accepted stable contract uses explicit isolated tasks, verification, fresh review and apply.
+Historical FAL defects remain recorded; do not silently accept or close them.
 
 ## Instructions For Future AI Agents
 
-- Keep production code scoped to explicitly approved Forge capabilities.
-- Read `CONSTITUTION.md` before major planning, governance, capability, review, or release work.
-- Read `AI_ENGINEERING_CONDUCT.md` before any meaningful project work.
-- Preserve project memory files when making changes.
-- Update `PROJECT_STATE.md` when the project status changes.
-- Update `PROJECT_BRAIN.md` when durable decisions or project beliefs change.
-- Add architectural decisions under `docs/decisions/` for meaningful direction changes.
-- Check `docs/README.md` before changing documentation authority or duplicating concepts.
-- Follow `docs/contracts/` before changing project memory or CLI behavior.
-- Follow `docs/contracts/bootstrap-template-system.md` before changing bootstrap templates or generation behavior.
-- Follow `docs/capabilities/FCS-001-Review.md` before designing or implementing review behavior.
-- Follow `docs/capabilities/FCS-002-Governance-Runtime.md` before designing or implementing governance runtime behavior.
-- Follow `docs/architecture/AR-0001-Engineering-Hierarchy.md` before changing the engineering hierarchy.
-- Follow `docs/standards/capability-slice-standard.md` before creating or changing Capability Slices.
-- Follow `docs/standards/ai-implementation-protocol.md` before implementing any Engineering Brief.
-- Follow `docs/standards/lifecycle-standard.md` before changing artifact lifecycle status.
-- Read `docs/architecture/AR-0002-Generated-Project-Source-Layout.md` before changing generated project structure or planning project profiles.
-- Read `docs/reviews/DAR-AR-0002-Generated-Project-Source-Layout.md` before revising source-layout contracts or planning implementation.
-- Read `docs/decisions/0017-generated-project-source-layout.md` before revising bootstrap contracts or planning source-layout implementation.
-- Read `docs/engineering/EB-004-Implement-Universal-Bootstrap-Output-Contract.md` before reviewing or implementing the source-layout contract.
-- Follow `docs/capabilities/CS-002.1-Governance-Runtime-Status-Service.md` before creating the first Governance Runtime Engineering Brief or implementing `forge status`.
-- Follow `docs/capabilities/CS-002.2-Governance-Runtime-Version-Consistency-Check.md` before extending `forge status` with version consistency behavior.
-- Follow `docs/reviews/DAR-CS-0002-CS-002.2-Version-Consistency.md` before creating EB-002.2.
-- Follow `docs/engineering/EB-002.2-Implement-Version-Consistency-Check.md` before implementing version consistency behavior.
-- Follow `docs/reviews/DAR-EB-0002-EB-002.2-Version-Consistency-Implementation.md` before closing CS-002.2 or extending version consistency behavior.
-- Follow `docs/reviews/DAR-CS-0001-CS-002.1-Status-Service.md` before creating EB-002.1.
-- Follow `docs/engineering/EB-002.1-Implement-Status-Service.md` before implementing `forge status`.
-- Follow `docs/release/release-standard.md` before tagging or changing release process.
-- Read `docs/reviews/PRR-0001-v0.4.0-Post-Release-Review.md` before changing release checks or extending Governance Runtime release/status behavior.
-- Follow `docs/engineering/EB-003-Developer-Platform.md` before changing developer tooling.
-- Follow `docs/standards/testing-standard.md` before changing test expectations.
-- Follow `docs/standards/code-quality-standard.md` before changing lint or format behavior.
-- Follow `docs/ci/github-actions-standard.md` before changing CI behavior.
-- Read `docs/reviews/DAR-0001-Forge-0.2.md` before planning Forge `0.3`.
-- Read `docs/reviews/GATE-0001-Dogfooding-ForgePlayground.md` before changing bootstrap templates, generated structure, or Forge `0.3` scope.
-- Read `docs/decisions/0011-forge-constitutional-governance-and-product-identity.md` before changing Forge identity or governance hierarchy.
-- Read `docs/decisions/0012-ai-engineering-conduct.md` before changing AI conduct rules.
-- Read `docs/decisions/0013-governance-runtime-capability.md` before changing Governance Runtime direction.
-- Read `docs/decisions/0014-introduce-capability-slices.md` before creating or bypassing Capability Slices.
-- Read `docs/decisions/0015-ai-implementation-protocol.md` before changing implementation workflow expectations.
-- Read `docs/decisions/0016-lifecycle-standard.md` before changing lifecycle terminology or status rules.
-- Keep documentation clear enough for a new contributor to understand without chat history.
-- Prefer small, reviewable changes over broad platform expansion.
-
-## Forbidden Actions
-
-- Do not expand `forge init` beyond bootstrap without an accepted specification.
-- Do not add destructive overwrite behavior without an ADR.
-- Do not add dependency installation behavior to `forge init`.
-- Do not hardcode generated project file contents in CLI code.
-- Do not implement `forge review` until report persistence, `N/A` scoring behavior, command scope, and output format are specified.
-- Do not publish Forge `0.2.0` to a package index.
-- Do not change the generated source layout before the ADR 0017 contract revisions and a bounded Engineering Brief are accepted.
-- Do not start Forge `0.4` Governance Runtime until AI Engineering Conduct is accepted.
-- Do not implement Governance Runtime until its first service, interface, inputs, outputs, persistence, scoring policy, and failure behavior are specified.
-- Do not create Engineering Briefs for large multi-service capabilities until a Capability Slice is accepted.
-- Do not add `forge plan`, `forge doctor`, `forge score`, `forge memory`, `forge risks`, or `forge release` yet.
-- Do not make the first Status Service mutate files, approve releases, create reviews, update project memory, or score complex code quality.
-- Do not add strict mode, JSON output, persisted reports, Governance Score, policy packs, or release-blocking behavior as part of EB-002.1.
-- Do not add automatic version updates, changelog rewrites, release approval, or project memory mutation without a dedicated accepted Capability Slice and Engineering Brief.
-- Do not implement CS-002.2 before it passes DAR-CS and has an accepted Engineering Brief.
-- Do not implement version consistency outside the EB-002.2 scope.
-- Do not implement future Engineering Briefs without following the AI Implementation Protocol.
-- Do not change lifecycle status without evidence and related project memory updates when required.
+Preserve user work. Establish root, HEAD, index and working tree before modifying anything.
+Continue authorized bounded work without repetitive approval requests. Maintain one evidence owner,
+test negative paths and obtain independent review. Do not infer publication authority.
 
 ## Immediate Next Step
 
-Perform one fresh independent implementation review of the committed CORR-002 baseline. Review the
-four residual findings and preserve independently verified `IR1-02`, `IR1-06` and `IR1-07`. Do not
-verify/close findings from implementation evidence, infer FAL-002 acceptance, closure or release, or
-begin the album capability.
-
-Preserve DAR-CS-0003's exact active-versus-historical boundary, identifier grammar, lifecycle
-normalization, aggregation, failure behavior, test fixtures, and private `forge/project_memory.py`
-helper boundary. Keep status ownership and CLI-facing composition in `forge/status.py`.
-
-EB-005 and CS-002.3 are closed. Preserve Project Memory Health's nine-rule, read-only boundary and
-keep FCS-002 active. Keep `v0.5.0` `Planned`; do not infer release execution, create a Release
-Candidate, start Audio Recorder, or begin another capability without separate selection.
+Follow PROJECT_STATE and docs/release/checklist-1.0.0-rc.1.md for publication state.
+Stable implementation acceptance still requires V1-Q-01 resolution; do not claim stable 1.0.

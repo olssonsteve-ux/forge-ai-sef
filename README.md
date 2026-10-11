@@ -2,252 +2,96 @@
 
 > Build software with intention.
 
-Forge is an AI-Native Software Engineering Platform.
+**From human intent to working, verified software with AI agents.**
 
-Forge provides a disciplined engineering environment where humans and AI collaborate to design, build, review, govern and evolve software.
+Forge helps people and AI agents design, build, review and maintain software while preserving
+purpose, decisions and evidence across sessions. Its goal is to reduce unnecessary manual work
+and administration while keeping humans in control of important decisions.
 
-Forge is built upon five permanent ideas:
-
-Architecture before implementation.
-
-Specifications before code.
-
-Capabilities before features.
-
-Review before release.
-
-Continuous engineering improvement.
-
-Forge develops Forge.
-
-## Constitutional Foundation
-
-The highest governing document in Forge is [CONSTITUTION.md](CONSTITUTION.md).
-
-Every future engineering decision should ultimately derive from the Constitution:
-
-```text
-Constitution
-  |
-  v
-Product Strategy
-  |
-  v
-Roadmap
-  |
-  v
-Capability Specifications
-  |
-  v
-Capability Slices
-  |
-  v
-Engineering Briefs
-  |
-  v
-Implementation
-  |
-  v
-Testing
-  |
-  v
-Design Authority Review
-  |
-  v
-Release
-```
-
-AI agent behavior is governed by [AI_ENGINEERING_CONDUCT.md](AI_ENGINEERING_CONDUCT.md).
-
-Engineering Brief implementation by AI agents is governed by [docs/standards/ai-implementation-protocol.md](docs/standards/ai-implementation-protocol.md).
-
-Forge artifact lifecycle language is governed by [docs/standards/lifecycle-standard.md](docs/standards/lifecycle-standard.md).
-
-## Purpose
-
-Forge exists to make AI-assisted software engineering repeatable, auditable, durable, and governable.
-
-Forge addresses the layer around code: purpose, memory, architecture, specifications, standards, templates, testing, review, release, and human-AI handoff quality.
+Read the **[statement of intent](INTENT.md)** and the **[Forge Concept v1.0 baseline](docs/Forge-Concept-v1.0.md)**.
 
 ## Current State
 
-This repository is released as Forge `v0.4.1`.
+The v1 concept is frozen. The implementation is **1.0.0rc1**, a public testing candidate
+(tag **v1.0.0-rc.1**), **not a stable 1.0 release**.
 
-Forge includes two local CLI commands:
+244 automated tests and bounded independent code review passed before publication preparation.
+Real agent execution, fresh runtime review and apply remain unqualified because of a tool-policy
+rejection in the build environment (V1-Q-01). See the
+[publication record](docs/release/checklist-1.0.0-rc.1.md) for final checks and the
+[assurance record](docs/engineering/Forge-1.0-assurance.md) for detailed evidence.
+Try the candidate in a disposable repository or a backup and report reproducible findings.
+
+## Install
+
+Download the wheel from [GitHub Releases](https://github.com/olssonsteve-ux/forge-ai-sef/releases)
+and install it in a virtual environment:
+
+```powershell
+py -3.14 -m venv .venv
+.venv\Scripts\python -m pip install .\forge_ai_sef-1.0.0rc1-py3-none-any.whl
+.venv\Scripts\python -m forge --help
+```
+
+The package is distributed through GitHub, not PyPI. Windows x64 / CPython 3.14 is the current
+qualification target. The package metadata permits Python 3.11 and later; other environments
+have not been qualified. Codex is optional for init, status and verify. Task execution requires
+Codex CLI 0.160.0 on PATH with an existing login and remains experimental pending qualification.
+
+## Commands
 
 ```text
-forge init <project-name>
+forge init <project-name> [--dry-run]
 forge status
+forge verify [--config forge.toml]
+forge task create <id> --spec <task.json>
+forge task show <id>
+forge task run <id>
+forge task resume <id> --reason <text>
+forge task apply <id>
 ```
 
-The uncommitted EB-004 implementation under formal review changes `forge init` to universal output
-contract `forge-bootstrap/2.0.0`: exactly eight directories and eight generated files from versioned
-templates under `templates/bootstrap/`, with no generated `forge/`, `src/`, language package,
-framework structure, or other source-code directory. Dry-run reports the same ordered output plan
-as generation without writing files. Generated README and AI handoff guidance direct each project
-to select language, packaging, deployment architecture, and source layout through architecture
-discovery. This behavior is not part of the released `v0.4.1` baseline.
+Use init only for new projects. Existing repositories keep their structure. Status is read-only.
+Verification runs the commands you explicitly configure. Tasks capture an authorized baseline,
+work in a separate snapshot, run checks, request a fresh review and require explicit apply before
+original files change. Verification commands themselves are trusted operator code.
 
-Release Authority has accepted `v0.5.0` as the planned pre-`1.0` minor release for EB-004. The
-implementation passed focused condition-closure review and is ready to commit. It remains
-unreleased and is not approved for tagging.
+The [user guide](docs/Forge-1.0-guide.md) covers configuration, task specifications, recovery,
+limitations and migration.
 
-Projects generated with the historical empty `forge/` placeholder are not migrated automatically.
-Populated directories remain project-owned, existing layouts may remain indefinitely, and an empty
-placeholder may be removed only through deliberate manual project action.
+## Less administration, retained evidence
 
-`forge status` inspects the current repository and reports read-only governance status. It includes
-a Project Memory Health category for deterministic checks of required memory files and sections,
-explicit active references, active-work and lifecycle coherence, proven stale gates, release
-lifecycle labels, and current ADR authority. Version Consistency Status separately compares local
-release tags with active version references in README, changelog, project memory, handoff context,
-and `pyproject.toml` when present. The command does not approve releases, calculate a score, persist
-reports, fix findings, or update project files.
+One linked assurance record owns a work item's scope, checks, findings and review.
+PROJECT_STATE owns current status, PROJECT_BRAIN durable rationale and AI_HANDOFF the handoff.
+Authorization persists for ordinary in-scope work. This approach was informed by building
+Audio Recorder; see [ADR 0018](docs/decisions/0018-proportionate-records-and-continuous-authorized-work.md).
 
-Forge 0.3 adds the developer platform needed to maintain the CLI safely: testing standards, code quality standards, and GitHub Actions CI.
+Historical autonomous FAL experiments remain in the source repository with unresolved findings.
+They are excluded from installed wheel and source-distribution runtime code and have not been
+accepted or closed. The candidate uses explicit retry and apply, without an automatic correction loop.
 
-Forge `v0.3.1` adds the constitutional identity foundation. The current governance milestone adds the AI conduct layer before Forge 0.4 Governance Runtime begins.
+## Free and open source
 
-Forge specifies Governance Runtime as the future operational layer that evaluates constitutional compliance, engineering health, project memory, capability readiness, risk, and release posture. It is specified in [FCS-002](docs/capabilities/FCS-002-Governance-Runtime.md). Its read-only Status Service is implemented through `forge status`, including artifact presence, conservative version consistency, and deterministic Project Memory Health checks.
+Forge is licensed under the **[MIT License](LICENSE)**. You may use, modify and redistribute it,
+including commercially, subject to that license. Forge has no license fee; external AI services
+may require a paid account or incur usage charges. Third-party dependencies retain their own licenses.
 
-Capability Slices are now a first-class Forge artifact governed by [docs/standards/capability-slice-standard.md](docs/standards/capability-slice-standard.md). New slices should start from [templates/capability-slices/CS-template.md](templates/capability-slices/CS-template.md).
+[Report an issue](https://github.com/olssonsteve-ux/forge-ai-sef/issues) or read
+[CONTRIBUTING.md](CONTRIBUTING.md) to test, propose improvements or submit a pull request.
 
-The current implementation deliberately does not include `forge review`, plugins, release automation, remote templates, or project profiles beyond bootstrap.
-
-## Scope
-
-Forge is:
-
-- an AI-Native Software Engineering Platform
-- a project memory system
-- a specification-first capability model
-- a standards and review environment
-- a bootstrap and template foundation
-- a quality and release discipline
-- a human-AI collaboration structure
-- an AI engineering conduct model
-
-Forge is not:
-
-- a general application framework
-- a hosted service by default
-- a replacement for engineering judgment
-- a hidden code generator
-- a task manager
-- a single-vendor AI workflow
-- a shortcut around architecture, testing, review, or release discipline
-
-## Repository Map
-
-```text
-.
-+-- .github/workflows/
-+-- docs/
-|   +-- architecture/
-|   +-- capabilities/
-|   +-- ci/
-|   +-- contracts/
-|   +-- decisions/
-|   +-- engineering/
-|   +-- release/
-|   +-- reviews/
-|   +-- standards/
-|   +-- vision/
-+-- forge/
-+-- standards/
-+-- templates/
-|   +-- capability-slices/
-+-- tests/
-+-- AI_HANDOFF.md
-+-- AI_ENGINEERING_CONDUCT.md
-+-- CHANGELOG.md
-+-- CONSTITUTION.md
-+-- PROJECT_BRAIN.md
-+-- PROJECT_STATE.md
-+-- README.md
-+-- ROADMAP.md
-+-- pyproject.toml
-```
-
-See [docs/README.md](docs/README.md) for documentation ownership and update rules.
-
-## Local Usage
-
-Install Forge locally for development:
+## Development and evidence
 
 ```text
 python -m pip install -e ".[dev]"
-```
-
-Run a dry run:
-
-```text
-python -m forge init my-project --dry-run
-```
-
-Create a project:
-
-```text
-python -m forge init my-project
-```
-
-Inspect the current repository:
-
-```text
-python -m forge status
-```
-
-Run tests:
-
-```text
-python -m pytest
-```
-
-Run lint checks:
-
-```text
+python -m pytest -q
 python -m ruff check .
-```
-
-Run format checks:
-
-```text
 python -m ruff format --check .
+python -m forge verify
 ```
 
-The GitHub Actions workflow runs the same quality gate on push and pull request.
+- [Current status](PROJECT_STATE.md)
+- [Constitution](CONSTITUTION.md) and [engineering conduct](AI_ENGINEERING_CONDUCT.md)
+- [Kernel decision](docs/decisions/0019-stable-isolated-task-kernel.md)
+- [Stable 1.0 acceptance checklist](docs/release/checklist-1.0.0.md)
 
-## Engineering Model
-
-Forge develops through durable governing artifacts:
-
-- the Constitution defines permanent identity and principles
-- AI Engineering Conduct defines how AI agents must behave
-- the roadmap orders strategic work
-- Forge Capability Specifications define permanent capabilities
-- Capability Slices decompose large capabilities into implementation-sized increments
-- Governance Runtime will interpret the governance model operationally
-- Engineering Briefs define bounded implementation work
-- the AI Implementation Protocol defines how Engineering Briefs are implemented by AI agents
-- the Lifecycle Standard defines consistent artifact status and closure language
-- tests and standards verify quality
-- Design Authority Reviews protect long-term coherence
-- releases publish only reviewed work
-
-## Implementation Language
-
-Forge uses Python because Python is practical for developer tooling, file orchestration, document generation, test automation, AI workflow integration, and cross-platform scripting.
-
-The CLI uses Typer.
-
-## Version Direction
-
-Forge will evolve from constitutional foundation to a stable AI-native engineering platform:
-
-- `0.1`: foundation and architecture
-- `0.2`: bootstrap MVP and dogfooding
-- `0.3`: developer platform, CI, testing, code quality, and constitutional identity
-- future milestones: Governance Runtime, review, knowledge, capability runtime, and ecosystem maturity
-- `1.0`: stable platform contract
-
-See [ROADMAP.md](ROADMAP.md) for the full roadmap.
+Green tests do not supersede recorded defects or establish live runtime qualification.

@@ -1,7 +1,7 @@
 ---
 template_name: bootstrap-project-state
 version: 0.1.0
-compatible_forge_versions: ">=0.5,<0.6"
+compatible_forge_versions: ">=1.0.0rc1,<2.0"
 description: "Initial PROJECT_STATE.md for a Forge-governed project."
 variables:
   - PROJECT_NAME

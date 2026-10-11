@@ -1,0 +1,18 @@
+schema_version = 1
+required_tools = ["python", "git"]
+excluded_paths = []
+
+[[checks]]
+id = "tests"
+argv = ["python", "-m", "pytest", "-q"]
+timeout_seconds = 600
+
+[[checks]]
+id = "lint"
+argv = ["python", "-m", "ruff", "check", "."]
+timeout_seconds = 60
+
+[[checks]]
+id = "format"
+argv = ["python", "-m", "ruff", "format", "--check", "."]
+timeout_seconds = 60

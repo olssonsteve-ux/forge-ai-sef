@@ -4,6 +4,22 @@ All notable changes to Forge will be documented in this file.
 
 Forge follows a deliberate pre-1.0 evolution model. Until `1.0`, breaking changes are allowed when they improve the long-term platform contract, but they must be documented.
 
+## [1.0.0-rc.1] - 2026-10-11
+
+Public testing prerelease; stable implementation acceptance remains blocked by V1-Q-01.
+
+- Freeze Forge Concept v1.0 and publish an English statement of intent.
+- Adopt MIT licensing and invite public testing and contributions.
+- Identify the Python package as 1.0.0rc1; no stable v1.0.0 claim.
+
+- Add explicit language-neutral verification and isolated task create/show/run/resume/apply.
+- Enforce captured authority, bounded process trees, deterministic checks, fresh review and journaled apply.
+- Package bootstrap templates with 1.x compatibility; quarantine experimental FAL runtime code.
+- Consolidate current project memory and work-item evidence under ADR 0018/0019.
+- No automatic migration or runtime-initiated commits/publication. The owner separately authorized
+  this public testing release. See the 1.0 assurance record for outstanding qualification.
+
+
 ## [Unreleased]
 
 ### Added

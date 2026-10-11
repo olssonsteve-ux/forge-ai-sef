@@ -210,8 +210,26 @@ def _testing_status(root: Path) -> StatusCategory:
         "Testing Status",
         (
             _directory_item(root, "tests", DIRECTORY_ARTIFACTS["tests"]),
-            _file_item(root, "pyproject.toml", "Python project configuration"),
+            _project_configuration_item(root),
         ),
+    )
+
+
+def _project_configuration_item(root: Path) -> StatusItem:
+    for name in ("forge.toml", "pyproject.toml", "package.json", "Cargo.toml", "go.mod"):
+        if (root / name).is_file():
+            return _file_item(root, name, "Project verification configuration")
+    for pattern in ("*.sln", "*.slnx", "*.csproj"):
+        if any(root.glob(pattern)):
+            return StatusItem(
+                label="Project verification configuration",
+                state=StatusState.OK,
+                message=f"Found {pattern}; use forge.toml for explicit checks.",
+            )
+    return StatusItem(
+        label="Project verification configuration",
+        state=StatusState.MISSING,
+        message="No supported project configuration found; add forge.toml.",
     )
 
 

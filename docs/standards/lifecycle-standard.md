@@ -51,6 +51,16 @@ Capability -> DAR -> Engineering Brief -> Implementation -> Implementation Revie
 
 Artifact-specific and release states refine this method; they do not reorder it or transfer authority between roles.
 
+## Record size and ceremony (ADR 0018)
+
+Lifecycle states describe decisions, not document count. Where the governing capability or brief
+does not require separate files, one linked assurance record MAY hold scope, design review,
+implementation evidence, independent findings and their dispositions. The role, date, decision and
+evidence for each transition MUST remain explicit. Independent review MUST remain independent.
+Current status belongs in PROJECT_STATE; other memory artifacts link rather than duplicate it.
+This consolidation MUST NOT waive a contract-specific gate, budget, stop condition, authority or
+required record, and MUST NOT retroactively rewrite historical outcomes.
+
 ## Core Lifecycle Principles
 
 - Status MUST be explicit and traceable to evidence.

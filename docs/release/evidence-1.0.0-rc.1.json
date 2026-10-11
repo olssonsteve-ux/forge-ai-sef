@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0rc1",
+  "tag": "v1.0.0-rc.1",
+  "date": "2026-10-11",
+  "baseline": "e8d8ed05d23e5229109139836101d036fb27a7e1",
+  "license": "MIT",
+  "concept": "Forge Concept v1.0 frozen",
+  "status": "Public testing candidate, not accepted stable 1.0",
+  "tests": {
+    "passed": 258,
+    "lint": "PASS",
+    "format": "PASS",
+    "installed_smoke_checks": 16,
+    "independent_publication_review": "PASS",
+    "independent_focused_tests": 16
+  },
+  "scan": {
+    "scope": "All reachable Git history blobs and current tracked/nonignored files; targeted credential patterns, not a guarantee of no secrets.",
+    "worktree_files": 191,
+    "history_blobs": 556,
+    "matches": [],
+    "suspicious_paths": []
+  },
+  "artifacts": [
+    {
+      "name": "forge_ai_sef-1.0.0rc1-py3-none-any.whl",
+      "bytes": 52461,
+      "sha256": "03794780c24a4b17a7c26923ec2ec3aafd6b0b6da7ce972aa27fd852f9c89d05"
+    },
+    {
+      "name": "forge_ai_sef-1.0.0rc1.tar.gz",
+      "bytes": 47073,
+      "sha256": "a26f4b4acab2dcf3bcb4961dfc772433ade224a9423dcf644665aad59ac13865"
+    }
+  ],
+  "known_blocker": "V1-Q-01 remains open; live execution/review/apply unqualified",
+  "publication": "https://github.com/olssonsteve-ux/forge-ai-sef/releases/tag/v1.0.0-rc.1"
+}

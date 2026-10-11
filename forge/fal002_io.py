@@ -247,6 +247,8 @@ def publish_staged(
     if record["schema_id"] == "fal002.reviewer-exchange.v1":
         run_path = root / ".forge" / "fal002" / "series" / record["series_id"] / "runs" / f"{record['run_id']}.json"
         validate_reviewer_run(record, load_record(run_path))
+    _assert_series_unsealed(root, intent_gate["series_id"])
+    _assert_series_unsealed(root, record["series_id"])
     return _publish_raw_create_only(target, record)
 
 

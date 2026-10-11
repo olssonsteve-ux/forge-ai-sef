@@ -73,6 +73,16 @@ The release process consumes reviewed implementation work. This protocol does no
 
 Implementation may prepare a commit, but release decisions remain governed by release standards and review outcomes.
 
+## Evidence consolidation (ADR 0018)
+
+The lifecycle roles and required evidence may be represented by anchored sections in one assurance
+record when no directly applicable contract mandates separate artifacts. Reference that evidence
+from project memory instead of copying it. Commands and outputs need one durable owner. Reuse
+unchanged accepted evidence, and repeat checks when a change or unresolved risk justifies it.
+Already authorized scope includes ordinary repair and retest; new approval is required only at a
+real authority boundary. This does not modify a capability's explicit correction budget or STOP
+rules and does not permit self-approval, closure, commits or releases without their authority.
+
 ## Mandatory Implementation Workflow
 
 An AI agent implementing an Engineering Brief must follow this workflow:

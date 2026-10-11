@@ -120,3 +120,15 @@ Each release checklist must end with:
 ```text
 Ready to tag vX.Y.Z: YES/NO
 ```
+
+## Public testing prereleases
+
+An explicitly authorized public testing release may use a semantic prerelease tag such as
+v1.0.0-rc.1 and the equivalent Python package version 1.0.0rc1. Mark it as a GitHub prerelease,
+not latest stable. Freeze concept scope separately from implementation acceptance.
+
+Its checklist must record passing automated and installed-package checks, code review evidence,
+license and distribution scope, and prominently identify incomplete system qualification.
+Public testing may collect that missing evidence; it must not erase findings or claim stable
+acceptance. The stable checklist remains open until its original acceptance criteria pass.
+The owner authorized this publication path on 2026-10-11; see the rc.1 checklist.

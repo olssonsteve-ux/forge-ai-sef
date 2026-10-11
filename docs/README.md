@@ -6,6 +6,12 @@ Forge's highest governing document is `CONSTITUTION.md` at the repository root. 
 
 Forge documentation is intentionally split by authority. Files may reference the same concepts, but each concept should have one primary home.
 
+## Start here for public testing
+
+Read the [statement of intent](../INTENT.md), [Forge Concept v1.0](Forge-Concept-v1.0.md),
+[user guide](Forge-1.0-guide.md) and [public testing checklist](release/checklist-1.0.0-rc.1.md).
+Historical records below retain their original decisions; public testing does not close them.
+
 ## Document Authority
 
 | Topic | Primary Document | Supporting Documents |

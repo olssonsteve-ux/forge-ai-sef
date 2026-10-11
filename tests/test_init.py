@@ -162,8 +162,8 @@ def test_template_rendering_strips_metadata(
     assert result.exit_code == 0
     readme = (tmp_path / "demo-project" / "README.md").read_text(encoding="utf-8")
     assert readme.startswith("# demo-project")
-    assert __version__ == "0.5.0"
-    assert "Forge `0.5.0`" in readme
+    assert __version__ == "1.0.0rc1"
+    assert "Forge `1.0.0rc1`" in readme
     assert f"Bootstrap output contract: `{BOOTSTRAP_OUTPUT_CONTRACT}`" in readme
     assert "No source-code directory was generated intentionally." in readme
     assert "architecture discovery" in readme
@@ -233,11 +233,11 @@ def test_changed_template_versions_and_compatibility() -> None:
     templates = {template.output_name: template for template in load_bootstrap_templates()}
 
     assert {template.metadata["compatible_forge_versions"] for template in templates.values()} == {
-        ">=0.5,<0.6"
+        ">=1.0.0rc1,<2.0"
     }
     for output_name in ("README.md", "AI_HANDOFF.md", ".gitignore"):
         assert templates[output_name].metadata["version"] == "1.0.0"
-        assert templates[output_name].metadata["compatible_forge_versions"] == ">=0.5,<0.6"
+        assert templates[output_name].metadata["compatible_forge_versions"] == ">=1.0.0rc1,<2.0"
 
 
 def test_release_target_version_metadata_is_aligned() -> None:
@@ -246,9 +246,9 @@ def test_release_target_version_metadata_is_aligned() -> None:
         (repository_root / "pyproject.toml").read_text(encoding="utf-8")
     )
 
-    assert __version__ == "0.5.0"
-    assert package_metadata["project"]["version"] == "0.5.0"
-    assert default_variables("demo-project")["FORGE_VERSION"] == "0.5.0"
+    assert __version__ == "1.0.0rc1"
+    assert package_metadata["project"]["version"] == "1.0.0rc1"
+    assert default_variables("demo-project")["FORGE_VERSION"] == "1.0.0rc1"
 
 
 def test_forge_internal_package_remains_present() -> None:
@@ -262,3 +262,28 @@ def test_template_compatibility_validation() -> None:
     assert is_version_compatible("0.2.0", ">=0.2,<0.3")
     assert not is_version_compatible("0.1.0", ">=0.2,<0.3")
     assert not is_version_compatible("0.3.0", ">=0.2,<0.3")
+
+
+@pytest.mark.parametrize(
+    ("version", "constraint", "expected"),
+    [
+        ("1.0.0rc1", ">=1.0.0rc1,<2.0", True),
+        ("1.0.0rc1", ">=1.0", False),
+        ("1.0.0rc1", "<1.0", True),
+        ("1.0.0", ">1.0.0rc99", True),
+        ("1.0.0rc10", ">1.0.0rc2", True),
+        ("1.0.0rc1", "==1.0.0", False),
+        ("1.0", "==1.0.0", True),
+        ("2.0", ">=1.0.0rc1,<2.0", False),
+    ],
+)
+def test_candidate_template_compatibility(version, constraint, expected):
+    assert is_version_compatible(version, constraint) is expected
+
+
+@pytest.mark.parametrize("version", ["", "1..0", "-1.0", "1.0.0.1", "1.0.0rc", "1.0.0bad"])
+def test_malformed_versions_fail_with_domain_error(version):
+    with pytest.raises(ForgeInitError, match="Unsupported version format"):
+        is_version_compatible(version, ">=1.0.0rc1")
+    with pytest.raises(ForgeInitError, match="Unsupported version format"):
+        is_version_compatible("1.0.0rc1", ">=" + version)

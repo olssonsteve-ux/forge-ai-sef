@@ -1,0 +1,7 @@
+include README.md INTENT.md CONTRIBUTING.md LICENSE pyproject.toml setup.py
+include docs/Forge-Concept-v1.0.md
+recursive-include templates/bootstrap *
+exclude forge/adaptive_loop.py forge/fal002.py forge/fal002_io.py forge/fal002_model.py forge/fal002_inventory.py
+prune tests
+include docs/Forge-1.0-guide.md
+prune scripts
