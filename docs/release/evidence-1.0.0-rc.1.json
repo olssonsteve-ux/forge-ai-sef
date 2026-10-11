@@ -12,7 +12,8 @@
     "format": "PASS",
     "installed_smoke_checks": 16,
     "independent_publication_review": "PASS",
-    "independent_focused_tests": 16
+    "independent_focused_tests": 16,
+    "ruff_version": "0.15.20"
   },
   "scan": {
     "scope": "All reachable Git history blobs and current tracked/nonignored files; targeted credential patterns, not a guarantee of no secrets.",
@@ -24,15 +25,21 @@
   "artifacts": [
     {
       "name": "forge_ai_sef-1.0.0rc1-py3-none-any.whl",
-      "bytes": 52461,
-      "sha256": "03794780c24a4b17a7c26923ec2ec3aafd6b0b6da7ce972aa27fd852f9c89d05"
+      "bytes": 52465,
+      "sha256": "29fd6b4b4ad382ebf16fa77a7ae8c0df4530f485e087bd2b3fa87d47dfd0210c"
     },
     {
       "name": "forge_ai_sef-1.0.0rc1.tar.gz",
-      "bytes": 47073,
-      "sha256": "a26f4b4acab2dcf3bcb4961dfc772433ade224a9423dcf644665aad59ac13865"
+      "bytes": 47090,
+      "sha256": "9e1126766aeb55696f01ce9335296d5ff5cb39fd2fbdfdf7f84250aac60dc2a5"
     }
   ],
   "known_blocker": "V1-Q-01 remains open; live execution/review/apply unqualified",
-  "publication": "https://github.com/olssonsteve-ux/forge-ai-sef/releases/tag/v1.0.0-rc.1"
+  "publication": "https://github.com/olssonsteve-ux/forge-ai-sef/releases/tag/v1.0.0-rc.1",
+  "hosted_initial_run": {
+    "id": 38144008372,
+    "tests": "258 passed",
+    "lint": "PASS",
+    "format": "FAIL with unbounded Ruff 0.17.0; pinned to locally verified 0.15.20"
+  }
 }

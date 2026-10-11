@@ -69,3 +69,12 @@ Ready to tag stable v1.0.0: NO (V1-Q-01).
 - A failed first packaging check caught numeric-only version parsing; rcN support and negative
   regression tests corrected it before publication. No failed artifact is uploaded.
 - Stable V1-Q-01 qualification was not rerun or accepted. Existing FAL findings are unchanged.
+
+## Hosted CI toolchain correction
+
+The first hosted run (38144008372, commit 77396c9) passed all 258 tests and lint but failed format:
+unbounded ruff>=0.8 installed Ruff 0.17.0, which also formats Markdown code blocks and requested
+rewriting the frozen EB-006 oracle. Local verification used Ruff 0.15.20.
+Pin the existing development dependency to 0.15.20 so local and hosted checks use the same reviewed
+formatter. This adds no runtime dependency and changes no frozen record. The candidate packages
+are rebuilt with the corrected development metadata; old draft assets are replaced before publication.
