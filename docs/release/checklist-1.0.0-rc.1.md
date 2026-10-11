@@ -45,12 +45,12 @@ FAL experiments remain excluded from installed runtime code and retain all exist
 - [x] Final automated suite, lint, format and whitespace checks.
 - [x] Wheel/sdist built; license included; clean installed CLI smoke.
 - [x] Final publication consistency review and recorded checksums.
-- [ ] Commit and clean working tree.
-- [ ] Fast-forward push, public visibility and prerelease assets verified.
-- [ ] Hosted CI result inspected.
+- [x] Commit and clean working tree.
+- [x] Fast-forward push, public visibility and prerelease assets verified.
+- [x] Hosted CI result inspected.
 
-Technical publication gates: PASS. Commit, hosted CI and publication confirmation follow below.
-Ready to tag v1.0.0-rc.1: YES after the reviewed commit is clean and hosted CI is green.
+Technical publication gates: PASS. Publication completed; see confirmation below.
+Ready to tag v1.0.0-rc.1: YES (tagged and published).
 Ready to tag stable v1.0.0: NO (V1-Q-01).
 
 ## Verification evidence
@@ -78,3 +78,17 @@ rewriting the frozen EB-006 oracle. Local verification used Ruff 0.15.20.
 Pin the existing development dependency to 0.15.20 so local and hosted checks use the same reviewed
 formatter. This adds no runtime dependency and changes no frozen record. The candidate packages
 are rebuilt with the corrected development metadata; old draft assets are replaced before publication.
+
+## Publication confirmation
+
+- Release commit: 637449b573d8001da685ecf042f8eee59df9b723.
+- Ordinary fast-forward pushes preserved all prior history; no force push or reset.
+- Annotated tag v1.0.0-rc.1 points to that commit. Working tree was clean when tagged.
+- [Hosted Windows CI](https://github.com/olssonsteve-ux/forge-ai-sef/actions/runs/38144266032):
+  SUCCESS on the release commit after the toolchain correction.
+- [GitHub repository](https://github.com/olssonsteve-ux/forge-ai-sef): PUBLIC, MIT license recognized.
+- [Release](https://github.com/olssonsteve-ux/forge-ai-sef/releases/tag/v1.0.0-rc.1):
+  published as prerelease, not latest stable. Wheel, sdist and checksum manifest uploaded.
+- Anonymous downloads of all three assets independently matched local SHA-256 values.
+- This completion record is a documentation follow-up on main; the release tag is not moved.
+- Stable v1.0.0 acceptance and V1-Q-01 remain open. Audio Recorder was not published or committed.

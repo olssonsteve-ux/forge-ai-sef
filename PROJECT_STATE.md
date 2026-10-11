@@ -2,7 +2,8 @@
 
 ## Status
 
-Forge Concept v1.0 is frozen; public testing publication 1.0.0rc1 is in preparation.
+Forge Concept v1.0 is frozen. MIT public testing release 1.0.0rc1 (v1.0.0-rc.1) is published
+on GitHub; repository and downloads are accessible without authentication.
 Bounded independent code review PASS; stable release acceptance remains BLOCKED
 by real Codex runtime qualification (V1-Q-01). Full 258 tests, lint and format pass. Public-candidate package checks and independent review pass.
 The current work is governed by ADR 0019 and the consolidated
@@ -10,7 +11,8 @@ The current work is governed by ADR 0019 and the consolidated
 
 ## Current Version
 
-Latest completed release: v0.4.1. Public testing package: 1.0.0rc1, tag v1.0.0-rc.1.
+Latest stable historical baseline: v0.4.1. Current public testing release: 1.0.0rc1,
+tag v1.0.0-rc.1. Hosted Windows CI passed for the release commit.
 Publication state is recorded in docs/release/checklist-1.0.0-rc.1.md.
 
 ## Planned Release
@@ -66,6 +68,8 @@ No finding was renamed or closed to obtain stable-release scope.
 
 ## Repository baseline
 
-Existing repository C:/Users/olsso/Documents/forge-ai-sef, main,
-e8d8ed05d23e5229109139836101d036fb27a7e1. Authorized uncommitted changes retained; no reset.
+Existing repository C:/Users/olsso/Documents/forge-ai-sef, main.
+Publication started from e8d8ed05d23e5229109139836101d036fb27a7e1; no reset or history rewrite.
+Public release tag points to 637449b573d8001da685ecf042f8eee59df9b723. Work is committed and pushed;
+subsequent publication-record updates are on main. Read Git for the current HEAD.
 Audio Recorder is a separate repository; its implementation evidence is not Forge release evidence.

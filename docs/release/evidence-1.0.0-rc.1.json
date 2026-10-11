@@ -41,5 +41,18 @@
     "tests": "258 passed",
     "lint": "PASS",
     "format": "FAIL with unbounded Ruff 0.17.0; pinned to locally verified 0.15.20"
+  },
+  "publication_commit": "637449b573d8001da685ecf042f8eee59df9b723",
+  "hosted_ci": {
+    "id": 38144266032,
+    "conclusion": "success",
+    "url": "https://github.com/olssonsteve-ux/forge-ai-sef/actions/runs/38144266032"
+  },
+  "published": true,
+  "repository_visibility": "public",
+  "anonymous_downloads": {
+    "forge_ai_sef-1.0.0rc1-py3-none-any.whl": "29fd6b4b4ad382ebf16fa77a7ae8c0df4530f485e087bd2b3fa87d47dfd0210c",
+    "forge_ai_sef-1.0.0rc1.tar.gz": "9e1126766aeb55696f01ce9335296d5ff5cb39fd2fbdfdf7f84250aac60dc2a5",
+    "SHA256SUMS.txt": "1d2713535d57a7dcd63fa575f5b49c336d21444f6faf0f5d18348dcfd3ab5f1e"
   }
 }

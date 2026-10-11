@@ -7,7 +7,7 @@ Do not bootstrap another project or confuse the separate Audio Recorder reposito
 
 ## Current Repository State
 
-Forge Concept v1.0 is frozen. Public testing version is 1.0.0rc1 (v1.0.0-rc.1).
+Forge Concept v1.0 is frozen. Published MIT public testing version is 1.0.0rc1 (v1.0.0-rc.1).
 The owner now authorizes Forge commit/push/public access and MIT licensing.
 [PROJECT_STATE](PROJECT_STATE.md) owns current status; do not duplicate it here.
 
